@@ -272,11 +272,11 @@ jobs:
           else
             echo "Building debug APK"
             ./gradlew assembleDebug
-            # Debug also builds both flavors; standard (arm) is the one most likely to be tested on a
-            # real device. Surface it as the primary artifact; x86_64 debug is still in its folder.
             SRC=$(ls app/build/outputs/apk/standard/debug/*.apk | head -n1)
+            X86_SRC=$(ls app/build/outputs/apk/x86_64/debug/*.apk | head -n1)
             echo "Built: $SRC"
             echo "ARM_SRC=$SRC" >> "$GITHUB_ENV"
+            echo "X86_SRC=$X86_SRC" >> "$GITHUB_ENV"
           fi
 
       - name: Name the APK (HanTV-v<version>)
@@ -337,9 +337,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           name: HanTV ${{ github.ref_name }}
-          files: |
-            dist/${{ env.APK_OUT }}
-            dist/HanTV-TV.apk
-            dist/HanTV-x86_64-v${{ steps.ver.outputs.name }}.apk
+          files: dist/*.apk
           body_path: dist/RELEASE_NOTES.md
           generate_release_notes: false
