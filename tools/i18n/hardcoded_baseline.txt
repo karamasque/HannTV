@@ -54,6 +54,8 @@
 1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	Xtream
 1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	Xtream Codes bağlantısı algılandı ve dolduruldu.
 1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	ayrıştırıldı
+1	app/src/main/java/tv/own/owntv/features/setup/SetupWizard.kt	drawable
+1	app/src/main/java/tv/own/owntv/features/setup/SetupWizard.kt	✓
 5	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	\0
 2	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	Action
 1	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	All Channels
@@ -86,8 +88,12 @@
 1	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	webp
 1	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	webvtt
 1	app/src/main/java/tv/own/owntv/features/shell/components/MediaDetailsScreen.kt	\0
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	\0
 6	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	#
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	drawable
 1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	github.com/karamasque/HannTV
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	theme_presets
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	✓
 1	app/src/main/java/tv/own/owntv/player/MpvVideoSurface.kt	DEPRECATION
 1	app/src/main/java/tv/own/owntv/ui/components/ColorPicker.kt	#%06X
 1	app/src/main/java/tv/own/owntv/ui/components/OwnTVAvatar.kt	\0
@@ -3695,6 +3701,35 @@
 1	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	sourceId=$sourceId catalog sync finished; building Now Trending force=$force
 1	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	trending-refresh
 1	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	trending-refresh-source-$sourceId
+3	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#007AFF
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#06B6D4
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#10B981
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#1BC9B8
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#219BF0
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#22C55E
+2	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#22D3EE
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#64D2FF
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#7EB6FF
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#94A3B8
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	$wallpaperDrawableName$ext
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	.jpg
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	.webp
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	backgrounds
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	drawable
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	jpg
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_amoled
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_dark
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_dark_flat
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_fly_ui
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_glass_gri
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_glassmorphism
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_ios27
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_light_glass
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_mac_tema
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_macos_glass
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_macos_tv
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_mint
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	wallpaper_semc
 1	core/src/main/java/tv/own/owntv/core/theme/Palette.kt	#
 1	core/src/main/java/tv/own/owntv/core/trending/TrendingAvailability.kt	no VOD content
 1	core/src/main/java/tv/own/owntv/core/trending/TrendingMatcher.kt	\0

@@ -33,8 +33,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -88,7 +90,7 @@ import tv.own.owntv.ui.components.summaryText
 import tv.own.owntv.ui.components.warningText
 import tv.own.owntv.ui.theme.HanTVTheme
 
-private enum class Step { WELCOME, DISPLAY_SIZE, DISCLAIMER, SETUP_CHOICE, SYNC_DEVICE, CREATE_PROFILE, ADD_CONTENT, ADD_SOURCE_CHOOSER, ADD_SOURCE_REMOTE, ADD_SOURCE, IMPORTING, EXISTING, IMPORT_BACKUP_CHOOSER, IMPORT_BACKUP_REMOTE, IMPORT_BACKUP }
+private enum class Step { WELCOME, DISPLAY_SIZE, THEME, DISCLAIMER, SETUP_CHOICE, SYNC_DEVICE, CREATE_PROFILE, ADD_CONTENT, ADD_SOURCE_CHOOSER, ADD_SOURCE_REMOTE, ADD_SOURCE, IMPORTING, EXISTING, IMPORT_BACKUP_CHOOSER, IMPORT_BACKUP_REMOTE, IMPORT_BACKUP }
 
 /**
  * Onboarding for one profile. [firstRun] shows language/welcome/disclaimer; otherwise it starts at profile
@@ -118,13 +120,15 @@ fun Onboarding(firstRun: Boolean, onDone: (Long?) -> Unit, onCancel: () -> Unit,
     Box(modifier = modifier.fillMaxSize().background(HanTVTheme.colors.background)) {
         when (step) {
             Step.WELCOME -> WelcomeScreen(onNext = { step = Step.DISPLAY_SIZE })
-            // Before the disclaimer, which is the first screen with a paragraph of real text on it:
-            // if the interface is too small to read, that is the screen it first hurts on (#179).
             Step.DISPLAY_SIZE -> DisplaySizeScreen(
-                onNext = { step = Step.DISCLAIMER },
+                onNext = { step = Step.THEME },
                 onBack = { step = Step.WELCOME },
             )
-            Step.DISCLAIMER -> DisclaimerScreen(onAgree = { step = Step.SETUP_CHOICE }, onBack = { step = Step.DISPLAY_SIZE })
+            Step.THEME -> ThemeSetupScreen(
+                onNext = { step = Step.DISCLAIMER },
+                onBack = { step = Step.DISPLAY_SIZE },
+            )
+            Step.DISCLAIMER -> DisclaimerScreen(onAgree = { step = Step.SETUP_CHOICE }, onBack = { step = Step.THEME })
             // First decision: start fresh or bring everything back from a backup (profiles included —
             // no point creating a profile first that the restore would replace).
             Step.SETUP_CHOICE -> SetupChoiceScreen(
@@ -476,6 +480,155 @@ private fun SetupStepButton(
             style = MaterialTheme.typography.headlineMedium,
             color = if (dimmed) colors.outline else colors.onSurface,
         )
+    }
+}
+
+@Composable
+private fun ThemeSetupScreen(onNext: () -> Unit, onBack: () -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val settingsRepo = remember {
+        org.koin.java.KoinJavaComponent.get<tv.own.owntv.core.settings.SettingsRepository>(
+            tv.own.owntv.core.settings.SettingsRepository::class.java
+        )
+    }
+    val scope = rememberCoroutineScope()
+    var selectedThemeId by remember { mutableStateOf(tv.own.owntv.core.theme.HanTVThemePresetId.MACOS_GLASS) }
+    val colors = HanTVTheme.colors
+    val nextFr = remember { FocusRequester() }
+
+    BackHandler { onBack() }
+
+    MainSetupPage(contentScale = FULL_SETUP_CONTENT_SCALE) {
+        Text(
+            stringResource(R.string.theme_setup_title),
+            style = MaterialTheme.typography.headlineLarge,
+            color = colors.onSurface,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.theme_setup_desc),
+            style = MaterialTheme.typography.bodyLarge,
+            color = colors.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(max = 600.dp),
+        )
+        Spacer(Modifier.height(16.dp))
+
+        androidx.compose.foundation.lazy.LazyRow(
+            modifier = Modifier.fillMaxWidth().height(170.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 24.dp, vertical = 8.dp)
+        ) {
+            items(tv.own.owntv.core.theme.HanTVThemePresets.ALL, key = { it.id }) { preset ->
+                val isSelected = selectedThemeId == preset.id
+                val resId = remember(preset.wallpaperDrawableName) {
+                    context.resources.getIdentifier(preset.wallpaperDrawableName, "drawable", context.packageName)
+                }
+                FocusableSurface(
+                    onClick = {
+                        selectedThemeId = preset.id
+                        scope.launch { preset.applyTheme(context, settingsRepo) }
+                    },
+                    selected = isSelected,
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.width(180.dp).height(150.dp),
+                    surface = GlassSurface.CARDS,
+                ) { _ ->
+                    Box(Modifier.fillMaxSize()) {
+                        if (resId != 0) {
+                            androidx.compose.foundation.Image(
+                                painter = androidx.compose.ui.res.painterResource(resId),
+                                contentDescription = stringResource(preset.titleRes),
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                            )
+                        } else {
+                            Box(Modifier.fillMaxSize().background(Color(0xFF1E2430)))
+                        }
+
+                        // Gradient overlay
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors = listOf(Color.Transparent, Color(0xCC000000), Color(0xEE000000)),
+                                        startY = 40f
+                                    )
+                                )
+                        )
+
+                        // Selection Checkmark badge
+                        if (isSelected) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .size(22.dp)
+                                    .clip(RoundedCornerShape(11.dp))
+                                    .background(colors.primary)
+                                    .align(Alignment.TopEnd),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text("✓", color = colors.onPrimary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
+
+                        // Bottom Title + Description & Accent strip
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .fillMaxWidth()
+                        ) {
+                            Column(Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                                Text(
+                                    stringResource(preset.titleRes),
+                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = Color.White,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    stringResource(preset.subtitleRes),
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+                                    color = Color(0xFFD0D6E0),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                            // Bottom Accent Stripe
+                            val accentColor = remember(preset.accentColorHex) {
+                                runCatching { Color(android.graphics.Color.parseColor(preset.accentColorHex)) }.getOrDefault(Color.Cyan)
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(4.dp)
+                                    .background(accentColor)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(20.dp))
+        SetupAccentRule()
+        Spacer(Modifier.height(20.dp))
+
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            HanTVButton(
+                stringResource(R.string.common_back),
+                onClick = onBack,
+                modifier = Modifier.width(140.dp),
+                style = HanTVButtonStyle.SECONDARY,
+            )
+            HanTVButton(
+                stringResource(R.string.setup_continue),
+                onClick = onNext,
+                modifier = Modifier.width(220.dp).focusRequester(nextFr),
+            )
+        }
     }
 }
 
