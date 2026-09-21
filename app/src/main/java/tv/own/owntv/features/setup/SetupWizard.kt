@@ -131,18 +131,16 @@ fun Onboarding(firstRun: Boolean, onDone: (Long?) -> Unit, onCancel: () -> Unit,
 
     Box(modifier = modifier.fillMaxSize()) {
         when (step) {
-            Step.WELCOME -> WelcomeScreen(onNext = { step = Step.DISPLAY_SIZE })
-            // Before the disclaimer, which is the first screen with a paragraph of real text on it:
-            // if the interface is too small to read, that is the screen it first hurts on (#179).
-            Step.DISPLAY_SIZE -> DisplaySizeScreen(
-                onNext = { step = Step.THEME },
+            Step.WELCOME -> WelcomeScreen(onNext = { step = Step.THEME })
+            Step.THEME -> ThemeSetupScreen(
+                onNext = { step = Step.DISPLAY_SIZE },
                 onBack = { step = Step.WELCOME },
             )
-            Step.THEME -> ThemeSetupScreen(
+            Step.DISPLAY_SIZE -> DisplaySizeScreen(
                 onNext = { step = Step.DISCLAIMER },
-                onBack = { step = Step.DISPLAY_SIZE },
+                onBack = { step = Step.THEME },
             )
-            Step.DISCLAIMER -> DisclaimerScreen(onAgree = { step = Step.SETUP_CHOICE }, onBack = { step = Step.THEME })
+            Step.DISCLAIMER -> DisclaimerScreen(onAgree = { step = Step.SETUP_CHOICE }, onBack = { step = Step.DISPLAY_SIZE })
             // First decision: start fresh or bring everything back from a backup (profiles included —
             // no point creating a profile first that the restore would replace).
             Step.SETUP_CHOICE -> SetupChoiceScreen(
