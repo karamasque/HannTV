@@ -1,0 +1,125 @@
+package tv.own.owntv.features.setup
+
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
+import androidx.tv.material3.MaterialTheme
+import androidx.tv.material3.Text
+import tv.own.owntv.R
+import tv.own.owntv.ui.components.FocusableSurface
+import tv.own.owntv.ui.components.HanTVButton
+import tv.own.owntv.ui.components.HanTVButtonStyle
+import tv.own.owntv.ui.components.HanTVIcon
+import tv.own.owntv.ui.components.roundedPanel
+import tv.own.owntv.core.theme.GlassSurface
+import tv.own.owntv.ui.theme.HanTVTheme
+
+/**
+ * First step of "Add source": pick **Remote** (fill the form on another device over the LAN) or **Manual**
+ * (type Xtream / M3U / Stalker here with the remote). Shared by the setup wizard and Settings → Manage
+ * sources so both entry points offer the same choice.
+ */
+@Composable
+fun AddSourceChooserScreen(
+    onRemote: () -> Unit,
+    onManual: () -> Unit,
+    onBack: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = HanTVTheme.colors
+    val firstFocus = remember { FocusRequester() }
+    LaunchedEffectRequestFocus(firstFocus)
+    BackHandler { onBack() }
+
+    Box(modifier.fillMaxSize().roundedPanel().background(colors.background), contentAlignment = Alignment.Center) {
+        Column(
+            modifier = Modifier.verticalScroll(rememberScrollState()).padding(40.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Text(stringResource(R.string.setup_add_source), style = MaterialTheme.typography.headlineLarge, color = colors.onSurface)
+            Spacer(Modifier.height(6.dp))
+            Text(
+                stringResource(R.string.setup_add_source_description),
+                style = MaterialTheme.typography.bodyMedium,
+                color = colors.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(24.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                ChooserCard(
+                    icon = HanTVIcon.PLAYLIST,
+                    title = stringResource(R.string.setup_from_phone),
+                    subtitle = stringResource(R.string.setup_use_phone_same_wifi),
+                    onClick = onRemote,
+                    modifier = Modifier.focusRequester(firstFocus),
+                )
+                ChooserCard(
+                    icon = HanTVIcon.ADD,
+                    title = stringResource(R.string.setup_manual),
+                    subtitle = stringResource(R.string.setup_type_source_here),
+                    onClick = onManual,
+                )
+            }
+            Spacer(Modifier.height(24.dp))
+            HanTVButton(stringResource(R.string.common_back), onClick = onBack, style = HanTVButtonStyle.SECONDARY)
+        }
+    }
+}
+
+@Composable
+private fun ChooserCard(
+    icon: HanTVIcon,
+    title: String,
+    subtitle: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val colors = HanTVTheme.colors
+    FocusableSurface(
+        onClick = onClick,
+        modifier = modifier.size(width = 224.dp, height = 174.dp),
+        shape = RoundedCornerShape(22.dp),
+        focusedContainerColor = colors.surfaceContainerHighest,
+        unfocusedContainerColor = colors.surfaceContainerHigh,
+        contentAlignment = Alignment.Center,
+        surface = GlassSurface.CARDS,
+    ) { focused ->
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Box(
+                Modifier.size(56.dp).clip(RoundedCornerShape(16.dp)).background(colors.primaryContainer),
+                contentAlignment = Alignment.Center,
+            ) {
+                HanTVIcon(icon, tint = colors.onPrimaryContainer, modifier = Modifier.size(28.dp))
+            }
+            Spacer(Modifier.height(14.dp))
+            Text(title, style = MaterialTheme.typography.titleLarge, color = if (focused) colors.primary else colors.onSurface)
+            Spacer(Modifier.height(4.dp))
+            Text(subtitle, style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant, textAlign = TextAlign.Center)
+        }
+    }
+}
+
+@Composable
+private fun LaunchedEffectRequestFocus(fr: FocusRequester) {
+    androidx.compose.runtime.LaunchedEffect(Unit) { runCatching { fr.requestFocus() } }
+}

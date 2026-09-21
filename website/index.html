@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="tr" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HanTV - Android TV İçin Yeni Nesil Akıllı IPTV Oynatıcı</title>
+  <meta name="description" content="HanTV, Android TV, Google TV ve Fire TV için geliştirilmiş modern, hızlı, çift oynatma motorlu (mpv + ExoPlayer) açık kaynaklı IPTV oynatıcıdır." />
+  <meta name="keywords" content="HanTV, IPTV Player, Android TV IPTV, Xtream IPTV, M3U Player, Google TV, 4K IPTV, Açık Kaynak IPTV" />
+  
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="assets/img/icon.png" />
+  <link rel="apple-touch-icon" href="assets/img/icon.png" />
+
+  <!-- Open Graph / Social Media -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="HanTV - Android TV İçin Yeni Nesil IPTV Oynatıcı" />
+  <meta property="og:description" content="Çift oynatma motoru, 4K HDR desteği, 4'lü Multiview, çoklu profil ve modern cam tasarım." />
+  <meta property="og:image" content="assets/img/banner.png" />
+  <meta property="og:url" content="https://hanntv.netlify.app/" />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Ambient background glow elements -->
+  <div class="ambient-glow glow-1"></div>
+  <div class="ambient-glow glow-2"></div>
+  <div class="ambient-glow glow-3"></div>
+
+  <!-- Top Navigation -->
+  <header class="site-header" id="navbar">
+    <div class="container header-container">
+      <a href="#hero" class="brand-logo">
+        <img src="assets/img/logo.png" alt="HanTV Logo" class="logo-img" />
+      </a>
+
+      <nav class="main-nav" id="mainNav">
+        <ul class="nav-list">
+          <li><a href="#features" class="nav-link" data-i18n="nav_features">Özellikler</a></li>
+          <li><a href="#screenshots" class="nav-link" data-i18n="nav_screenshots">Ekran Görüntüleri</a></li>
+          <li><a href="#compatibility" class="nav-link" data-i18n="nav_devices">Cihazlar</a></li>
+          <li><a href="#install" class="nav-link" data-i18n="nav_install">Kurulum Rehberi</a></li>
+          <li><a href="#faq" class="nav-link" data-i18n="nav_faq">SSS</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-actions">
+        <!-- Language Switcher -->
+        <button class="lang-toggle-btn" id="langToggle" title="Dili Değiştir / Change Language">
+          <span class="lang-icon">🌐</span>
+          <span class="lang-text" id="langLabel">TR</span>
+        </button>
+
+        <!-- Telegram Link -->
+        <a href="https://t.me/hantvplayer" target="_blank" rel="noopener noreferrer" class="btn btn-secondary btn-icon" title="Telegram Topluluğu">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69a.2.2 0 00-.05-.18c-.06-.05-.14-.03-.21-.02-.09.02-1.49.95-4.22 2.79-.4.27-.76.41-1.08.4-.36-.01-1.04-.2-1.55-.37-.63-.2-1.12-.31-1.08-.66.02-.18.27-.36.75-.55 2.92-1.27 4.86-2.11 5.83-2.51 2.78-1.16 3.35-1.36 3.73-1.36.08 0 .27.02.39.12.1.08.13.19.14.27-.01.06.01.24 0 .37z"/>
+          </svg>
+          <span class="btn-text">Telegram</span>
+        </a>
+
+        <!-- Auth Buttons (Logged Out) -->
+        <div class="header-auth-btns" id="headerAuthBtns">
+          <button class="btn btn-secondary btn-sm" onclick="openAuthModal('login')">
+            <span class="icon-sm">👤</span> Giriş Yap
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="openAuthModal('signup')">
+            Kayıt Ol
+          </button>
+        </div>
+
+        <!-- User Menu (Logged In) -->
+        <div class="header-user-menu" id="headerUserMenu" style="display: none;">
+          <button class="user-avatar-btn" id="headerUserMenuBtn">
+            <div class="user-avatar-circle">👤</div>
+            <span class="user-name-text" id="headerUserName">Hesabım</span>
+            <span class="user-chevron">▼</span>
+          </button>
+          <div class="user-dropdown-menu glass-card" id="headerUserDropdown">
+            <div class="user-dropdown-header">
+              <strong id="dashUserEmail">kullanici@hantv.com</strong>
+              <span class="badge-free">Ücretsiz Üyelik</span>
+            </div>
+            <div class="user-dropdown-divider"></div>
+            <a href="javascript:void(0)" onclick="openDashboard('playlists')" class="user-dropdown-item">
+              <span>📋</span> Çalma Listelerim
+            </a>
+            <a href="javascript:void(0)" onclick="openDashboard('pair')" class="user-dropdown-item">
+              <span>📺</span> TV Cihaz Eşleştir
+            </a>
+            <a href="javascript:void(0)" onclick="openDashboard('account')" class="user-dropdown-item">
+              <span>⚙️</span> Hesap Ayarları
+            </a>
+            <div class="user-dropdown-divider"></div>
+            <a href="javascript:void(0)" onclick="handleLogout()" class="user-dropdown-item text-danger">
+              <span>🚪</span> Çıkış Yap
+            </a>
+          </div>
+        </div>
+
+        <!-- Download CTA -->
+        <a href="assets/downloads/HanTV.apk" download="HanTV.apk" class="btn btn-primary btn-cta-header" id="headerDownloadBtn">
+          <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+          </svg>
+          <span data-i18n="header_download">v5.0.0 İndir</span>
+        </a>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="mobile-menu-btn" id="mobileMenuToggle" aria-label="Menüyü Aç">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="hero-section" id="hero">
+      <div class="container hero-container">
+        <div class="hero-content">
+          <div class="hero-badge">
+            <span class="badge-dot"></span>
+            <span class="badge-text" data-i18n="hero_badge">HanTV v5.0.0 Yayınlandı • Android TV İçin Özel</span>
+          </div>
+
+          <h1 class="hero-title">
+            <span data-i18n="hero_title_1">Android TV İçin</span>
+            <span class="gradient-text" data-i18n="hero_title_gradient">En Hızlı & Modern</span>
+            <span data-i18n="hero_title_2">IPTV Oynatıcı</span>
+          </h1>
+
+          <p class="hero-desc" data-i18n="hero_desc">
+            Çift oynatma motoru (mpv + ExoPlayer) ile donatılmış, 4K HDR destekli, modern cam arayüzlü ve kumanda odaklı açık kaynaklı IPTV oynatıcınız. Kendi M3U, Xtream veya Stalker listenizi ekleyin ve TV keyfinizi katlayın.
+          </p>
+
+          <div class="hero-actions">
+            <a href="assets/downloads/HanTV.apk" download="HanTV.apk" class="btn btn-primary btn-large glow-btn" id="heroDownloadBtn">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+              </svg>
+              <div class="btn-double-text">
+                <span class="btn-subtext" data-i18n="hero_download_sub">Ücretsiz & Direkt APK</span>
+                <span class="btn-maintext" data-i18n="hero_download_main">HanTV v5.0.0 İndir</span>
+              </div>
+            </a>
+
+            <a href="https://github.com/ahXN00/HanTV" target="_blank" rel="noopener noreferrer" class="btn btn-glass btn-large">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+              </svg>
+              <span data-i18n="hero_github">GitHub Projesi</span>
+            </a>
+          </div>
+
+          <div class="hero-stats">
+            <div class="stat-pill">
+              <span class="stat-icon">⚡</span>
+              <span class="stat-text" data-i18n="stat_1">Çift Motor (mpv + ExoPlayer)</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-icon">🎬</span>
+              <span class="stat-text" data-i18n="stat_2">4K 60FPS HDR & Dolby</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-icon">🔲</span>
+              <span class="stat-text" data-i18n="stat_3">4'lü Multiview Desteği</span>
+            </div>
+            <div class="stat-pill">
+              <span class="stat-icon">🛡️</span>
+              <span class="stat-text" data-i18n="stat_4">%100 Reklamsız & GPLv3</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TV Mockup Showcase -->
+        <div class="hero-visual">
+          <div class="tv-mockup">
+            <div class="tv-frame">
+              <div class="tv-screen">
+                <img src="assets/screenshots/Home.png" alt="HanTV Ana Ekran Arayüzü" class="tv-screen-img" id="heroTvImg" />
+                <div class="tv-glare"></div>
+                <div class="tv-live-badge">
+                  <span class="pulse-circle"></span> 4K HDR • LIVE
+                </div>
+              </div>
+              <div class="tv-bottom-bar">
+                <div class="tv-brand-dot"></div>
+              </div>
+            </div>
+            <div class="tv-stand"></div>
+
+            <!-- Floating feature cards on sides -->
+            <div class="floating-card float-left">
+              <div class="card-icon">⚡</div>
+              <div class="card-info">
+                <strong>Anında Başlatma</strong>
+                <span>ExoPlayer Media3 Engine</span>
+              </div>
+            </div>
+
+            <div class="floating-card float-right">
+              <div class="card-icon">🔄</div>
+              <div class="card-info">
+                <strong>Kolay Kurulum</strong>
+                <span>Telefon ile QR & PIN</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Important Notice Banner -->
+    <section class="notice-section">
+      <div class="container">
+        <div class="notice-box glass-card">
+          <div class="notice-icon">ℹ️</div>
+          <div class="notice-content">
+            <h4 data-i18n="notice_title">Önemli Hatırlatma & Yasal Bilgilendirme</h4>
+            <p data-i18n="notice_desc">
+              HanTV yalnızca bir medya oynatıcıdır. Uygulama içerisinde hiçbir kanal, yayın, dizi veya film bulunmamaktadır ve satışı yapılmamaktadır. Kullanıcılar kendi yasal IPTV aboneliklerini (M3U, Xtream, Stalker) ekleyerek kullanır.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features-section" id="features">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="features_tag">Benzersiz Yetenekler</span>
+          <h2 class="section-title" data-i18n="features_title">Neden HanTV Tercih Etmelisiniz?</h2>
+          <p class="section-subtitle" data-i18n="features_subtitle">
+            Android TV deneyimini baştan tanımlayan en gelişmiş oynatma motorları ve şık arayüz özellikleri.
+          </p>
+        </div>
+
+        <div class="features-grid">
+          <!-- Feature 1 -->
+          <div class="feature-card glass-card">
+            <div class="feature-icon-wrapper bg-cyan">
+              <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="f1_title">Çift Oynatma Motoru</h3>
+            <p class="feature-text" data-i18n="f1_desc">
+              <strong>libmpv</strong> (FFmpeg) ile en zorlu kodekleri ve formatları sorunsuz açın; <strong>ExoPlayer</strong> (Media3) ile canlı yayınlara anında bağlanın. Otomatik motor geçişi veya kanal bazlı seçim imkanı.
+            </p>
+          </div>
+
+          <!-- Feature 2 -->
+          <div class="feature-card glass-card">
+            <div class="feature-icon-wrapper bg-purple">
+              <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"></rect>
+                <line x1="7" y1="2" x2="7" y2="22"></line>
+                <line x1="17" y1="2" x2="17" y2="22"></line>
+                <line x1="2" y1="12" x2="22" y2="12"></line>
+                <line x1="2" y1="7" x2="7" y2="7"></line>
+                <line x1="2" y1="17" x2="7" y2="17"></line>
+                <line x1="17" y1="17" x2="22" y2="17"></line>
+                <line x1="17" y1="7" x2="22" y2="7"></line>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="f2_title">4K HDR & Surround Ses</h3>
+            <p class="feature-text" data-i18n="f2_desc">
+              Doğrudan donanım hızlandırmalı 4K HDR ve Dolby Vision işleme, otomatik kare hızı (Auto Frame Rate), surround ses passthrough ve düşük sesli yayınlar için %150 Ses Güçlendirme (Volume Boost).
+            </p>
+          </div>
+
+          <!-- Feature 3 -->
+          <div class="feature-card glass-card">
+            <div class="feature-icon-wrapper bg-pink">
+              <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="3" width="7" height="7"></rect>
+                <rect x="14" y="3" width="7" height="7"></rect>
+                <rect x="14" y="14" width="7" height="7"></rect>
+                <rect x="3" y="14" width="7" height="7"></rect>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="f3_title">4'lü Çoklu Ekran (Multiview)</h3>
+            <p class="feature-text" data-i18n="f3_desc">
+              Maç günlerinde veya haber takiplerinde aynı anda 4 farklı canlı kanalı tek ekranda izleyin. Kumanda ile kanallar arası anında ses geçişi yapın veya tam ekrana büyütün.
+            </p>
+          </div>
+
+          <!-- Feature 4 -->
+          <div class="feature-card glass-card">
+            <div class="feature-icon-wrapper bg-emerald">
+              <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 20h9"></path>
+                <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="f4_title">Akıllı EPG & 7 Günlük Catch-Up</h3>
+            <p class="feature-text" data-i18n="f4_desc">
+              XMLTV EPG rehberi, canlı zaman çizgisi, yayın hatırlatıcıları ve 7 güne kadar geriye dönük yayınları tekrar izleme (Catch-up) ve canlı yayını durdurup geri sarma desteği.
+            </p>
+          </div>
+
+          <!-- Feature 5 -->
+          <div class="feature-card glass-card">
+            <div class="feature-icon-wrapper bg-amber">
+              <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="f5_title">Çoklu Profil & Çocuk Kilidi</h3>
+            <p class="feature-text" data-i18n="f5_desc">
+              Her aile bireyi için bağımsız favori listeleri, izleme geçmişi ve kaldığı yerden devam etme noktaları. PIN korumalı yetişkin kategorileri ve güvenli Çocuk Modu.
+            </p>
+          </div>
+
+          <!-- Feature 6 -->
+          <div class="feature-card glass-card">
+            <div class="feature-icon-wrapper bg-blue">
+              <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <line x1="12" y1="18" x2="12.01" y2="18"></line>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="f6_title">Telefondan QR / Wi-Fi İle Kurulum</h3>
+            <p class="feature-text" data-i18n="f6_desc">
+              TV kumandasıyla uzun linkler ve şifreler yazmaya son! Ekranda beliren QR kodu telefonunuzla okutun veya aynı Wi-Fi ağındaki tarayıcıdan anında listenizi ekleyin.
+            </p>
+          </div>
+
+          <!-- Feature 7 -->
+          <div class="feature-card glass-card">
+            <div class="feature-icon-wrapper bg-teal">
+              <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M14.31 8l5.74 9.94M9.69 8h11.48M7.38 12l5.74-9.94M9.69 16L3.95 6.06M14.31 16H2.83M16.62 12l-5.74 9.94"></path>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="f7_title">TMDB & Altyazı Entegrasyonu</h3>
+            <p class="feature-text" data-i18n="f7_desc">
+              The Movie Database (TMDB) ile filmler ve diziler için Türkçe afişler, açıklamalar, puanlar ve fragmanlar. Dahili OpenSubtitles entegrasyonu ile tek tuşla altyazı arama.
+            </p>
+          </div>
+
+          <!-- Feature 8 -->
+          <div class="feature-card glass-card">
+            <div class="feature-icon-wrapper bg-indigo">
+              <svg class="feat-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <h3 class="feature-title" data-i18n="f8_title">Özel DNS & DRM Desteği</h3>
+            <p class="feature-text" data-i18n="f8_desc">
+              Dahili Cloudflare, Google, Quad9 DNS ve DNS-over-HTTPS (DoH) desteği ile engelleri aşın. Widevine ve ClearKey DRM korumalı yayınları doğrudan oynatabilme.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screenshots Showcase Section -->
+    <section class="screenshots-section" id="screenshots">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="shots_tag">Görsel Tur</span>
+          <h2 class="section-title" data-i18n="shots_title">Şık ve Kusursuz TV Arayüzü</h2>
+          <p class="section-subtitle" data-i18n="shots_subtitle">
+            Jetpack Compose for TV ile baştan sona büyük ekranlar ve uzaktan kumandalar için tasarlandı.
+          </p>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="shots-tabs">
+          <button class="shot-tab-btn active" data-filter="all" data-i18n="tab_all">Tüm Ekranlar</button>
+          <button class="shot-tab-btn" data-filter="home" data-i18n="tab_home">Ana Sayfa</button>
+          <button class="shot-tab-btn" data-filter="live" data-i18n="tab_live">Canlı TV & EPG</button>
+          <button class="shot-tab-btn" data-filter="vod" data-i18n="tab_vod">Film & Dizi</button>
+          <button class="shot-tab-btn" data-filter="settings" data-i18n="tab_settings">Ayarlar & Profil</button>
+        </div>
+
+        <!-- Screenshots Grid -->
+        <div class="shots-grid" id="shotsGrid">
+          <!-- Shot 1 -->
+          <div class="shot-card" data-category="home" onclick="openLightbox('assets/screenshots/Home.png', 'Ana Sayfa - Trendler & Devam Edenler')">
+            <div class="shot-img-wrap">
+              <img src="assets/screenshots/Home.png" alt="HanTV Ana Sayfa" loading="lazy" />
+              <div class="shot-overlay">
+                <span class="zoom-icon">🔍</span>
+                <span class="shot-name" data-i18n="shot_home_label">Modern Ana Sayfa Arayüzü</span>
+              </div>
+            </div>
+            <div class="shot-caption">
+              <h4>Ana Sayfa</h4>
+              <p>İzlemeye devam et ve TMDB trendleri tek ekranda.</p>
+            </div>
+          </div>
+
+          <!-- Shot 2 -->
+          <div class="shot-card" data-category="live" onclick="openLightbox('assets/screenshots/LiveTV_with_PreviewON.png', 'Canlı TV & Canlı Önizleme')">
+            <div class="shot-img-wrap">
+              <img src="assets/screenshots/LiveTV_with_PreviewON.png" alt="Canlı TV Önizleme" loading="lazy" />
+              <div class="shot-overlay">
+                <span class="zoom-icon">🔍</span>
+                <span class="shot-name" data-i18n="shot_live_label">Canlı Önizleme & Kanal Listesi</span>
+              </div>
+            </div>
+            <div class="shot-caption">
+              <h4>Canlı TV & Önizleme</h4>
+              <p>Kanal değiştirirken anlık canlı video önizleme desteği.</p>
+            </div>
+          </div>
+
+          <!-- Shot 3 -->
+          <div class="shot-card" data-category="live" onclick="openLightbox('assets/screenshots/EPG_loaded.png', 'Detaylı TV Rehberi (EPG)')">
+            <div class="shot-img-wrap">
+              <img src="assets/screenshots/EPG_loaded.png" alt="TV Rehberi EPG" loading="lazy" />
+              <div class="shot-overlay">
+                <span class="zoom-icon">🔍</span>
+                <span class="shot-name" data-i18n="shot_epg_label">Zengin EPG TV Rehberi</span>
+              </div>
+            </div>
+            <div class="shot-caption">
+              <h4>TV Rehberi (EPG)</h4>
+              <p>Program akışları, yayın özetleri ve canlı zaman çizgisi.</p>
+            </div>
+          </div>
+
+          <!-- Shot 4 -->
+          <div class="shot-card" data-category="vod" onclick="openLightbox('assets/screenshots/Movies.png', 'Film Kataloğu & TMDB Detayları')">
+            <div class="shot-img-wrap">
+              <img src="assets/screenshots/Movies.png" alt="Film Kataloğu" loading="lazy" />
+              <div class="shot-overlay">
+                <span class="zoom-icon">🔍</span>
+                <span class="shot-name" data-i18n="shot_movies_label">Film & VOD Kütüphanesi</span>
+              </div>
+            </div>
+            <div class="shot-caption">
+              <h4>Film Kütüphanesi</h4>
+              <p>Kategorilere ayrılmış, yüksek çözünürlüklü afişler ve filtreler.</p>
+            </div>
+          </div>
+
+          <!-- Shot 5 -->
+          <div class="shot-card" data-category="vod" onclick="openLightbox('assets/screenshots/Series_Episodes.png', 'Dizi & Bölüm Seçimi')">
+            <div class="shot-img-wrap">
+              <img src="assets/screenshots/Series_Episodes.png" alt="Diziler ve Bölümler" loading="lazy" />
+              <div class="shot-overlay">
+                <span class="zoom-icon">🔍</span>
+                <span class="shot-name" data-i18n="shot_series_label">Dizi Sezon & Bölüm Rehberi</span>
+              </div>
+            </div>
+            <div class="shot-caption">
+              <h4>Diziler & Sezonlar</h4>
+              <p>Sonraki bölümü otomatik oynatma ve bölüm açıklamaları.</p>
+            </div>
+          </div>
+
+          <!-- Shot 6 -->
+          <div class="shot-card" data-category="settings" onclick="openLightbox('assets/screenshots/Profile_Selection.png', 'Çoklu Profil Seçimi')">
+            <div class="shot-img-wrap">
+              <img src="assets/screenshots/Profile_Selection.png" alt="Profil Seçimi" loading="lazy" />
+              <div class="shot-overlay">
+                <span class="zoom-icon">🔍</span>
+                <span class="shot-name" data-i18n="shot_profile_label">Çoklu Kullanıcı Profilleri</span>
+              </div>
+            </div>
+            <div class="shot-caption">
+              <h4>Profil Seçimi</h4>
+              <p>Kişiselleştirilmiş deneyim ve PIN korumalı çocuk profili.</p>
+            </div>
+          </div>
+
+          <!-- Shot 7 -->
+          <div class="shot-card" data-category="settings" onclick="openLightbox('assets/screenshots/Settings_Main.png', 'Kapsamlı Ayarlar Menüsü')">
+            <div class="shot-img-wrap">
+              <img src="assets/screenshots/Settings_Main.png" alt="Gelişmiş Ayarlar" loading="lazy" />
+              <div class="shot-overlay">
+                <span class="zoom-icon">🔍</span>
+                <span class="shot-name" data-i18n="shot_settings_label">Cam Temalı Gelişmiş Ayarlar</span>
+              </div>
+            </div>
+            <div class="shot-caption">
+              <h4>Gelişmiş Ayarlar</h4>
+              <p>Oynatıcı motoru, kumanda tuş atama, ses yükseltme ve DNS ayarları.</p>
+            </div>
+          </div>
+
+          <!-- Shot 8 -->
+          <div class="shot-card" data-category="vod" onclick="openLightbox('assets/screenshots/Downloads.png', 'Çevrimdışı İndirilenler & Kayıtlar')">
+            <div class="shot-img-wrap">
+              <img src="assets/screenshots/Downloads.png" alt="İndirilenler" loading="lazy" />
+              <div class="shot-overlay">
+                <span class="zoom-icon">🔍</span>
+                <span class="shot-name" data-i18n="shot_downloads_label">Çevrimdışı İndirme Yöneticisi</span>
+              </div>
+            </div>
+            <div class="shot-caption">
+              <h4>İndirilenler & Kayıt</h4>
+              <p>İçerikleri yerel depolamaya indirin veya canlı yayını kaydedin.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Compatibility Section -->
+    <section class="compatibility-section" id="compatibility">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="compat_tag">Geniş Uyumluluk</span>
+          <h2 class="section-title" data-i18n="compat_title">Tüm Akıllı TV ve TV Box Cihazlarınızda</h2>
+          <p class="section-subtitle" data-i18n="compat_subtitle">
+            Android TV 5.0 (Lollipop) ve üzerindeki tüm resmi veya kutu TV cihazlarıyla %100 tam uyumlu.
+          </p>
+        </div>
+
+        <div class="devices-grid">
+          <div class="device-card glass-card">
+            <div class="device-icon">📺</div>
+            <h3 data-i18n="dev_1_title">Android & Google TV</h3>
+            <p data-i18n="dev_1_desc">Sony, Philips, TCL, Vestel, Toshiba, Xiaomi TV ve Google TV destekli tüm televizyonlar.</p>
+          </div>
+
+          <div class="device-card glass-card">
+            <div class="device-icon">📦</div>
+            <h3 data-i18n="dev_2_title">TV Box & Medya Oynatıcılar</h3>
+            <p data-i18n="dev_2_desc">Xiaomi Mi Box / TV Stick, Mecool, Homatics, Nvidia Shield TV, Nokia Box ve tüm Android TV kutuları.</p>
+          </div>
+
+          <div class="device-card glass-card">
+            <div class="device-icon">🔥</div>
+            <h3 data-i18n="dev_3_title">Amazon Fire TV</h3>
+            <p data-i18n="dev_3_desc">Fire TV Stick 4K, 4K Max, Lite ve Fire TV Cube cihazlarına Downloader ile anında yüklenir.</p>
+          </div>
+
+          <div class="device-card glass-card">
+            <div class="device-icon">📱</div>
+            <h3 data-i18n="dev_4_title">Kolay Telefon Entegrasyonu</h3>
+            <p data-i18n="dev_4_desc">Kurulum aşamasında telefonunuzdaki kamerayla QR okutarak çalma listesi bilgilerini TV'ye anında aktarın.</p>
+          </div>
+        </div>
+
+        <!-- Protocol & Format Badges -->
+        <div class="protocols-bar glass-card">
+          <div class="proto-title" data-i18n="proto_label">Desteklenen Kaynak & Formatlar:</div>
+          <div class="proto-tags">
+            <span class="proto-tag">Xtream Codes API</span>
+            <span class="proto-tag">M3U / M3U8 Playlist</span>
+            <span class="proto-tag">Stalker / Ministra MAC</span>
+            <span class="proto-tag">XMLTV (EPG)</span>
+            <span class="proto-tag">libmpv (FFmpeg)</span>
+            <span class="proto-tag">ExoPlayer (Media3)</span>
+            <span class="proto-tag">Widevine & ClearKey DRM</span>
+            <span class="proto-tag">HLS / DASH / TS</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Installation Guide Section -->
+    <section class="install-section" id="install">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="install_tag">Adım Adım</span>
+          <h2 class="section-title" data-i18n="install_title">HanTV TV'ye Nasıl Yüklenir?</h2>
+          <p class="section-subtitle" data-i18n="install_subtitle">
+            Cihazınıza en uygun yöntemi seçerek birkaç dakika içinde HanTV'yi kullanmaya başlayın.
+          </p>
+        </div>
+
+        <div class="install-container glass-card">
+          <!-- Method Tabs -->
+          <div class="install-tabs">
+            <button class="inst-tab-btn active" data-target="method-downloader">
+              <span class="inst-icon">🚀</span>
+              <span class="inst-title" data-i18n="inst_m1_btn">Downloader İle (Önerilen)</span>
+            </button>
+            <button class="inst-tab-btn" data-target="method-usb">
+              <span class="inst-icon">💾</span>
+              <span class="inst-title" data-i18n="inst_m2_btn">USB Bellek İle</span>
+            </button>
+            <button class="inst-tab-btn" data-target="method-sftv">
+              <span class="inst-icon">📲</span>
+              <span class="inst-title" data-i18n="inst_m3_btn">Telefondan Gönder (SFTV)</span>
+            </button>
+          </div>
+
+          <!-- Method 1: Downloader -->
+          <div class="install-content active" id="method-downloader">
+            <div class="steps-grid">
+              <div class="step-card">
+                <div class="step-num">1</div>
+                <h4 data-i18n="step1_title">Downloader'ı Yükleyin</h4>
+                <p data-i18n="step1_desc">TV'nizin Google Play Store veya Amazon Appstore mağazasından <strong>Downloader by AFTVnews</strong> uygulamasını yükleyin.</p>
+              </div>
+              <div class="step-card">
+                <div class="step-num">2</div>
+                <h4 data-i18n="step2_title">İndirme Linkini Girin</h4>
+                <p data-i18n="step2_desc">Downloader'ın URL çubuğuna GitHub Release linkini veya kısaltılmış APK linkinizi yazıp <strong>Go</strong> butonuna basın.</p>
+                <div class="code-box">
+                  <code>https://github.com/ahXN00/HanTV/releases/tag/v5.0.0</code>
+                  <button class="copy-btn" onclick="copyText('https://github.com/ahXN00/HanTV/releases/tag/v5.0.0')">Kopyala</button>
+                </div>
+              </div>
+              <div class="step-card">
+                <div class="step-num">3</div>
+                <h4 data-i18n="step3_title">Yükleyin ve Başlatın</h4>
+                <p data-i18n="step3_desc">İndirme tamamlandığında ekrana gelen <strong>Yükle (Install)</strong> butonuna basın. Uygulama kurulduktan sonra HanTV açılmaya hazırdır!</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Method 2: USB -->
+          <div class="install-content" id="method-usb">
+            <div class="steps-grid">
+              <div class="step-card">
+                <div class="step-num">1</div>
+                <h4 data-i18n="usb_s1_title">APK Dosyasını İndirin</h4>
+                <p data-i18n="usb_s1_desc">Aşağıdaki butondan <strong>HanTV v5.0.0 APK</strong> dosyasını bilgisayarınıza veya telefonunuza indirin.</p>
+              </div>
+              <div class="step-card">
+                <div class="step-num">2</div>
+                <h4 data-i18n="usb_s2_title">USB Belleğe Kopyalayın</h4>
+                <p data-i18n="usb_s2_desc">İndirdiğiniz <code>.apk</code> dosyasını bir USB belleğe atın ve TV'nizin veya TV Box'ınızın USB girişine takın.</p>
+              </div>
+              <div class="step-card">
+                <div class="step-num">3</div>
+                <h4 data-i18n="usb_s3_title">Dosya Yöneticisiyle Kurun</h4>
+                <p data-i18n="usb_s3_desc">TV'nizdeki herhangi bir dosya yöneticisi (FX File Explorer, X-plore vb.) ile USB içindeki APK'ya tıklayıp kurulumu tamamlayın.</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Method 3: Send Files to TV -->
+          <div class="install-content" id="method-sftv">
+            <div class="steps-grid">
+              <div class="step-card">
+                <div class="step-num">1</div>
+                <h4 data-i18n="sftv_s1_title">SFTV Uygulamasını Açın</h4>
+                <p data-i18n="sftv_s1_desc">Hem Android telefonunuza hem de TV'nize Google Play Store'dan <strong>Send Files to TV (SFTV)</strong> uygulamasını yükleyin.</p>
+              </div>
+              <div class="step-card">
+                <div class="step-num">2</div>
+                <h4 data-i18n="sftv_s2_title">Telefona APK'yı İndirin & Yollayın</h4>
+                <p data-i18n="sftv_s2_desc">Telefondan HanTV APK dosyasını indirin. SFTV üzerinden <strong>Send</strong> diyerek TV'nize gönderin.</p>
+              </div>
+              <div class="step-card">
+                <div class="step-num">3</div>
+                <h4 data-i18n="sftv_s3_title">TV'den Açıp Kurun</h4>
+                <p data-i18n="sftv_s3_desc">TV'ye gelen APK dosyasının üzerine tıklayın ve yükleyin. Kurulum saniyeler içinde tamamlanır.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Download Section -->
+    <section class="download-section" id="download">
+      <div class="container">
+        <div class="download-card glass-card">
+          <div class="dl-badge">v5.0.0 STABLE RELEASE</div>
+          <h2 class="dl-title" data-i18n="dl_box_title">HanTV'yi Şimdi Ücretsiz İndirin</h2>
+          <p class="dl-desc" data-i18n="dl_box_desc">
+            En son kararlı sürümümüzle kristal netliğinde yayınların ve eşsiz TV deneyiminin tadını çıkarın.
+          </p>
+
+          <div class="dl-buttons-group">
+            <a href="assets/downloads/HanTV.apk" download="HanTV.apk" class="btn btn-primary btn-xl glow-btn">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM17 13l-5 5-5-5h3V9h4v4h3z"/>
+              </svg>
+              <div>
+                <span class="btn-subtext">Direkt APK İndir</span>
+                <span class="btn-maintext">HanTV v5.0.0 Sürümünü İndir</span>
+              </div>
+            </a>
+
+            <a href="https://github.com/ahXN00/HanTV" target="_blank" rel="noopener noreferrer" class="btn btn-glass btn-xl">
+              <svg class="icon-svg" viewBox="0 0 24 24" fill="currentColor">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"/>
+              </svg>
+              <span>GitHub Repository</span>
+            </a>
+          </div>
+
+          <div class="dl-meta">
+            <span>📦 Boyut: ~65 MB</span>
+            <span>📱 Sistem: Android 5.0+ (Android TV)</span>
+            <span>📜 Lisans: GNU GPLv3</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section" id="faq">
+      <div class="container">
+        <div class="section-header">
+          <span class="section-tag" data-i18n="faq_tag">Merak Edilenler</span>
+          <h2 class="section-title" data-i18n="faq_title">Sıkça Sorulan Sorular</h2>
+          <p class="section-subtitle" data-i18n="faq_subtitle">
+            HanTV hakkında en çok sorulan soruların cevapları.
+          </p>
+        </div>
+
+        <div class="faq-accordion">
+          <!-- Item 1 -->
+          <div class="faq-item glass-card">
+            <button class="faq-question">
+              <span data-i18n="faq1_q">HanTV tamamen ücretsiz mi? Reklam içeriyor mu?</span>
+              <span class="faq-arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="faq1_a">
+                Evet! HanTV tamamen ücretsizdir ve GPLv3 lisanslı açık kaynak kodlu bir projedir. Uygulama içinde kesinlikle hiçbir reklam, takipçi veya gizli abonelik bulunmamaktadır.
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 2 -->
+          <div class="faq-item glass-card">
+            <button class="faq-question">
+              <span data-i18n="faq2_q">Uygulamada hazır kanal veya yayın listesi var mı?</span>
+              <span class="faq-arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="faq2_a">
+                Hayır. HanTV saf bir medya oynatıcıdır. İçinde hiçbir kanal, video veya yayın kaynağı barındırmaz. Kullanıcılar kendi satın aldıkları veya sahip oldukları M3U, Xtream Codes ya da Stalker portal bilgilerini eklerler.
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 3 -->
+          <div class="faq-item glass-card">
+            <button class="faq-question">
+              <span data-i18n="faq3_q">Hangi çalma listesi formatları destekleniyor?</span>
+              <span class="faq-arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="faq3_a">
+                HanTV; <strong>Xtream Codes API</strong> (kullanıcı adı, şifre, sunucu adresi), <strong>M3U & M3U8</strong> (URL bağlantısı veya yerel dosya) ve <strong>Stalker / Ministra</strong> (MAC adresi) portallarını eksiksiz olarak destekler.
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 4 -->
+          <div class="faq-item glass-card">
+            <button class="faq-question">
+              <span data-i18n="faq4_q">TV kumandasıyla kolay kontrol edilebiliyor mu?</span>
+              <span class="faq-arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="faq4_a">
+                Kesinlikle! HanTV sıfırdan TV kumandalarının yön (D-Pad), renk tuşları ve medya tuşları için geliştirilmiştir. Ayrıca ayarlar menüsünden kumandanızın renkli tuşlarına veya sayı tuşlarına 25 farklı kısayol eylemi atayabilirsiniz.
+              </p>
+            </div>
+          </div>
+
+          <!-- Item 5 -->
+          <div class="faq-item glass-card">
+            <button class="faq-question">
+              <span data-i18n="faq5_q">Telefonumdaki listeyi TV'ye nasıl hızlıca aktarabilirim?</span>
+              <span class="faq-arrow">▼</span>
+            </button>
+            <div class="faq-answer">
+              <p data-i18n="faq5_a">
+                HanTV'yi açtığınızda 'Kaynak Ekle' ekranındaki QR kodu telefonunuzun kamerasıyla okutarak veya yerel Wi-Fi ağı üzerinden verilen PIN kodunu tarayıcınıza girerek saniyeler içinde listenizi TV'ye aktarabilirsiniz.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Lightbox Modal for Screenshots -->
+  <div class="lightbox-modal" id="lightboxModal">
+    <div class="lightbox-backdrop" onclick="closeLightbox()"></div>
+    <div class="lightbox-dialog">
+      <button class="lightbox-close" onclick="closeLightbox()" aria-label="Kapat">✕</button>
+      <img src="" alt="" class="lightbox-img" id="lightboxImg" />
+      <div class="lightbox-title" id="lightboxTitle"></div>
+    </div>
+  </div>
+
+  <!-- Auth Modal (Login / Signup) -->
+  <div class="site-modal" id="authModal">
+    <div class="modal-backdrop" onclick="closeAuthModal()"></div>
+    <div class="modal-dialog glass-card">
+      <button class="modal-close" onclick="closeAuthModal()" aria-label="Kapat">✕</button>
+      
+      <div class="modal-header">
+        <img src="assets/img/logo.png" alt="HanTV" class="modal-logo" />
+        <p class="modal-subtitle">Çalma listelerinizi ve TV cihazlarınızı tek merkezden yönetin.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tabLogin" onclick="switchAuthTab('login')">Giriş Yap</button>
+        <button class="auth-tab-btn" id="tabSignup" onclick="switchAuthTab('signup')">Kayıt Ol</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="formLogin" class="auth-form" onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail">E-Posta Adresi</label>
+          <input type="email" id="loginEmail" class="form-control" placeholder="ornek@hantv.com" required />
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Şifre</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="••••••••" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-large">
+          <span>Giriş Yap</span>
+        </button>
+      </form>
+
+      <!-- Signup Form -->
+      <form id="formSignup" class="auth-form" style="display: none;" onsubmit="handleSignup(event)">
+        <div class="form-group">
+          <label for="signupName">Adınız / Rumuz</label>
+          <input type="text" id="signupName" class="form-control" placeholder="Ahmet Yılmaz" required />
+        </div>
+        <div class="form-group">
+          <label for="signupEmail">E-Posta Adresi</label>
+          <input type="email" id="signupEmail" class="form-control" placeholder="ornek@hantv.com" required />
+        </div>
+        <div class="form-group">
+          <label for="signupPassword">Şifre (En az 6 karakter)</label>
+          <input type="password" id="signupPassword" class="form-control" placeholder="••••••••" minlength="6" required />
+        </div>
+        <div class="form-group">
+          <label for="signupPasswordConfirm">Şifre Tekrar</label>
+          <input type="password" id="signupPasswordConfirm" class="form-control" placeholder="••••••••" minlength="6" required />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block btn-large">
+          <span>Ücretsiz Kayıt Ol</span>
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- User Dashboard Modal -->
+  <div class="site-modal dashboard-modal" id="dashboardModal">
+    <div class="modal-backdrop" onclick="closeDashboard()"></div>
+    <div class="modal-dialog glass-card dash-dialog">
+      <button class="modal-close" onclick="closeDashboard()" aria-label="Kapat">✕</button>
+
+      <!-- Dashboard Sidebar / Nav -->
+      <div class="dash-sidebar">
+        <div class="dash-brand">
+          <img src="assets/img/icon.png" alt="HanTV" class="dash-logo-icon" />
+          <div>
+            <h3>HanTV Panel</h3>
+            <span class="badge-free">Bulut Senkronizasyon</span>
+          </div>
+        </div>
+
+        <div class="dash-nav-links">
+          <button class="dash-nav-btn active" data-section="playlists" onclick="switchDashSection('playlists')">
+            <span class="dash-nav-icon">📋</span>
+            <span>Çalma Listelerim</span>
+          </button>
+          <button class="dash-nav-btn" data-section="pair" onclick="switchDashSection('pair')">
+            <span class="dash-nav-icon">📺</span>
+            <span>TV Eşleştir (PIN)</span>
+          </button>
+          <button class="dash-nav-btn" data-section="account" onclick="switchDashSection('account')">
+            <span class="dash-nav-icon">👤</span>
+            <span>Hesap Bilgileri</span>
+          </button>
+        </div>
+
+        <div class="dash-sidebar-footer">
+          <button class="btn btn-secondary btn-block btn-sm text-danger" onclick="handleLogout()">
+            🚪 Çıkış Yap
+          </button>
+        </div>
+      </div>
+
+      <!-- Dashboard Content Pane -->
+      <div class="dash-content">
+        <!-- Pane 1: Playlists -->
+        <div class="dash-pane active" id="dashPane_playlists">
+          <div class="dash-pane-header">
+            <div>
+              <h2>Çalma Listelerim</h2>
+              <p>Eklediğiniz listeler eşleştirdiğiniz tüm Android TV cihazlarınızla otomatik senkronize olur.</p>
+            </div>
+            <button class="btn btn-primary btn-sm" onclick="toggleAddPlaylistForm(true)">
+              + Yeni Liste Ekle
+            </button>
+          </div>
+
+          <!-- Add Playlist Inline Form Box -->
+          <div class="add-playlist-box glass-card" id="addPlaylistFormBox" style="display: none;">
+            <div class="add-pl-header">
+              <h3>Yeni Çalma Listesi Ekle</h3>
+              <button class="btn-icon-close" onclick="toggleAddPlaylistForm(false)">✕</button>
+            </div>
+
+            <form id="formAddPlaylist" onsubmit="handleSavePlaylist(event)">
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label for="plType">Bağlantı Türü</label>
+                  <select id="plType" class="form-control" onchange="onPlaylistTypeChange()">
+                    <option value="xtream">Xtream Codes API (Önerilen)</option>
+                    <option value="m3u">M3U / M3U8 Playlist URL</option>
+                    <option value="stalker">Stalker / Ministra (MAC Portal)</option>
+                  </select>
+                </div>
+                <div class="form-group col-6">
+                  <label for="plTitle">Liste Başlığı</label>
+                  <input type="text" id="plTitle" class="form-control" placeholder="Örn: Ev IPTV / VIP Spor" required />
+                </div>
+              </div>
+
+              <!-- Xtream Fields -->
+              <div id="xtreamFields">
+                <div class="form-group">
+                  <label for="plServer">Sunucu Adresi (URL & Port)</label>
+                  <input type="text" id="plServer" class="form-control" placeholder="http://example.com:8080" />
+                </div>
+                <div class="form-row">
+                  <div class="form-group col-6">
+                    <label for="plUsername">Kullanıcı Adı</label>
+                    <input type="text" id="plUsername" class="form-control" placeholder="Kullanıcı adınız" />
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="plPassword">Şifre</label>
+                    <input type="password" id="plPassword" class="form-control" placeholder="Şifreniz" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- M3U Fields -->
+              <div id="m3uFields" style="display: none;">
+                <div class="form-group">
+                  <label for="plUrl">M3U Playlist URL Bağlantısı</label>
+                  <input type="url" id="plUrl" class="form-control" placeholder="https://example.com/get.php?username=...&type=m3u_plus" />
+                </div>
+              </div>
+
+              <!-- Stalker Fields -->
+              <div id="stalkerFields" style="display: none;">
+                <div class="form-row">
+                  <div class="form-group col-6">
+                    <label for="plPortalUrl">Portal URL</label>
+                    <input type="text" id="plPortalUrl" class="form-control" placeholder="http://mag.example.com/c/" />
+                  </div>
+                  <div class="form-group col-6">
+                    <label for="plMac">MAC Adresi</label>
+                    <input type="text" id="plMac" class="form-control" placeholder="00:1A:79:XX:XX:XX" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn btn-secondary" onclick="toggleAddPlaylistForm(false)">İptal</button>
+                <button type="submit" class="btn btn-primary">Listeyi Kaydet & Senkron Et</button>
+              </div>
+            </form>
+          </div>
+
+          <!-- Playlists Cards Container -->
+          <div class="playlists-grid" id="playlistCardsContainer">
+            <!-- Dynamic Cards -->
+          </div>
+        </div>
+
+        <!-- Pane 2: TV Pairing -->
+        <div class="dash-pane" id="dashPane_pair">
+          <div class="dash-pane-header">
+            <div>
+              <h2>TV Cihaz Eşleştirme (PIN Kodu)</h2>
+              <p>Android TV kumandasıyla şifre yazmadan saniyeler içinde bağlanın.</p>
+            </div>
+          </div>
+
+          <div class="pair-box glass-card">
+            <div class="pair-instructions">
+              <div class="pair-step">
+                <span class="pair-step-num">1</span>
+                <p>Android TV'nizde <strong>HanTV</strong> uygulamasını açın ve <strong>"Giriş / Eşleştir"</strong> ekranındaki <strong>6 haneli PIN kodunu</strong> görün.</p>
+              </div>
+              <div class="pair-step">
+                <span class="pair-step-num">2</span>
+                <p>Aşağıdaki kutuya TV'nizdeki kodu yazıp <strong>"Cihazı Eşle"</strong> butonuna basın.</p>
+              </div>
+            </div>
+
+            <form id="formPairDevice" class="pair-form" onsubmit="handlePairDevice(event)">
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label for="tvPinInput">TV 6 Haneli PIN Kodu</label>
+                  <input type="text" id="tvPinInput" class="form-control pin-input" placeholder="748 291" maxlength="7" required />
+                </div>
+                <div class="form-group col-6">
+                  <label for="tvDeviceName">Cihaz İsmi (İsteğe Bağlı)</label>
+                  <input type="text" id="tvDeviceName" class="form-control" placeholder="Örn: Oturma Odası Sony TV" />
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary btn-large btn-block glow-btn">
+                <span>📺 TV Cihazını Hesabıma Bağla</span>
+              </button>
+            </form>
+          </div>
+
+          <h3 class="sub-header-title">Bağlı HanTV Cihazlarım</h3>
+          <div class="devices-list" id="devicesCardsContainer">
+            <!-- Dynamic Devices -->
+          </div>
+        </div>
+
+        <!-- Pane 3: Account -->
+        <div class="dash-pane" id="dashPane_account">
+          <div class="dash-pane-header">
+            <div>
+              <h2>Hesap Bilgileri</h2>
+              <p>HanTV bulut üyelik hesabınızı yönetin.</p>
+            </div>
+          </div>
+
+          <div class="account-card glass-card">
+            <div class="account-row">
+              <span>Üyelik Türü:</span>
+              <strong class="badge-free">Ücretsiz Spark Hesabı (Süresiz)</strong>
+            </div>
+            <div class="account-row">
+              <span>Kayıtlı E-Posta:</span>
+              <strong id="accountUserEmail">-</strong>
+            </div>
+            <div class="account-row">
+              <span>Bulut Yedekleme:</span>
+              <span class="text-success">✓ Aktif (Firestore)</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container footer-container">
+      <div class="footer-brand">
+        <img src="assets/img/logo.png" alt="HanTV" class="footer-logo" />
+        <p data-i18n="footer_about">
+          Android TV için hızlı, modern, açık kaynaklı IPTV oynatıcı.
+        </p>
+        <div class="footer-links">
+          <a href="https://github.com/ahXN00/HanTV" target="_blank" rel="noopener">GitHub</a>
+          <a href="https://t.me/hantvplayer" target="_blank" rel="noopener">Telegram Topluluğu</a>
+          <a href="https://github.com/ahXN00/HanTV/releases" target="_blank" rel="noopener">Tüm Sürümler</a>
+        </div>
+      </div>
+
+      <div class="footer-meta">
+        <p class="footer-disclaimer" data-i18n="footer_disclaimer">
+          ⚠️ Yasal Uyarı: HanTV bağımsız, açık kaynaklı bir video oynatıcıdır. Hiçbir yayın veya içerik barındırmaz ve sağlamaz.
+        </p>
+        <p class="copyright">
+          © 2026 HanTV • Açık Kaynak GPLv3 Lisansı ile yayınlanmaktadır.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase SDKs (v8 compat for fast CDN loading) -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+  <!-- App & Auth Scripts -->
+  <script src="firebase-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
