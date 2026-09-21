@@ -102,7 +102,7 @@ import tv.own.owntv.ui.components.summaryText
 import tv.own.owntv.ui.components.warningText
 import tv.own.owntv.ui.theme.HanTVTheme
 
-private enum class Step { WELCOME, DISPLAY_SIZE, THEME, DISCLAIMER, SETUP_CHOICE, SYNC_DEVICE, CREATE_PROFILE, ADD_CONTENT, ADD_SOURCE_CHOOSER, ADD_SOURCE_REMOTE, ADD_SOURCE, IMPORTING, EXISTING, IMPORT_BACKUP_CHOOSER, IMPORT_BACKUP_REMOTE, IMPORT_BACKUP }
+private enum class Step { WELCOME, DISPLAY_SIZE, THEME, DISCLAIMER, SETUP_CHOICE, SYNC_DEVICE, CREATE_PROFILE, ADD_CONTENT, ADD_SOURCE_CHOOSER, ADD_SOURCE_REMOTE, ADD_SOURCE, ADD_SOURCE_AUTO, IMPORTING, EXISTING, IMPORT_BACKUP_CHOOSER, IMPORT_BACKUP_REMOTE, IMPORT_BACKUP }
 
 /**
  * Onboarding for one profile. [firstRun] shows language/welcome/disclaimer; otherwise it starts at profile
@@ -169,6 +169,7 @@ fun Onboarding(firstRun: Boolean, onDone: (Long?) -> Unit, onCancel: () -> Unit,
                 onSkip = { vm.finish(onDone) },
             )
             Step.ADD_SOURCE_CHOOSER -> AddSourceChooserScreen(
+                onAuto = { step = Step.ADD_SOURCE_AUTO },
                 onRemote = { step = Step.ADD_SOURCE_REMOTE },
                 onManual = { step = Step.ADD_SOURCE },
                 onBack = { step = Step.ADD_CONTENT },
@@ -202,6 +203,25 @@ fun Onboarding(firstRun: Boolean, onDone: (Long?) -> Unit, onCancel: () -> Unit,
                 onRemotePayloadConsumed = { vm.consumeRemotePayload() },
                 onBack = { step = Step.ADD_SOURCE_CHOOSER },
                 showDefaultToggle = false, // first playlist in setup: nothing to be "default" over yet
+            )
+            Step.ADD_SOURCE_AUTO -> AddSourceScreen(
+                onStartXtream = { name, server, user, pass, ua, epg, refresh, live, movies, series, _, preferHls ->
+                    vm.startXtream(name.ifBlank { defaultIptvName }, server, user, pass, ua, epg, refresh, live, movies, series, preferHls)
+                    importOrigin = Step.ADD_SOURCE_AUTO
+                    step = Step.IMPORTING
+                },
+                onStartM3u = { name, url, ua, epg, refresh, _ -> vm.startM3u(name.ifBlank { defaultPlaylistName }, url, ua, epg, refresh); importOrigin = Step.ADD_SOURCE_AUTO; step = Step.IMPORTING },
+                onStartStalker = { name, portalUrl, mac, serialNumber, deviceId, deviceId2, signature, ua, refresh, _, live, movies, series ->
+                    vm.startStalker(
+                        name.ifBlank { defaultPortalName }, portalUrl, mac, serialNumber, deviceId,
+                        deviceId2, signature, ua, refresh, live, movies, series,
+                    )
+                    importOrigin = Step.ADD_SOURCE_AUTO
+                    step = Step.IMPORTING
+                },
+                initialAuto = true,
+                onBack = { step = Step.ADD_SOURCE_CHOOSER },
+                showDefaultToggle = false,
             )
             Step.IMPORTING -> ImportProgressScreen(
                 state = importState,

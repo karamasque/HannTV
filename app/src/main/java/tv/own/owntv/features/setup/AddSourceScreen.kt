@@ -134,6 +134,7 @@ fun AddSourceScreen(
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
     initial: SourceEntity? = null,
+    initialAuto: Boolean = false,
     initialAutoRefresh: PlaylistRefresh = PlaylistRefresh.OFF,
     initialIsDefault: Boolean = false,
     showDefaultToggle: Boolean = true,
@@ -158,10 +159,14 @@ fun AddSourceScreen(
     val editing = initial != null
     var kind by remember {
         mutableStateOf(
-            when (initial?.type) {
-                SourceType.M3U -> SourceKind.M3U
-                SourceType.STALKER -> SourceKind.STALKER
-                else -> SourceKind.XTREAM
+            if (initialAuto) {
+                SourceKind.AUTO
+            } else {
+                when (initial?.type) {
+                    SourceType.M3U -> SourceKind.M3U
+                    SourceType.STALKER -> SourceKind.STALKER
+                    else -> SourceKind.XTREAM
+                }
             },
         )
     }

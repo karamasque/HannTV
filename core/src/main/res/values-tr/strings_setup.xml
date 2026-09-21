@@ -282,6 +282,7 @@
     <string name="local_sync_browser_title">HanTV yerel eşitleme</string>
     <string name="local_sync_browser_body">Bu adres, diğer cihazınızdaki HanTV uygulaması içindir. Orada Yerel eşitlemeyi açın ve listeden bu cihazı seçin.</string>
     <string name="setup_auto_iptv">Otomatik IPTV</string>
+    <string name="setup_auto_iptv_card_desc">Forum ve internetten otomatik IPTV hesaplarını tara ve anında yükle</string>
     <string name="setup_auto_iptv_description">İnternetteki güncel kaynaklardan çalışan IPTV hesaplarını otomatik tarayın, doğrulayın ve tek tıkla ekleyin.</string>
     <string name="setup_auto_iptv_start_scan">Otomatik Taramayı Başlat</string>
     <string name="setup_auto_iptv_scanning">Taranıyor…</string>

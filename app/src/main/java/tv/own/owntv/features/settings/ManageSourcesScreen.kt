@@ -197,6 +197,7 @@ fun ManageSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             when (val s = importState) {
                 SettingsViewModel.ImportState.Idle -> when (addMode) {
                     null -> AddSourceChooserScreen(
+                        onAuto = { addMode = AddMode.AUTO },
                         onRemote = { addMode = AddMode.REMOTE },
                         onManual = { addMode = AddMode.MANUAL },
                         onBack = { showAdd = false },
@@ -210,6 +211,22 @@ fun ManageSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                         // A remote submission hands off to the pre-filled Manual form.
                         onPayloadReceived = { addMode = AddMode.MANUAL },
                         onBack = { vm.stopRemoteListener(); addMode = null },
+                        modifier = Modifier,
+                    )
+                    AddMode.AUTO -> AddSourceScreen(
+                        onStartXtream = { n, server, u, p, ua, epg, autoRefresh, live, movies, series, isDefault, preferHls ->
+                            vm.addXtream(n.ifBlank { defaultIptvName }, server, u, p, ua, epg, autoRefresh, live, movies, series, isDefault, preferHls)
+                        },
+                        onStartM3u = { n, url, ua, epg, autoRefresh, isDefault -> vm.addM3u(n.ifBlank { defaultPlaylistName }, url, ua, epg, autoRefresh, isDefault) },
+                        onStartStalker = { n, url, mac, serialNumber, deviceId, deviceId2, signature, ua, autoRefresh, isDefault, live, movies, series ->
+                            vm.addStalker(
+                                n.ifBlank { defaultPortalName }, url, mac, serialNumber, deviceId,
+                                deviceId2, signature, ua, autoRefresh, isDefault, live, movies, series,
+                            )
+                        },
+                        initialAuto = true,
+                        showDefaultToggle = sources.isNotEmpty(),
+                        onBack = { addMode = null },
                         modifier = Modifier,
                     )
                     AddMode.MANUAL -> AddSourceScreen(
@@ -642,7 +659,7 @@ private fun ResyncChoiceDialog(
 }
 
 /** How the user chose to add a source: fill it from another device (Remote) or type it here (Manual). */
-private enum class AddMode { REMOTE, MANUAL }
+private enum class AddMode { REMOTE, MANUAL, AUTO }
 
 /**
  * Result of the row's "Test" button: is the server reachable, is the subscription still good, and how

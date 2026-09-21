@@ -540,6 +540,8 @@
 
     <!-- Translators: Tab/Option for automatic IPTV scanning. -->
     <string name="setup_auto_iptv">Auto IPTV</string>
+    <!-- Translators: Subtitle on chooser card for Auto IPTV. -->
+    <string name="setup_auto_iptv_card_desc">Automatically scan and load working IPTV sources from online forums</string>
     <!-- Translators: Description for the automatic IPTV scanning feature. -->
     <string name="setup_auto_iptv_description">Automatically scan and validate working IPTV accounts from current online sources, and add them with one click.</string>
     <!-- Translators: Button to initiate automatic IPTV scanning. -->

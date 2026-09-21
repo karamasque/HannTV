@@ -42,6 +42,7 @@ import tv.own.owntv.ui.theme.HanTVTheme
  */
 @Composable
 fun AddSourceChooserScreen(
+    onAuto: () -> Unit,
     onRemote: () -> Unit,
     onManual: () -> Unit,
     onBack: () -> Unit,
@@ -54,7 +55,7 @@ fun AddSourceChooserScreen(
 
     Box(modifier.fillMaxSize().roundedPanel().background(colors.background), contentAlignment = Alignment.Center) {
         Column(
-            modifier = Modifier.verticalScroll(rememberScrollState()).padding(40.dp),
+            modifier = Modifier.verticalScroll(rememberScrollState()).padding(36.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(stringResource(R.string.setup_add_source), style = MaterialTheme.typography.headlineLarge, color = colors.onSurface)
@@ -67,11 +68,17 @@ fun AddSourceChooserScreen(
             Spacer(Modifier.height(24.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 ChooserCard(
+                    icon = HanTVIcon.SPARKLE,
+                    title = stringResource(R.string.setup_auto_iptv),
+                    subtitle = stringResource(R.string.setup_auto_iptv_card_desc),
+                    onClick = onAuto,
+                    modifier = Modifier.focusRequester(firstFocus),
+                )
+                ChooserCard(
                     icon = HanTVIcon.PLAYLIST,
                     title = stringResource(R.string.setup_from_phone),
                     subtitle = stringResource(R.string.setup_use_phone_same_wifi),
                     onClick = onRemote,
-                    modifier = Modifier.focusRequester(firstFocus),
                 )
                 ChooserCard(
                     icon = HanTVIcon.ADD,
