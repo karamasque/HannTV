@@ -7,9 +7,19 @@ on:
   pull_request:
     branches: [ main ]
   workflow_dispatch:
+    inputs:
+      force_core_source:
+        description: 'Build core from source, as a fork pull request does (ignores GPR_TOKEN)'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: write
+
+env:
+  GITHUB_ACTOR: ${{ github.actor }}
+  GPR_TOKEN: ${{ secrets.GPR_TOKEN }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -17,7 +27,11 @@ concurrency:
 
 jobs:
   build:
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
+    env:
+      IS_TAG: ${{ startsWith(github.ref, 'refs/tags/v') }}
+      APK_OUT: ""
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,10 +50,15 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Compute version
+      - name: Resolve core
+        uses: ./.github/actions/resolve-core
+        with:
+          force-source-build: ${{ inputs.force_core_source || false }}
+
+      - name: Compute version (from the git tag on releases)
         id: ver
         run: |
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+          if [ "$IS_TAG" = "true" ]; then
             NAME="${GITHUB_REF_NAME#v}"
             IFS='.' read -r MA MI PA <<< "$NAME"
             CODE=$(( ${MA:-0} * 10000 + ${MI:-0} * 100 + ${PA:-0} ))
@@ -64,7 +83,28 @@ jobs:
             echo "No KEYSTORE_BASE64 secret set — building a debug-signed APK."
           fi
 
-      - name: Build APKs
+      - name: Derive the release edge key
+        env:
+          OWNTV_EDGE_MASTER: ${{ secrets.OWNTV_EDGE_MASTER }}
+          OWNTV_EDGE_KEY: ${{ secrets.OWNTV_EDGE_KEY }}
+          VERSION_NAME: ${{ steps.ver.outputs.name }}
+        run: |
+          if [ -n "$OWNTV_EDGE_MASTER" ]; then
+            KEY=$(printf '%s' "$VERSION_NAME" \
+              | openssl dgst -sha256 -hmac "$OWNTV_EDGE_MASTER" -hex \
+              | awk '{print $NF}')
+            echo "::add-mask::$KEY"
+            echo "OWNTV_EDGE_KEY=$KEY" >> "$GITHUB_ENV"
+            echo "Derived the edge key for $VERSION_NAME."
+          elif [ -n "$OWNTV_EDGE_KEY" ]; then
+            echo "::add-mask::$OWNTV_EDGE_KEY"
+            echo "OWNTV_EDGE_KEY=$OWNTV_EDGE_KEY" >> "$GITHUB_ENV"
+            echo "No OWNTV_EDGE_MASTER — using the static edge key."
+          else
+            echo "No edge secret configured — the app will use the unprotected base URL."
+          fi
+
+      - name: Build APK
         env:
           VERSION_NAME: ${{ steps.ver.outputs.name }}
           VERSION_CODE: ${{ steps.ver.outputs.code }}
@@ -74,32 +114,42 @@ jobs:
         run: |
           chmod +x ./gradlew
           if [ -n "$KEYSTORE_FILE" ]; then
-            echo "Building release APKs"
-            ./gradlew :app:assembleRelease --stacktrace
-            ARM_SRC=$(ls app/build/outputs/apk/standard/release/*.apk 2>/dev/null | head -n1 || true)
-            X86_SRC=$(ls app/build/outputs/apk/x86_64/release/*.apk 2>/dev/null | head -n1 || true)
+            echo "Building signed release APKs (both ABI flavors)"
+            ./gradlew assembleRelease --stacktrace
+            ARM_SRC=$(ls app/build/outputs/apk/standard/release/*.apk | head -n1)
+            X86_SRC=$(ls app/build/outputs/apk/x86_64/release/*.apk | head -n1)
+            echo "Built arm:    $ARM_SRC"
+            echo "Built x86_64: $X86_SRC"
+            echo "ARM_SRC=$ARM_SRC" >> "$GITHUB_ENV"
+            echo "X86_SRC=$X86_SRC" >> "$GITHUB_ENV"
           else
-            echo "Building debug APKs"
-            ./gradlew :app:assembleDebug --stacktrace
-            ARM_SRC=$(ls app/build/outputs/apk/standard/debug/*.apk 2>/dev/null | head -n1 || true)
+            echo "Building debug APK"
+            ./gradlew assembleDebug
+            SRC=$(ls app/build/outputs/apk/standard/debug/*.apk | head -n1)
             X86_SRC=$(ls app/build/outputs/apk/x86_64/debug/*.apk 2>/dev/null | head -n1 || true)
+            echo "Built: $SRC"
+            echo "ARM_SRC=$SRC" >> "$GITHUB_ENV"
+            echo "X86_SRC=$X86_SRC" >> "$GITHUB_ENV"
           fi
-          echo "ARM_SRC=$ARM_SRC" >> "$GITHUB_ENV"
-          echo "X86_SRC=$X86_SRC" >> "$GITHUB_ENV"
 
-      - name: Package artifacts
+      - name: Verify the signing certificate
+        if: env.KEYSTORE_FILE != ''
+        run: |
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -n1)
+          "$APKSIGNER" verify --print-certs "$ARM_SRC"
+
+      - name: Name the APK (HanTV-v<version>)
         run: |
           mkdir -p dist
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+          if [ "$IS_TAG" = "true" ]; then
             OUT="HanTV-v${{ steps.ver.outputs.name }}.apk"
           else
             OUT="HanTV-dev-${GITHUB_SHA::7}.apk"
           fi
           cp "$ARM_SRC" "dist/$OUT"
           echo "APK_OUT=$OUT" >> "$GITHUB_ENV"
-          echo "Packaged dist/$OUT"
-
-          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+          echo "Packaged dist/$OUT (arm: arm64-v8a + armeabi-v7a)"
+          if [ "$IS_TAG" = "true" ]; then
             cp "$ARM_SRC" "dist/HanTV-TV.apk"
             if [ -n "$X86_SRC" ] && [ -f "$X86_SRC" ]; then
               cp "$X86_SRC" "dist/HanTV-x86_64-v${{ steps.ver.outputs.name }}.apk"
@@ -114,7 +164,7 @@ jobs:
           path: dist/*
           if-no-files-found: error
 
-      - name: Extract release notes
+      - name: Extract release notes from CHANGELOG_APP.md
         if: startsWith(github.ref, 'refs/tags/v')
         env:
           TAG: ${{ github.ref_name }}
@@ -131,8 +181,12 @@ jobs:
             mv dist/RELEASE_NOTES.trimmed.md dist/RELEASE_NOTES.md
           fi
           if [ ! -s dist/RELEASE_NOTES.md ]; then
-            echo "HanTV ${{ github.ref_name }} release" > dist/RELEASE_NOTES.md
+            echo "::warning::No CHANGELOG_APP.md section for $TAG — publishing a placeholder body."
+            echo "See [CHANGELOG.md](https://github.com/$GITHUB_REPOSITORY/blob/$TAG/CHANGELOG.md) for details." \
+              > dist/RELEASE_NOTES.md
           fi
+          echo "--- Release notes ---"
+          cat dist/RELEASE_NOTES.md
 
       - name: Publish GitHub Release
         if: startsWith(github.ref, 'refs/tags/v')
