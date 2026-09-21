@@ -278,34 +278,31 @@ jobs:
             echo "ARM_SRC=$SRC" >> "$GITHUB_ENV"
           fi
 
-      - name: Name the APK (OwnTV-v<version>)
+      - name: Name the APK (HanTV-v<version>)
         run: |
           mkdir -p dist
           if [ "$IS_TAG" = "true" ]; then
-            OUT="OwnTV-v${{ steps.ver.outputs.name }}.apk"
+            OUT="HanTV-v${{ steps.ver.outputs.name }}.apk"
           else
-            OUT="OwnTV-dev-${GITHUB_SHA::7}.apk"
+            OUT="HanTV-dev-${GITHUB_SHA::7}.apk"
           fi
           cp "$ARM_SRC" "dist/$OUT"
           echo "APK_OUT=$OUT" >> "$GITHUB_ENV"
           echo "Packaged dist/$OUT (arm: arm64-v8a + armeabi-v7a)"
           # Tag builds also ship a stable-named copy so a fixed URL always serves the latest signed
-          # release: https://github.com/<repo>/releases/latest/download/OwnTV.apk
-          # (used by the Fire TV Downloader code and any "always-latest" sideload link).
+          # release: https://github.com/<repo>/releases/latest/download/HanTV-TV.apk
           if [ "$IS_TAG" = "true" ]; then
-            cp "$ARM_SRC" "dist/OwnTV.apk"
-            # Separate x86_64 build for emulators / rare Intel boxes. Pinned to the version only —
-            # no always-latest copy, since real devices (the Downloader audience) don't need it.
+            cp "$ARM_SRC" "dist/HanTV-TV.apk"
+            # Separate x86_64 build for emulators / rare Intel boxes.
             if [ -n "$X86_SRC" ]; then
-              cp "$X86_SRC" "dist/OwnTV-x86_64-v${{ steps.ver.outputs.name }}.apk"
-              echo "Packaged dist/OwnTV-x86_64-v${{ steps.ver.outputs.name }}.apk"
+              cp "$X86_SRC" "dist/HanTV-x86_64-v${{ steps.ver.outputs.name }}.apk"
+              echo "Packaged dist/HanTV-x86_64-v${{ steps.ver.outputs.name }}.apk"
             fi
           fi
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          # Upload the whole dist/ so both the arm APK and the x86_64 APK are captured.
           name: ${{ env.APK_OUT }}
           path: dist/*
           if-no-files-found: error
@@ -315,23 +312,12 @@ jobs:
         env:
           TAG: ${{ github.ref_name }}
         run: |
-          # The release body is what the in-app updater shows as "What's new", so it must be the
-          # SHORT, bullet-only notes from CHANGELOG_APP.md — never CHANGELOG.md, which is the long
-          # developer/contributor changelog and is read manually on GitHub.
-          #
-          # This runs here rather than only in release-notes.yml because a release published by
-          # GITHUB_TOKEN does not trigger other workflows, so that job never fires for tag builds.
-          # It stays as a fallback for releases published by hand from the GitHub UI.
-          #
-          # Take "## <tag>" up to the next "## v" header; the header may carry a date/"unreleased"
-          # tail ("## v4.1.5 — 2026-07-26") or nothing at all, so match the version as a whole word.
           if [ -f CHANGELOG_APP.md ]; then
             awk -v ver="$TAG" '
               $0 ~ ("^## " ver "([ \t]|$)") { flag=1; next }
               /^## v/ && flag { flag=0 }
               flag { print }
             ' CHANGELOG_APP.md > dist/RELEASE_NOTES.md || true
-            # Trim leading/trailing blank lines.
             sed -i -e '/./,$!d' dist/RELEASE_NOTES.md
             awk 'NF{p=NR} {a[NR]=$0} END{for(i=1;i<=p;i++) print a[i]}' \
               dist/RELEASE_NOTES.md > dist/RELEASE_NOTES.trimmed.md
@@ -349,12 +335,10 @@ jobs:
         if: env.IS_TAG == 'true'
         uses: softprops/action-gh-release@v2
         with:
-          name: OwnTV ${{ github.ref_name }}
+          name: HanTV ${{ github.ref_name }}
           files: |
             dist/${{ env.APK_OUT }}
-            dist/OwnTV.apk
-            dist/OwnTV-x86_64-v${{ steps.ver.outputs.name }}.apk
+            dist/HanTV-TV.apk
+            dist/HanTV-x86_64-v${{ steps.ver.outputs.name }}.apk
           body_path: dist/RELEASE_NOTES.md
-          # Must stay false: it appends GitHub's auto commit/PR list under the body, which buries the
-          # short in-app notes the updater dialog shows.
           generate_release_notes: false
