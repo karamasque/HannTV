@@ -46,9 +46,9 @@ launcher, D-pad first.
 
 Questions, ideas, bug reports — **join the HanTV Telegram group:**
 
-### 👉 [t.me/owntvplayer](https://t.me/owntvplayer)
+### 👉 [t.me/HanTVPlayer](https://t.me/HanTVPlayer)
 
-<a href="https://t.me/owntvplayer"><img src="extras/telegram_qr_code.jpg" alt="Scan to join the HanTV Telegram group" width="150"></a>
+<a href="https://t.me/HanTVPlayer"><img src="extras/telegram_qr_code.jpg" alt="Scan to join the HanTV Telegram group" width="150"></a>
 
 ---
 

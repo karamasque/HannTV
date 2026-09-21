@@ -2020,8 +2020,8 @@ private fun FocusHighlightDialog(
 
 
 /** Widened for More's About pane, which shows the same repository line the dialog does. */
-internal const val GITHUB_REPO = "github.com/ahXN00/HanTV"
-private const val TELEGRAM_LINK = "t.me/owntvplayer"
+internal const val GITHUB_REPO = "github.com/karamasque/HannTV"
+private const val TELEGRAM_LINK = "t.me/HanTVPlayer"
 
 /** About HanTV: version, license, author and project link — all readable on screen (no TV browser). */
 @Composable
