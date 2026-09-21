@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
@@ -33,6 +34,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -44,6 +46,9 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.pluralStringResource
@@ -54,14 +59,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
+import coil3.request.ImageRequest
+import coil3.request.crossfade
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import androidx.tv.material3.MaterialTheme
 import androidx.tv.material3.Text
 import tv.own.owntv.R
 import tv.own.owntv.core.database.entity.SourceEntity
+import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.setup.SourceImporter
 import tv.own.owntv.core.sync.importProgressDisplay
 import tv.own.owntv.core.theme.GlassSurface
+import tv.own.owntv.core.theme.HanTVThemePreset
+import tv.own.owntv.core.theme.HanTVThemePresetId
+import tv.own.owntv.core.theme.HanTVThemePresets
 import tv.own.owntv.core.theme.UiFontScale
 import tv.own.owntv.core.theme.UiZoom
 import tv.own.owntv.features.profiles.ProfileEditorDialog
@@ -88,7 +102,7 @@ import tv.own.owntv.ui.components.summaryText
 import tv.own.owntv.ui.components.warningText
 import tv.own.owntv.ui.theme.HanTVTheme
 
-private enum class Step { WELCOME, DISPLAY_SIZE, DISCLAIMER, SETUP_CHOICE, SYNC_DEVICE, CREATE_PROFILE, ADD_CONTENT, ADD_SOURCE_CHOOSER, ADD_SOURCE_REMOTE, ADD_SOURCE, IMPORTING, EXISTING, IMPORT_BACKUP_CHOOSER, IMPORT_BACKUP_REMOTE, IMPORT_BACKUP }
+private enum class Step { WELCOME, DISPLAY_SIZE, THEME, DISCLAIMER, SETUP_CHOICE, SYNC_DEVICE, CREATE_PROFILE, ADD_CONTENT, ADD_SOURCE_CHOOSER, ADD_SOURCE_REMOTE, ADD_SOURCE, IMPORTING, EXISTING, IMPORT_BACKUP_CHOOSER, IMPORT_BACKUP_REMOTE, IMPORT_BACKUP }
 
 /**
  * Onboarding for one profile. [firstRun] shows language/welcome/disclaimer; otherwise it starts at profile
@@ -115,16 +129,20 @@ fun Onboarding(firstRun: Boolean, onDone: (Long?) -> Unit, onCancel: () -> Unit,
     // Refresh the "existing playlists" availability whenever we land on the add-content step.
     LaunchedEffect(step) { if (step == Step.ADD_CONTENT) existing = runCatching { vm.availableExistingSources() }.getOrDefault(emptyList()) }
 
-    Box(modifier = modifier.fillMaxSize().background(HanTVTheme.colors.background)) {
+    Box(modifier = modifier.fillMaxSize()) {
         when (step) {
             Step.WELCOME -> WelcomeScreen(onNext = { step = Step.DISPLAY_SIZE })
             // Before the disclaimer, which is the first screen with a paragraph of real text on it:
             // if the interface is too small to read, that is the screen it first hurts on (#179).
             Step.DISPLAY_SIZE -> DisplaySizeScreen(
-                onNext = { step = Step.DISCLAIMER },
+                onNext = { step = Step.THEME },
                 onBack = { step = Step.WELCOME },
             )
-            Step.DISCLAIMER -> DisclaimerScreen(onAgree = { step = Step.SETUP_CHOICE }, onBack = { step = Step.DISPLAY_SIZE })
+            Step.THEME -> ThemeSetupScreen(
+                onNext = { step = Step.DISCLAIMER },
+                onBack = { step = Step.DISPLAY_SIZE },
+            )
+            Step.DISCLAIMER -> DisclaimerScreen(onAgree = { step = Step.SETUP_CHOICE }, onBack = { step = Step.THEME })
             // First decision: start fresh or bring everything back from a backup (profiles included —
             // no point creating a profile first that the restore would replace).
             Step.SETUP_CHOICE -> SetupChoiceScreen(
@@ -476,6 +494,165 @@ private fun SetupStepButton(
             style = MaterialTheme.typography.headlineMedium,
             color = if (dimmed) colors.outline else colors.onSurface,
         )
+    }
+}
+
+@Composable
+private fun ThemeSetupScreen(onNext: () -> Unit, onBack: () -> Unit) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val settingsRepo = remember {
+        org.koin.java.KoinJavaComponent.get<SettingsRepository>(
+            SettingsRepository::class.java,
+        )
+    }
+    val scope = rememberCoroutineScope()
+    var selectedThemeId by remember { mutableStateOf(HanTVThemePresetId.MACOS_GLASS) }
+    val colors = HanTVTheme.colors
+    val nextFr = remember { FocusRequester() }
+
+    BackHandler { onBack() }
+
+    MainSetupPage(contentScale = FULL_SETUP_CONTENT_SCALE) {
+        Text(
+            stringResource(R.string.theme_setup_title),
+            style = MaterialTheme.typography.headlineLarge,
+            color = colors.onSurface,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            stringResource(R.string.theme_setup_desc),
+            style = MaterialTheme.typography.bodyLarge,
+            color = colors.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.widthIn(max = 600.dp),
+        )
+        Spacer(Modifier.height(16.dp))
+
+        LazyRow(
+            modifier = Modifier.fillMaxWidth().height(175.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
+            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 24.dp, vertical = 8.dp),
+        ) {
+            items(HanTVThemePresets.ALL, key = { it.id }) { preset ->
+                val isSelected = selectedThemeId == preset.id
+                val parsedAccent = remember(preset.accentColorHex) {
+                    runCatching { Color(android.graphics.Color.parseColor(preset.accentColorHex)) }
+                        .getOrDefault(Color(0xFF64D2FF))
+                }
+                val imageRequest = remember(preset.wallpaperResId) {
+                    ImageRequest.Builder(context)
+                        .data(preset.wallpaperResId)
+                        .size(260, 180)
+                        .crossfade(true)
+                        .build()
+                }
+
+                FocusableSurface(
+                    onClick = {
+                        selectedThemeId = preset.id
+                        scope.launch(Dispatchers.IO) { preset.applyTheme(context, settingsRepo) }
+                    },
+                    selected = isSelected,
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.width(180.dp).height(150.dp),
+                    surface = GlassSurface.CARDS,
+                ) { _ ->
+                    Box(Modifier.fillMaxSize()) {
+                        AsyncImage(
+                            model = imageRequest,
+                            contentDescription = stringResource(preset.titleRes),
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                        )
+
+                        // Gradient overlay
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(
+                                    Brush.verticalGradient(
+                                        colors = listOf(Color.Transparent, Color(0xAA000000), Color(0xEE000000)),
+                                        startY = 40f,
+                                    ),
+                                ),
+                        )
+
+                        // Selection Checkmark badge
+                        if (isSelected) {
+                            Box(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .size(24.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(parsedAccent)
+                                    .align(Alignment.TopEnd),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Canvas(modifier = Modifier.size(12.dp)) {
+                                    val stroke = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round)
+                                    val path = Path().apply {
+                                        moveTo(size.width * 0.2f, size.height * 0.5f)
+                                        lineTo(size.width * 0.45f, size.height * 0.75f)
+                                        lineTo(size.width * 0.8f, size.height * 0.25f)
+                                    }
+                                    drawPath(path, color = if (preset.isDark) Color.Black else Color.White, style = stroke)
+                                }
+                            }
+                        }
+
+                        // Bottom Title + Description & Accent strip
+                        Column(
+                            modifier = Modifier
+                                .align(Alignment.BottomStart)
+                                .fillMaxWidth(),
+                        ) {
+                            Column(Modifier.padding(horizontal = 10.dp, vertical = 6.dp)) {
+                                Text(
+                                    stringResource(preset.titleRes),
+                                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = Color.White,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                                Text(
+                                    stringResource(preset.subtitleRes),
+                                    style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
+                                    color = Color(0xFFD0D6E0),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            }
+                            // Bottom Accent Stripe
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(4.dp)
+                                    .background(parsedAccent),
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(20.dp))
+        SetupAccentRule()
+        Spacer(Modifier.height(20.dp))
+
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            HanTVButton(
+                stringResource(R.string.common_back),
+                onClick = onBack,
+                modifier = Modifier.width(140.dp),
+                style = HanTVButtonStyle.SECONDARY,
+            )
+            HanTVButton(
+                stringResource(R.string.setup_continue),
+                onClick = onNext,
+                modifier = Modifier.width(220.dp).focusRequester(nextFr),
+            )
+        }
     }
 }
 
