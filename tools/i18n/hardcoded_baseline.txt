@@ -3941,16 +3941,25 @@
 1	core/src/main/java/tv/own/owntv/core/tv/TvHomeRepository.kt	syncMovie profile=$profileId movieId=$movieId groupId=$groupId existing=${existing?.providerProgramId ?: -1}
 1	core/src/main/java/tv/own/owntv/core/tv/TvHomeRepository.kt	syncMovie skip hidden profile=$profileId movieId=$movieId sourceId=${movie.sourceId}
 1	core/src/main/java/tv/own/owntv/core/tv/TvHomeRepository.kt	syncMovie skip user-hidden profile=$profileId movieId=$movieId groupId=$groupId
+1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	\0
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	.apk
+1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	/tag/
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	Accept
-2	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	HanTV
+1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	HanTV
+1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	HanTV-Mobile.apk
+1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	HanTV-TV.apk
+1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	HanTV/${CoreBuildInfo.versionName}
+1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	Mobile
+1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	Mozilla/5.0 (Linux; Android 10) AppleWebKit/537.36
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	UpdateManager
-2	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	User-Agent
+3	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	User-Agent
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	application/vnd.github+json
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	assets
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	body
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	browser_download_url
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	https://api.github.com/repos/${CoreBuildInfo.releaseRepo}/releases/latest
+1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	https://github.com/${CoreBuildInfo.releaseRepo}/releases/download/$tag/$apkName
+1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	https://github.com/${CoreBuildInfo.releaseRepo}/releases/latest
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	install cancelled by user
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	install refused status=$status message=$message
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	name
@@ -3964,7 +3973,7 @@
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	update download failed: ${error.message}
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	update installed
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	updates
-1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	v
+2	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	v
 1	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	wrong package ${info.packageName}
 1	core/src/main/java/tv/own/owntv/core/util/CrashRecorder.kt	${Build.MANUFACTURER} ${Build.MODEL} · Android ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})
 1	core/src/main/java/tv/own/owntv/core/util/CrashRecorder.kt	--- live diagnostics leading up to the crash ---
