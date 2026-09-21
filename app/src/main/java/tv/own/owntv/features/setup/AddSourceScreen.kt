@@ -91,7 +91,12 @@ import tv.own.owntv.ui.components.roundedPanel
 import tv.own.owntv.core.theme.GlassSurface
 import tv.own.owntv.ui.theme.HanTVTheme
 
-private enum class SourceKind { XTREAM, M3U, STALKER }
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import tv.own.owntv.core.scraper.ForumScraper
+import tv.own.owntv.core.scraper.ForumIPTVAccount
+
+private enum class SourceKind { XTREAM, M3U, STALKER, AUTO }
 
 /** UI state of the Xtream "Test HLS support" probe. Local to this screen — the probe is one short
  *  request and saves nothing unless the source already exists. */
@@ -195,6 +200,11 @@ fun AddSourceScreen(
     var showSmartDialog by remember { mutableStateOf(false) }
     var smartInput by remember { mutableStateOf("") }
     var smartStatusMessage by remember { mutableStateOf<String?>(null) }
+    var isAutoScanning by rememberSaveable { mutableStateOf(false) }
+    var autoProgress by rememberSaveable { mutableFloatStateOf(0f) }
+    var autoStatusText by rememberSaveable { mutableStateOf("") }
+    var autoAccounts by rememberSaveable { mutableStateOf<List<ForumIPTVAccount>>(emptyList()) }
+    var autoErrorMessage by rememberSaveable { mutableStateOf<String?>(null) }
     val firstFocus = remember { FocusRequester() }
     val startImportFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { firstFocus.requestFocus() } }
@@ -252,7 +262,7 @@ fun AddSourceScreen(
         fun opt(value: String) = value.trim().takeIf { it.isNotBlank() }
         val ua = opt(userAgent)
         return when (kind) {
-            SourceKind.XTREAM -> SourceEntity(
+            SourceKind.XTREAM, SourceKind.AUTO -> SourceEntity(
                 id = initial?.id ?: 0L, name = name, type = SourceType.XTREAM,
                 url = server.trim(), username = username.trim(), password = password, userAgent = ua,
             )
@@ -417,12 +427,14 @@ fun AddSourceScreen(
         SourceKind.XTREAM -> server.isNotBlank() && username.isNotBlank() && password.isNotBlank() && hasAnySectionOn
         SourceKind.M3U -> m3uUrl.isNotBlank()
         SourceKind.STALKER -> tv.own.owntv.core.stalker.StalkerClient.isValidPortalUrl(portalUrl) && macValid && hasAnySectionOn
+        SourceKind.AUTO -> false
     }
 
     val canTest = when (kind) {
         SourceKind.XTREAM -> server.isNotBlank() && username.isNotBlank() && password.isNotBlank()
         SourceKind.M3U -> m3uUrl.isNotBlank() && !m3uUrl.startsWith("/")
         SourceKind.STALKER -> tv.own.owntv.core.stalker.StalkerClient.isValidPortalUrl(portalUrl) && macValid
+        SourceKind.AUTO -> false
     }
 
     Box(modifier.fillMaxSize().roundedPanel()) {
@@ -479,13 +491,182 @@ fun AddSourceScreen(
                 if (onStartStalker != null && (!editing || kind == SourceKind.STALKER)) {
                     KindChip(stringResource(R.string.setup_stalker_mac), kind == SourceKind.STALKER, Modifier.weight(1f)) { if (!editing) kind = SourceKind.STALKER }
                 }
+                if (!editing || kind == SourceKind.AUTO) {
+                    KindChip(stringResource(R.string.setup_auto_iptv), kind == SourceKind.AUTO, Modifier.weight(1f)) { if (!editing) kind = SourceKind.AUTO }
+                }
             }
             Spacer(Modifier.height(20.dp))
 
-            HanTVTextField(name, { name = it }, label = stringResource(R.string.setup_source_name_optional), placeholder = stringResource(R.string.setup_default_iptv), modifier = Modifier.fillMaxWidth(), focusRequester = if (editing) firstFocus else null)
-            Spacer(Modifier.height(14.dp))
+            if (kind != SourceKind.AUTO) {
+                HanTVTextField(name, { name = it }, label = stringResource(R.string.setup_source_name_optional), placeholder = stringResource(R.string.setup_default_iptv), modifier = Modifier.fillMaxWidth(), focusRequester = if (editing) firstFocus else null)
+                Spacer(Modifier.height(14.dp))
+            }
 
             when (kind) {
+                SourceKind.AUTO -> {
+                    Text(
+                        stringResource(R.string.setup_auto_iptv_description),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(16.dp))
+
+                    if (isAutoScanning) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(colors.surfaceContainerHigh.copy(alpha = 0.5f))
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            Text(
+                                "🔍 " + stringResource(R.string.setup_auto_iptv_scanning),
+                                style = MaterialTheme.typography.titleMedium,
+                                color = colors.primary,
+                            )
+                            if (autoStatusText.isNotBlank()) {
+                                Spacer(Modifier.height(8.dp))
+                                Text(
+                                    autoStatusText,
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    color = colors.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    } else {
+                        HanTVButton(
+                            label = if (autoAccounts.isEmpty()) stringResource(R.string.setup_auto_iptv_start_scan) else "🔄 Taramayı Yenile",
+                            onClick = {
+                                scope.launch {
+                                    isAutoScanning = true
+                                    autoErrorMessage = null
+                                    autoAccounts = emptyList()
+                                    autoProgress = 0.05f
+                                    autoStatusText = "Forum taranıyor..."
+                                    val result = ForumScraper.scrapeAndValidate { progress: Float, status: String ->
+                                        autoProgress = progress
+                                        autoStatusText = status
+                                    }
+                                    isAutoScanning = false
+                                    if (result.success && result.accounts.isNotEmpty()) {
+                                        autoAccounts = result.accounts
+                                    } else {
+                                        autoErrorMessage = result.message
+                                    }
+                                }
+                            },
+                            style = HanTVButtonStyle.PRIMARY,
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+
+                    if (autoErrorMessage != null) {
+                        Spacer(Modifier.height(12.dp))
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(Color(0xFFEF4444).copy(alpha = 0.2f))
+                                .padding(12.dp),
+                        ) {
+                            Text(
+                                autoErrorMessage!!,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFFF87171),
+                            )
+                        }
+                    }
+
+                    if (autoAccounts.isNotEmpty()) {
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            stringResource(R.string.setup_auto_iptv_found_header, autoAccounts.size),
+                            style = MaterialTheme.typography.titleMedium,
+                            color = colors.primary,
+                        )
+                        Spacer(Modifier.height(4.dp))
+                        Text(
+                            stringResource(R.string.setup_auto_iptv_select_hint),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = colors.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.height(12.dp))
+
+                        autoAccounts.forEach { acc ->
+                            FocusableSurface(
+                                onClick = {
+                                    server = acc.host
+                                    username = acc.username
+                                    password = acc.password
+                                    name = "Auto IPTV (${acc.username})"
+                                    kind = SourceKind.XTREAM
+                                    smartStatusMessage = "⚡ Auto IPTV hesabı seçildi (${acc.username})."
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp),
+                                shape = RoundedCornerShape(12.dp),
+                            ) {
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(14.dp),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Column(
+                                        modifier = Modifier.weight(1f),
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
+                                        Text(
+                                            acc.host,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            color = colors.onSurface,
+                                        )
+                                        Text(
+                                            "👤 " + acc.username,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = colors.onSurfaceVariant,
+                                        )
+                                    }
+                                    Column(
+                                        horizontalAlignment = Alignment.End,
+                                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                                    ) {
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(Color(0xFF10B981).copy(alpha = 0.2f))
+                                                .padding(horizontal = 8.dp, vertical = 2.dp),
+                                        ) {
+                                            Text(
+                                                acc.status,
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = Color(0xFF10B981),
+                                            )
+                                        }
+                                        Box(
+                                            modifier = Modifier
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(colors.primary.copy(alpha = 0.2f))
+                                                .padding(horizontal = 8.dp, vertical = 2.dp),
+                                        ) {
+                                            Text(
+                                                acc.expiry,
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = colors.primary,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(Modifier.height(28.dp))
+                    HanTVButton(stringResource(R.string.common_back), onClick = onBack, style = HanTVButtonStyle.SECONDARY, modifier = Modifier.fillMaxWidth())
+                }
                 SourceKind.XTREAM -> {
                     HanTVTextField(
                         server,
@@ -571,137 +752,140 @@ fun AddSourceScreen(
                 }
             }
 
-            // EPG is managed separately now (Settings → EPG Sources), so no EPG field here. For an
-            // Xtream server the guide URL is still derived automatically; M3U EPG can be added there.
-            Spacer(Modifier.height(14.dp))
-            HanTVTextField(userAgent, { userAgent = it }, label = stringResource(R.string.setup_user_agent_optional), placeholder = stringResource(R.string.setup_user_agent_example), modifier = Modifier.fillMaxWidth())
+            if (kind != SourceKind.AUTO) {
+                // EPG is managed separately now (Settings → EPG Sources), so no EPG field here. For an
+                // Xtream server the guide URL is still derived automatically; M3U EPG can be added there.
+                Spacer(Modifier.height(14.dp))
+                HanTVTextField(userAgent, { userAgent = it }, label = stringResource(R.string.setup_user_agent_optional), placeholder = stringResource(R.string.setup_user_agent_example), modifier = Modifier.fillMaxWidth())
 
-            Spacer(Modifier.height(10.dp))
-            HanTVButton(
-                label = stringResource(if (sourceTest is SourceTestUi.Running) R.string.setup_testing else R.string.setup_test_connection),
-                onClick = { if (sourceTest == null) runSourceTest() },
-                style = HanTVButtonStyle.SECONDARY,
-                enabled = canTest,
-                modifier = Modifier.fillMaxWidth(),
-            )
-
-            Spacer(Modifier.height(16.dp))
-            // Auto-refresh dropdown (replaces the old binary "Refresh on startup" toggle). Off/Startup or a
-            // staleness threshold — the source is refreshed when its data is at least this old.
-            AutoRefreshRow(selected = autoRefresh) { showAutoRefreshPicker = true }
-
-            if (showDefaultToggle) {
-                Spacer(Modifier.height(16.dp))
-                ToggleRow(
-                    label = stringResource(R.string.setup_default_playlist),
-                    desc = stringResource(R.string.setup_default_playlist_description),
-                    checked = isDefault,
-                ) { isDefault = it }
-            }
-
-            // Shown for every Xtream source, on Add (incl. the setup wizard and the Remote hand-off)
-            // as well as Edit: `hlsSupported` is only known AFTER the first sync has read
-            // user_info.allowed_output_formats, so gating the row on it would hide the option on a
-            // fresh install entirely. Detection only refines the wording below — it never disables the
-            // toggle, because a panel that under-reports its formats must not veto the user's choice.
-            if (kind == SourceKind.XTREAM) {
-                Spacer(Modifier.height(16.dp))
+                Spacer(Modifier.height(10.dp))
                 HanTVButton(
-                    label = stringResource(
-                        if (hlsTest is HlsTestUi.Testing) R.string.setup_hls_testing else R.string.setup_hls_test_support,
-                    ),
-                    // Re-entry is blocked HERE rather than through `enabled`: a disabled FocusableSurface
-                    // is not a focus target, so flipping it off under the user's cursor would drop D-pad
-                    // focus off the screen for the length of the probe.
-                    onClick = { if (hlsTest !is HlsTestUi.Testing) runHlsTest() },
+                    label = stringResource(if (sourceTest is SourceTestUi.Running) R.string.setup_testing else R.string.setup_test_connection),
+                    onClick = { if (sourceTest == null) runSourceTest() },
                     style = HanTVButtonStyle.SECONDARY,
-                    // Needs the credentials, but not a synced playlist: the probe pulls one stream id
-                    // straight off the panel when the source is new.
-                    enabled = server.isNotBlank() && username.isNotBlank() && password.isNotBlank(),
+                    enabled = canTest,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                when (val t = hlsTest) {
-                    is HlsTestUi.Complete -> {
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            t.test.displayText(LocalContext.current.resources),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = if (t.test.probe is HlsProbe.Served) colors.primary else Color(0xFFEF4444),
-                        )
-                    }
-                    is HlsTestUi.Failed -> {
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            stringResource(R.string.setup_hls_test_failed, t.rawMessage),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFEF4444),
-                        )
-                    }
-                    else -> Unit
+
+                Spacer(Modifier.height(16.dp))
+                // Auto-refresh dropdown (replaces the old binary "Refresh on startup" toggle). Off/Startup or a
+                // staleness threshold — the source is refreshed when its data is at least this old.
+                AutoRefreshRow(selected = autoRefresh) { showAutoRefreshPicker = true }
+
+                if (showDefaultToggle) {
+                    Spacer(Modifier.height(16.dp))
+                    ToggleRow(
+                        label = stringResource(R.string.setup_default_playlist),
+                        desc = stringResource(R.string.setup_default_playlist_description),
+                        checked = isDefault,
+                    ) { isDefault = it }
                 }
-                Spacer(Modifier.height(16.dp))
-                ToggleRow(
-                    label = stringResource(R.string.setup_prefer_hls_live_tv),
-                    desc = stringResource(
-                        when (testedSupport ?: initial?.hlsSupported ?: HlsSupport.UNKNOWN) {
-                            HlsSupport.SUPPORTED -> R.string.setup_prefer_hls_description_supported
-                            HlsSupport.UNSUPPORTED -> R.string.setup_prefer_hls_description_unsupported
-                            HlsSupport.UNKNOWN -> R.string.setup_prefer_hls_description
-                        },
-                    ),
-                    checked = preferHls,
-                ) { preferHls = it }
-            }
 
-            if (showContentToggles) {
-                Spacer(Modifier.height(20.dp))
-                Text(stringResource(R.string.setup_what_to_sync), style = MaterialTheme.typography.titleMedium, color = colors.onSurface)
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    if (editing) {
-                        stringResource(R.string.setup_sync_off_editing)
-                    } else {
-                        stringResource(R.string.setup_sync_choices)
-                    },
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant,
-                )
-                Spacer(Modifier.height(10.dp))
-                SyncScopeRow(label = stringResource(R.string.setup_live_tv), desc = stringResource(R.string.setup_channels_categories), value = syncLive, editing = editing) { syncLive = it }
-                Spacer(Modifier.height(8.dp))
-                SyncScopeRow(label = stringResource(R.string.setup_movies), desc = stringResource(R.string.setup_vod_movie_catalog), value = syncMovies, editing = editing) { syncMovies = it }
-                Spacer(Modifier.height(8.dp))
-                SyncScopeRow(label = stringResource(R.string.setup_series), desc = stringResource(R.string.setup_tv_series_catalog), value = syncSeries, editing = editing) { syncSeries = it }
-            }
-
-            if (!editing && hideNewCatsProfile >= 0) {
-                Spacer(Modifier.height(16.dp))
-                ToggleRow(
-                    label = stringResource(R.string.setup_hide_new_categories),
-                    desc = stringResource(R.string.setup_hide_new_categories_description),
-                    checked = hideNewCats,
-                ) { hidden -> scope.launch { settings.setHideNewCategoriesDefault(hideNewCatsProfile, hidden) } }
-            }
-
-            Spacer(Modifier.height(28.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                HanTVButton(stringResource(R.string.common_back), onClick = onBack, style = HanTVButtonStyle.SECONDARY)
-                Spacer(Modifier.weight(1f))
-                HanTVButton(
-                    label = if (editing) stringResource(R.string.setup_update_source_save) else stringResource(R.string.setup_start_import),
-                    onClick = {
-                        when (kind) {
-                            SourceKind.XTREAM -> onStartXtream(name, server, username, password, userAgent, epgUrl, autoRefresh, syncLive, syncMovies, syncSeries, isDefault, preferHls)
-                            SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, epgUrl, autoRefresh, isDefault)
-                            SourceKind.STALKER -> onStartStalker?.invoke(
-                                name, portalUrl, mac, stalkerSerialNumber, stalkerDeviceId, stalkerDeviceId2,
-                                stalkerSignature, userAgent, autoRefresh, isDefault, syncLive, syncMovies, syncSeries,
+                // Shown for every Xtream source, on Add (incl. the setup wizard and the Remote hand-off)
+                // as well as Edit: `hlsSupported` is only known AFTER the first sync has read
+                // user_info.allowed_output_formats, so gating the row on it would hide the option on a
+                // fresh install entirely. Detection only refines the wording below — it never disables the
+                // toggle, because a panel that under-reports its formats must not veto the user's choice.
+                if (kind == SourceKind.XTREAM) {
+                    Spacer(Modifier.height(16.dp))
+                    HanTVButton(
+                        label = stringResource(
+                            if (hlsTest is HlsTestUi.Testing) R.string.setup_hls_testing else R.string.setup_hls_test_support,
+                        ),
+                        // Re-entry is blocked HERE rather than through `enabled`: a disabled FocusableSurface
+                        // is not a focus target, so flipping it off under the user's cursor would drop D-pad
+                        // focus off the screen for the length of the probe.
+                        onClick = { if (hlsTest !is HlsTestUi.Testing) runHlsTest() },
+                        style = HanTVButtonStyle.SECONDARY,
+                        // Needs the credentials, but not a synced playlist: the probe pulls one stream id
+                        // straight off the panel when the source is new.
+                        enabled = server.isNotBlank() && username.isNotBlank() && password.isNotBlank(),
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    when (val t = hlsTest) {
+                        is HlsTestUi.Complete -> {
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                t.test.displayText(LocalContext.current.resources),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = if (t.test.probe is HlsProbe.Served) colors.primary else Color(0xFFEF4444),
                             )
                         }
-                    },
-                    enabled = canStart,
-                    modifier = Modifier.focusRequester(startImportFocus),
-                )
+                        is HlsTestUi.Failed -> {
+                            Spacer(Modifier.height(6.dp))
+                            Text(
+                                stringResource(R.string.setup_hls_test_failed, t.rawMessage),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = Color(0xFFEF4444),
+                            )
+                        }
+                        else -> Unit
+                    }
+                    Spacer(Modifier.height(16.dp))
+                    ToggleRow(
+                        label = stringResource(R.string.setup_prefer_hls_live_tv),
+                        desc = stringResource(
+                            when (testedSupport ?: initial?.hlsSupported ?: HlsSupport.UNKNOWN) {
+                                HlsSupport.SUPPORTED -> R.string.setup_prefer_hls_description_supported
+                                HlsSupport.UNSUPPORTED -> R.string.setup_prefer_hls_description_unsupported
+                                HlsSupport.UNKNOWN -> R.string.setup_prefer_hls_description
+                            },
+                        ),
+                        checked = preferHls,
+                    ) { preferHls = it }
+                }
+
+                if (showContentToggles) {
+                    Spacer(Modifier.height(20.dp))
+                    Text(stringResource(R.string.setup_what_to_sync), style = MaterialTheme.typography.titleMedium, color = colors.onSurface)
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        if (editing) {
+                            stringResource(R.string.setup_sync_off_editing)
+                        } else {
+                            stringResource(R.string.setup_sync_choices)
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = colors.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(10.dp))
+                    SyncScopeRow(label = stringResource(R.string.setup_live_tv), desc = stringResource(R.string.setup_channels_categories), value = syncLive, editing = editing) { syncLive = it }
+                    Spacer(Modifier.height(8.dp))
+                    SyncScopeRow(label = stringResource(R.string.setup_movies), desc = stringResource(R.string.setup_vod_movie_catalog), value = syncMovies, editing = editing) { syncMovies = it }
+                    Spacer(Modifier.height(8.dp))
+                    SyncScopeRow(label = stringResource(R.string.setup_series), desc = stringResource(R.string.setup_tv_series_catalog), value = syncSeries, editing = editing) { syncSeries = it }
+                }
+
+                if (!editing && hideNewCatsProfile >= 0) {
+                    Spacer(Modifier.height(16.dp))
+                    ToggleRow(
+                        label = stringResource(R.string.setup_hide_new_categories),
+                        desc = stringResource(R.string.setup_hide_new_categories_description),
+                        checked = hideNewCats,
+                    ) { hidden -> scope.launch { settings.setHideNewCategoriesDefault(hideNewCatsProfile, hidden) } }
+                }
+
+                Spacer(Modifier.height(28.dp))
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    HanTVButton(stringResource(R.string.common_back), onClick = onBack, style = HanTVButtonStyle.SECONDARY)
+                    Spacer(Modifier.weight(1f))
+                    HanTVButton(
+                        label = if (editing) stringResource(R.string.setup_update_source_save) else stringResource(R.string.setup_start_import),
+                        onClick = {
+                            when (kind) {
+                                SourceKind.XTREAM -> onStartXtream(name, server, username, password, userAgent, epgUrl, autoRefresh, syncLive, syncMovies, syncSeries, isDefault, preferHls)
+                                SourceKind.M3U -> onStartM3u(name, m3uUrl, userAgent, epgUrl, autoRefresh, isDefault)
+                                SourceKind.STALKER -> onStartStalker?.invoke(
+                                    name, portalUrl, mac, stalkerSerialNumber, stalkerDeviceId, stalkerDeviceId2,
+                                    stalkerSignature, userAgent, autoRefresh, isDefault, syncLive, syncMovies, syncSeries,
+                                )
+                                SourceKind.AUTO -> {}
+                            }
+                        },
+                        enabled = canStart,
+                        modifier = Modifier.focusRequester(startImportFocus),
+                    )
+                }
             }
         }
       }

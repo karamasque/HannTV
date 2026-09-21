@@ -50,10 +50,16 @@
 1	app/src/main/java/tv/own/owntv/features/settings/VideoPlayerSettingsScreen.kt	+
 1	app/src/main/java/tv/own/owntv/features/settings/VideoPlayerSettingsScreen.kt	FFFFFF
 1	app/src/main/java/tv/own/owntv/features/settings/VideoPlayerSettingsScreen.kt	–
-2	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	\0
+3	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	\0
+1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	Auto IPTV (${acc.username})
+1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	Forum taranıyor...
 1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	Xtream
 1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	Xtream Codes bağlantısı algılandı ve dolduruldu.
 1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	ayrıştırıldı
+1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	⚡ Auto IPTV hesabı seçildi (${acc.username}).
+1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	👤
+1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	🔄 Taramayı Yenile
+1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	🔍
 1	app/src/main/java/tv/own/owntv/features/setup/SetupWizard.kt	\0
 5	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	\0
 2	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	Action
@@ -2730,6 +2736,105 @@
 1	core/src/main/java/tv/own/owntv/core/repository/SourceTester.kt	num_of_devices
 1	core/src/main/java/tv/own/owntv/core/repository/SourceTester.kt	status
 1	core/src/main/java/tv/own/owntv/core/repository/SourceTester.kt	test sourceId=${source.id} type=${source.type} -> ${result::class.simpleName}
+6	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	\0
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	"
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	$totalCandidatesCount aday bulundu, doğrulanıyor...
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	${acc.host}_${acc.username}_${acc.password}
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	${parsed.host}_${parsed.username}_${parsed.password}
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	${threadUrl}page-$lastPage
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	${threadUrl}page-${lastPage - 1}
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	${threadUrl}page-${lastPage - 2}
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	${validatedAccs.size} aktif IPTV hazır!
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	&
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	&#39;
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	&amp;
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	&gt;
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	&lt;
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	&quot;
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	'
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	(https?://[^\\s/:,]+:\\d+)[/\\s,;|]+([^\\s:,;|]+)[\\s:,;|]+([^\\s:,;|]+)
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	).findAll(postContent).mapNotNull { it.groupValues.getOrNull(1) }.joinToString(
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	*/*
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	.
+4	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	/
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	/get.php
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	/live/
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	/movie/
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	/play/
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	/player_api.php
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	/series/
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	/xmltv.php
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	0
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	1
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	<
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	<article\\s+class="message-body[^"]*">(.*?)</article>
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	>
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	?
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Accept
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Accept-Language
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Aktif
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Bağlantı hatası
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Bilinmiyor
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Doğrulanıyor: ${validatedAccs.size} aktif / ${minOf((batchIdx + 1) * BATCH_SIZE, allCandidates.size)} kontrol edildi
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	En güncel paylaşımlar toplanıyor...
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	IPTV Adresleri taranıyor...
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Kaynak taraması başarısız oldu: ${e.localizedMessage ?: "Bağlantı hatası"}
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Limitsiz
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Origin
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Otomatik oturum açılıyor...
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Referer
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	SSL
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Sunucu bağlantısı kuruluyor...
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	TLS
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Taranan hesapların süresi dolmuş veya erişilemez durumda.
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	UTF-8
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	User-Agent
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	X-Requested-With
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	XMLHttpRequest
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	[?&](?:password|pass)=([^&#\\s]+)
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	[?&](?:username|user|auth)=([^&#\\s]+)
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	_xfRedirect
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	_xfResponseType
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	_xfToken
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	application/json, text/javascript, */*; q=0.01
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	auth
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	banned
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	data-csrf="([^"]+)
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	disabled
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	exp_date
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	facebook
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	forumsitesi.com.tr
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	github
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	google
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	href="([^"]+)
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	http://
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	http://$trimmed
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	https://
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	https://forumsitesi.com.tr
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	https://forumsitesi.com.tr/
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	https://forumsitesi.com.tr/konular/byxm-herkese-acik-iptv-m3u-panel-linkleri-2026.1285748/
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	https://forumsitesi.com.tr/konular/byxm-premium-uyelere-ozel-iptv-m3u-panel-linkleri-2026.1285769/
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	https://forumsitesi.com.tr/login/
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	https://forumsitesi.com.tr/login/login
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	https?://[^\\s"'<>]+
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	json
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	login
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	name="_xfToken"\\s*value="([^"]+)
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	null
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	page-(\\d+)
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	password
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	remember
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	status
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	t.me
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	telegram
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	tr-TR,tr;q=0.9,en-US;q=0.8
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	user_info
+2	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	username
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	uyduportal.com
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	yandex
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	yyyy-MM-dd
+1	core/src/main/java/tv/own/owntv/core/scraper/ForumScraper.kt	Şu anda taranan başlıklarda IPTV bulunamadı.
 1	core/src/main/java/tv/own/owntv/core/settings/RemoteShortcuts.kt	$keyCode:${press.name}
 1	core/src/main/java/tv/own/owntv/core/settings/RemoteShortcuts.kt	${it.keyCode}$SEPARATOR${it.press.name}$SEPARATOR${it.action.name}
 33	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	\0
