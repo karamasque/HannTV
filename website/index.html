@@ -902,34 +902,105 @@
             </button>
           </div>
 
-          <!-- Add Playlist Inline Form Box -->
+          <!-- Add Playlist Modal / Box -->
           <div class="add-playlist-box glass-card" id="addPlaylistFormBox" style="display: none;">
             <div class="add-pl-header">
-              <h3>Yeni Çalma Listesi Ekle</h3>
-              <button class="btn-icon-close" onclick="toggleAddPlaylistForm(false)">✕</button>
+              <div>
+                <h3 class="add-pl-title">Oynatma listesi ekle</h3>
+                <p class="add-pl-subtitle">Nasıl bağlanmak istediğinizi seçin. Daha sonra yeniden adlandırabilirsiniz.</p>
+              </div>
+              <button type="button" class="btn-icon-close" onclick="toggleAddPlaylistForm(false)">✕</button>
             </div>
 
-            <form id="formAddPlaylist" onsubmit="handleSavePlaylist(event)">
-              <div class="form-row">
-                <div class="form-group col-6">
-                  <label for="plType">Bağlantı Türü</label>
-                  <select id="plType" class="form-control" onchange="onPlaylistTypeChange()">
-                    <option value="xtream">Xtream Codes API (Önerilen)</option>
-                    <option value="m3u">M3U / M3U8 Playlist URL</option>
-                    <option value="stalker">Stalker / Ministra (MAC Portal)</option>
-                  </select>
-                </div>
-                <div class="form-group col-6">
-                  <label for="plTitle">Liste Başlığı</label>
-                  <input type="text" id="plTitle" class="form-control" placeholder="Örn: Ev IPTV / VIP Spor" required />
+            <!-- 6 Method Cards Grid -->
+            <div class="add-pl-methods-grid">
+              <div class="method-card" id="methodCard_m3u_url" onclick="selectPlaylistMethod('m3u_url')">
+                <div class="method-icon">🌐</div>
+                <div class="method-info">
+                  <h4>M3U URL</h4>
+                  <p>Uzak bir .m3u veya .m3u8 bağlantısını yapıştırın</p>
                 </div>
               </div>
 
-              <!-- Xtream Fields -->
-              <div id="xtreamFields">
+              <div class="method-card" id="methodCard_m3u_file" onclick="selectPlaylistMethod('m3u_file')">
+                <div class="method-icon">📁</div>
+                <div class="method-info">
+                  <h4>M3U dosyası</h4>
+                  <p>Bilgisayarınızdan bir oynatma listesi yükleyin</p>
+                </div>
+              </div>
+
+              <div class="method-card" id="methodCard_xtream" onclick="selectPlaylistMethod('xtream')">
+                <div class="method-icon">🔑</div>
+                <div class="method-info">
+                  <h4>Xtream kimlik bilgileri</h4>
+                  <p>Sunucu, kullanıcı adı ve parola ile bağlanın</p>
+                </div>
+              </div>
+
+              <div class="method-card" id="methodCard_stalker" onclick="selectPlaylistMethod('stalker')">
+                <div class="method-icon">📡</div>
+                <div class="method-info">
+                  <h4>Stalker portalı</h4>
+                  <p>MAC adresi ve portal URL'si</p>
+                </div>
+              </div>
+
+              <div class="method-card" id="methodCard_m3u_raw" onclick="selectPlaylistMethod('m3u_raw')">
+                <div class="method-icon">📑</div>
+                <div class="method-info">
+                  <h4>Ham m3u metni</h4>
+                  <p>Tek seferlik listeler veya yalnızca metniniz olduğunda</p>
+                </div>
+              </div>
+
+              <div class="method-card active" id="methodCard_auto" onclick="selectPlaylistMethod('auto')">
+                <div class="method-icon">✨</div>
+                <div class="method-info">
+                  <h4>Otomatik algılama</h4>
+                  <p>Sağlayıcınızın mesajını yapıştırın</p>
+                </div>
+              </div>
+            </div>
+
+            <form id="formAddPlaylist" onsubmit="handleSavePlaylist(event)">
+              <input type="hidden" id="selectedPlMethod" value="auto" />
+
+              <!-- Section: Otomatik Algılama (Sağlayıcınızın mesajı) -->
+              <div id="methodSection_auto" class="method-section">
+                <div class="fieldset-card">
+                  <span class="fieldset-legend">Sağlayıcınızın mesajı</span>
+                  <textarea id="autoDetectInput" class="custom-textarea" rows="4"
+                    placeholder="Sağlayıcınızın gönderdiği her şeyi yapıştırın — bağlantılar, kullanıcı adı ve şifre, MAC adresi..."
+                    oninput="handleAutoDetectInput(this.value)"></textarea>
+                </div>
+                <div id="autoDetectBadge" class="smart-detect-badge" style="display: none;">
+                  <span class="badge-icon">⚡</span>
+                  <span id="autoDetectBadgeText">Xtream Codes bilgileri algılandı</span>
+                </div>
+              </div>
+
+              <!-- Section: M3U URL -->
+              <div id="methodSection_m3u_url" class="method-section" style="display: none;">
+                <div class="form-group">
+                  <label for="plUrl">M3U Playlist URL Bağlantısı</label>
+                  <input type="url" id="plUrl" class="form-control" placeholder="http://eumaxim.shop:8080/get.php?username=...&password=...&type=m3u" />
+                </div>
+              </div>
+
+              <!-- Section: M3U File -->
+              <div id="methodSection_m3u_file" class="method-section" style="display: none;">
+                <div class="form-group">
+                  <label for="plFileInput">M3U Dosyası Seçin</label>
+                  <input type="file" id="plFileInput" class="form-control" accept=".m3u,.m3u8,.txt" onchange="handleM3uFilePicked(event)" />
+                </div>
+              </div>
+
+              <!-- Section: Xtream Kimlik Bilgileri -->
+              <div id="methodSection_xtream" class="method-section" style="display: none;">
                 <div class="form-group">
                   <label for="plServer">Sunucu Adresi (URL & Port)</label>
-                  <input type="text" id="plServer" class="form-control" placeholder="http://example.com:8080" />
+                  <input type="text" id="plServer" class="form-control" placeholder="http://eumaxim.shop:8080" />
                 </div>
                 <div class="form-row">
                   <div class="form-group col-6">
@@ -943,16 +1014,8 @@
                 </div>
               </div>
 
-              <!-- M3U Fields -->
-              <div id="m3uFields" style="display: none;">
-                <div class="form-group">
-                  <label for="plUrl">M3U Playlist URL Bağlantısı</label>
-                  <input type="url" id="plUrl" class="form-control" placeholder="https://example.com/get.php?username=...&type=m3u_plus" />
-                </div>
-              </div>
-
-              <!-- Stalker Fields -->
-              <div id="stalkerFields" style="display: none;">
+              <!-- Section: Stalker Portalı -->
+              <div id="methodSection_stalker" class="method-section" style="display: none;">
                 <div class="form-row">
                   <div class="form-group col-6">
                     <label for="plPortalUrl">Portal URL</label>
@@ -965,9 +1028,26 @@
                 </div>
               </div>
 
-              <div class="form-actions">
-                <button type="button" class="btn btn-secondary" onclick="toggleAddPlaylistForm(false)">İptal</button>
-                <button type="submit" class="btn btn-primary">Listeyi Kaydet & Senkron Et</button>
+              <!-- Section: Ham M3U Metni -->
+              <div id="methodSection_m3u_raw" class="method-section" style="display: none;">
+                <div class="form-group">
+                  <label for="plRawText">Ham M3U İçeriği (#EXTM3U ...)</label>
+                  <textarea id="plRawText" class="form-control custom-textarea" rows="4" placeholder="#EXTM3U&#10;#EXTINF:-1 tvg-id=&quot;...&quot;, Kanal&#10;http://..."></textarea>
+                </div>
+              </div>
+
+              <!-- Common Playlist Title (Optional/Auto-filled) -->
+              <div class="form-group" style="margin-top: 14px;">
+                <label for="plTitle">Liste Adı (İsteğe bağlı)</label>
+                <input type="text" id="plTitle" class="form-control" placeholder="Örn: HanTV VIP Playlist" />
+              </div>
+
+              <div class="form-actions-bar">
+                <button type="button" class="btn btn-ghost" onclick="clearAddPlaylistForm()">Temizle</button>
+                <div class="form-actions-right">
+                  <button type="button" class="btn btn-secondary" onclick="toggleAddPlaylistForm(false)">İptal</button>
+                  <button type="submit" class="btn btn-primary" id="btnSavePlaylist">Kaydet & Senkron Et</button>
+                </div>
               </div>
             </form>
           </div>

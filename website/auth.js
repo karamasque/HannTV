@@ -320,19 +320,196 @@ async function loadFirestoreData(uid) {
   }
 }
 
+// Smart Source Analyzer for Web Client
+function analyzeSmartText(input) {
+  if (!input || !input.trim()) return null;
+  const text = input.trim();
+
+  // 1. Query Params (get.php?username=...&password=... or player_api.php)
+  const getPhpMatch = text.match(/https?:\/\/[^\s"'<>\n\r]+/i);
+  if (getPhpMatch) {
+    const urlStr = getPhpMatch[0];
+    try {
+      const urlObj = new URL(urlStr);
+      const params = urlObj.searchParams;
+      const user = params.get("username") || params.get("user") || params.get("usr") || params.get("u");
+      const pass = params.get("password") || params.get("pass") || params.get("pwd") || params.get("p");
+      if (user && pass) {
+        const server = `${urlObj.protocol}//${urlObj.host}`;
+        return {
+          type: "xtream",
+          server: server,
+          username: user,
+          password: pass,
+          url: urlStr,
+          suggestedTitle: (urlObj.hostname.split(".")[0] || user).toUpperCase() + " Xtream"
+        };
+      }
+    } catch (e) {}
+
+    // Path based (/live/user/pass or /movie/user/pass or /series/user/pass)
+    const pathMatch = urlStr.match(/^(https?:\/\/[^\/]+)\/(?:live|movie|series|vod|playlist|timeshift|hls)\/([^\/]+)\/([^\/]+)/i);
+    if (pathMatch && !pathMatch[2].includes("=") && !pathMatch[3].includes("=")) {
+      return {
+        type: "xtream",
+        server: pathMatch[1],
+        username: pathMatch[2],
+        password: pathMatch[3],
+        url: urlStr,
+        suggestedTitle: pathMatch[2] + " Xtream"
+      };
+    }
+  }
+
+  // 2. Stalker (MAC + Portal)
+  const macMatch = text.match(/([0-9A-Fa-f]{2}[:-]){5}([0-9A-Fa-f]{2})/);
+  const portalMatch = text.match(/https?:\/\/[^\s"'<>\n\r]+/i);
+  if (macMatch && portalMatch) {
+    return {
+      type: "stalker",
+      portalUrl: portalMatch[0],
+      mac: macMatch[0].toUpperCase(),
+      suggestedTitle: "Stalker Portal"
+    };
+  }
+
+  // 3. Multiline labeled text (Server: ... User: ... Pass: ...)
+  const lines = text.split(/[\r\n]+/);
+  let server = "", user = "", pass = "", portalUrl = "", mac = "";
+  for (const line of lines) {
+    const parts = line.split(/[:=]/);
+    if (parts.length >= 2) {
+      const key = parts[0].trim().toLowerCase();
+      const val = line.substring(line.indexOf(parts[0]) + parts[0].length + 1).trim();
+      if ((key.includes("sunucu") || key.includes("server") || key.includes("url") || key.includes("host") || key.includes("link")) && val.startsWith("http")) {
+        server = val.replace(/\/+$/, "");
+      } else if (key.includes("kullanici") || key.includes("user") || key.includes("username") || key.includes("hesap")) {
+        user = val;
+      } else if (key.includes("sifre") || key.includes("şifre") || key.includes("pass") || key.includes("password") || key.includes("parola")) {
+        pass = val;
+      } else if (key.includes("mac")) {
+        mac = val;
+      } else if (key.includes("portal")) {
+        portalUrl = val;
+      }
+    }
+  }
+
+  if (server && user && pass) {
+    return {
+      type: "xtream",
+      server: server,
+      username: user,
+      password: pass,
+      suggestedTitle: user + " Xtream"
+    };
+  }
+
+  if (mac && portalUrl) {
+    return {
+      type: "stalker",
+      portalUrl: portalUrl,
+      mac: mac,
+      suggestedTitle: "Stalker Portal"
+    };
+  }
+
+  // 4. Pure M3U URL
+  if (text.startsWith("http://") || text.startsWith("https://")) {
+    return {
+      type: "m3u",
+      url: text,
+      suggestedTitle: "M3U Playlist"
+    };
+  }
+
+  return null;
+}
+
+// Method selection
+function selectPlaylistMethod(method) {
+  document.getElementById("selectedPlMethod").value = method;
+  const methods = ["m3u_url", "m3u_file", "xtream", "stalker", "m3u_raw", "auto"];
+
+  methods.forEach(m => {
+    const card = document.getElementById("methodCard_" + m);
+    const sec = document.getElementById("methodSection_" + m);
+    if (card) card.classList.toggle("active", m === method);
+    if (sec) sec.style.display = m === method ? "block" : "none";
+  });
+}
+
+let autoDetectedData = null;
+
+function handleAutoDetectInput(value) {
+  const badge = document.getElementById("autoDetectBadge");
+  const badgeText = document.getElementById("autoDetectBadgeText");
+  const titleInput = document.getElementById("plTitle");
+
+  autoDetectedData = analyzeSmartText(value);
+
+  if (autoDetectedData) {
+    badge.style.display = "flex";
+    if (autoDetectedData.type === "xtream") {
+      badgeText.innerHTML = `<strong>Xtream Codes Algılandı:</strong> Sunucu: <code>${autoDetectedData.server}</code> | Kullanıcı: <code>${autoDetectedData.username}</code>`;
+      if (!titleInput.value) titleInput.value = autoDetectedData.suggestedTitle;
+    } else if (autoDetectedData.type === "stalker") {
+      badgeText.innerHTML = `<strong>Stalker Portalı Algılandı:</strong> MAC: <code>${autoDetectedData.mac}</code>`;
+      if (!titleInput.value) titleInput.value = autoDetectedData.suggestedTitle;
+    } else if (autoDetectedData.type === "m3u") {
+      badgeText.innerHTML = `<strong>M3U Bağlantısı Algılandı:</strong> <code>${autoDetectedData.url.substring(0, 45)}...</code>`;
+      if (!titleInput.value) titleInput.value = autoDetectedData.suggestedTitle;
+    }
+  } else {
+    badge.style.display = "none";
+  }
+}
+
+function clearAddPlaylistForm() {
+  document.getElementById("formAddPlaylist").reset();
+  document.getElementById("autoDetectInput").value = "";
+  document.getElementById("autoDetectBadge").style.display = "none";
+  autoDetectedData = null;
+}
+
+function handleM3uFilePicked(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(evt) {
+    document.getElementById("plRawText").value = evt.target.result;
+    const titleInput = document.getElementById("plTitle");
+    if (!titleInput.value) titleInput.value = file.name.replace(/\.[^/.]+$/, "");
+    showToast("📁 M3U dosyası yüklendi: " + file.name);
+  };
+  reader.readAsText(file);
+}
+
 // Save Playlist
 async function handleSavePlaylist(e) {
   e.preventDefault();
-  const type = document.getElementById("plType").value;
+  const method = document.getElementById("selectedPlMethod").value;
   const title = document.getElementById("plTitle").value.trim();
 
   let playlistData = {
     title: title || "Çalma Listem",
-    type: type,
     createdAt: new Date().toLocaleDateString("tr-TR")
   };
 
-  if (type === "xtream") {
+  if (method === "auto") {
+    const rawVal = document.getElementById("autoDetectInput").value.trim();
+    if (!rawVal) {
+      showToast("Lütfen sağlayıcınızın mesajını veya linkini yapıştırın.", "error");
+      return;
+    }
+    const detected = autoDetectedData || analyzeSmartText(rawVal);
+    if (!detected) {
+      showToast("Girdiğiniz metinden geçerli bir bağlantı veya hesap çıkarılamadı.", "error");
+      return;
+    }
+    playlistData = { ...playlistData, ...detected };
+  } else if (method === "xtream") {
+    playlistData.type = "xtream";
     playlistData.server = document.getElementById("plServer").value.trim();
     playlistData.username = document.getElementById("plUsername").value.trim();
     playlistData.password = document.getElementById("plPassword").value.trim();
@@ -340,13 +517,22 @@ async function handleSavePlaylist(e) {
       showToast("Lütfen Sunucu, Kullanıcı Adı ve Şifreyi eksiksiz girin.", "error");
       return;
     }
-  } else if (type === "m3u") {
+  } else if (method === "m3u_url") {
+    playlistData.type = "m3u";
     playlistData.url = document.getElementById("plUrl").value.trim();
     if (!playlistData.url) {
       showToast("Lütfen M3U URL bağlantısını girin.", "error");
       return;
     }
-  } else if (type === "stalker") {
+  } else if (method === "m3u_file" || method === "m3u_raw") {
+    playlistData.type = "m3u_raw";
+    playlistData.rawText = document.getElementById("plRawText").value.trim();
+    if (!playlistData.rawText) {
+      showToast("Lütfen bir M3U dosyası seçin veya metin yapıştırın.", "error");
+      return;
+    }
+  } else if (method === "stalker") {
+    playlistData.type = "stalker";
     playlistData.portalUrl = document.getElementById("plPortalUrl").value.trim();
     playlistData.mac = document.getElementById("plMac").value.trim();
     if (!playlistData.portalUrl || !playlistData.mac) {
@@ -371,7 +557,7 @@ async function handleSavePlaylist(e) {
   }
 
   showToast("🎉 Çalma listesi kaydedildi ve TV'nize senkronize edildi!");
-  document.getElementById("formAddPlaylist").reset();
+  clearAddPlaylistForm();
   toggleAddPlaylistForm(false);
   renderPlaylists();
 }

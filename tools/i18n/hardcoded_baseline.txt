@@ -50,6 +50,10 @@
 1	app/src/main/java/tv/own/owntv/features/settings/VideoPlayerSettingsScreen.kt	+
 1	app/src/main/java/tv/own/owntv/features/settings/VideoPlayerSettingsScreen.kt	FFFFFF
 1	app/src/main/java/tv/own/owntv/features/settings/VideoPlayerSettingsScreen.kt	–
+2	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	\0
+1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	Xtream
+1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	Xtream Codes bağlantısı algılandı ve dolduruldu.
+1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	ayrıştırıldı
 5	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	\0
 2	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	Action
 1	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	All Channels
@@ -2359,32 +2363,51 @@
 1	core/src/main/java/tv/own/owntv/core/network/StreamHeaders.kt	transfer-encoding
 1	core/src/main/java/tv/own/owntv/core/network/StreamHeaders.kt	user-agent
 1	core/src/main/java/tv/own/owntv/core/network/StreamHeaders.kt	x-forwarded-for
-1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	\0
+2	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	\0
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	#
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	#EXTHTTP:
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	#EXTINF
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	#EXTM3U
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	#EXTVLCOPT:
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	#KODIPROP:
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	(?i)(?:[sS]\\d+[\\s\\.\\-_]*[eE]\\d+|\\b\\d+x\\d+\\b|Season\\s*\\d+|Sezon\\s*\\d+)
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	.manifest_headers
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	.stream_header
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	.stream_headers
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	/movie/
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	/series/
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	/vod/
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	://
 2	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	="
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	M3uParser
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	UTF-8
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	avi
+2	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	canli
+2	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	canlı
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	catchup
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	catchup-days
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	catchup-source
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	catchup-type
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	cinema
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	dizi
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	film
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	flv
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	group-title
 2	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	http-
-2	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	movie
+2	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	live
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	m4v
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	mkv
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	mov
+3	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	movie
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	mp4
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	parse end entries=$entries totalMs=${SystemClock.elapsedRealtime() - startedAt}
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	parse progress entries=$entries deltaMs=${now - lastLogAt}
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	parse start
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	parseOrReadMs=$parseOrReadDelta callbackMs=$callbackDelta
-2	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	series
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	season
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	seri
+3	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	series
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	sinema
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	totalMs=${now - startedAt}
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	totalParseOrReadMs=${metrics.parseOrReadMs} totalCallbackMs=${metrics.callbackMs}
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-chno
@@ -2394,8 +2417,10 @@
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	tvg-type
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	type
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	url-tvg
-2	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	vod
+3	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	vod
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	wmv
 1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	x-tvg-url
+1	core/src/main/java/tv/own/owntv/core/parser/M3uParser.kt	﻿
 1	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	\0
 1	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	Skipping malformed <channel> element
 1	core/src/main/java/tv/own/owntv/core/parser/XmltvParser.kt	Skipping malformed <programme> element
@@ -2940,6 +2965,49 @@
 1	core/src/main/java/tv/own/owntv/core/setup/SetupText.kt	Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG254 stbapp ver: 2 rev: 250 Safari/533.3
 1	core/src/main/java/tv/own/owntv/core/setup/SetupText.kt	Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/533.3 (KHTML, like Gecko) MAG270 stbapp ver: 2 rev: 250 Safari/533.3
 1	core/src/main/java/tv/own/owntv/core/setup/SetupText.kt	Mozilla/5.0 (QtEmbedded; U; Linux; C) AppleWebKit/601.1 (KHTML, like Gecko) MAG420 stbapp ver: 4 rev: 2721 Safari/601.1
+5	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	\0
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	$scheme$hostAndPort
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	$server/get.php?username=$user&password=$pass&type=m3u_plus&output=ts
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	(?i)^(https?://)([^:@/]+):([^:@/]+)@([^/]+)(.*)
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	(?i)^(https?://[^/]+)/(?:live|movie|series|vod|playlist|timeshift|hls)/([^/]+)/([^/]+)
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	/
+2	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	=
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	M3U Playlist
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	account
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	adres
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	content://
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	dns
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	file://
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	format
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	hesap
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	host
+5	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	http://
+5	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	https://
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	kullanici
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	kullanıcı
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	link
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	m3u
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	m3u8
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	m3u_plus
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	output
+2	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	p
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	parola
+2	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	pass
+2	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	password
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	playlist
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	portal
+2	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	pwd
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	server
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	sifre
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	sunucu
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	ts
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	type
+2	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	u
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	url
+2	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	user
+2	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	username
+2	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	usr
+1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	şifre
 10	core/src/main/java/tv/own/owntv/core/setup/SourceImporter.kt	\0
 1	core/src/main/java/tv/own/owntv/core/setup/SourceImporter.kt	/
 1	core/src/main/java/tv/own/owntv/core/setup/SourceImporter.kt	add_remainder

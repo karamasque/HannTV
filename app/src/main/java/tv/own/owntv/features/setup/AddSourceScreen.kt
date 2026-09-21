@@ -192,6 +192,9 @@ fun AddSourceScreen(
     var showFileBrowser by remember { mutableStateOf(false) }
     var showAutoRefreshPicker by remember { mutableStateOf(false) }
     var showManualDaysPicker by remember { mutableStateOf(false) }
+    var showSmartDialog by remember { mutableStateOf(false) }
+    var smartInput by remember { mutableStateOf("") }
+    var smartStatusMessage by remember { mutableStateOf<String?>(null) }
     val firstFocus = remember { FocusRequester() }
     val startImportFocus = remember { FocusRequester() }
     LaunchedEffect(Unit) { runCatching { firstFocus.requestFocus() } }
@@ -438,7 +441,30 @@ fun AddSourceScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurfaceVariant,
             )
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(20.dp))
+
+            if (!editing) {
+                HanTVButton(
+                    label = stringResource(R.string.setup_smart_analysis_btn),
+                    onClick = { showSmartDialog = true },
+                    style = HanTVButtonStyle.SECONDARY,
+                    modifier = Modifier.fillMaxWidth(),
+                )
+                Spacer(Modifier.height(14.dp))
+            }
+
+            if (smartStatusMessage != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(Color(0xFF10B981).copy(alpha = 0.15f))
+                        .padding(horizontal = 14.dp, vertical = 10.dp),
+                ) {
+                    Text(smartStatusMessage!!, style = MaterialTheme.typography.bodyMedium, color = Color(0xFF34D399))
+                }
+                Spacer(Modifier.height(14.dp))
+            }
 
             // Source type selector (locked while editing — the type can't change, so initial focus
             // goes to the Name field instead of a dead chip).
@@ -461,7 +487,25 @@ fun AddSourceScreen(
 
             when (kind) {
                 SourceKind.XTREAM -> {
-                    HanTVTextField(server, { server = it }, label = stringResource(R.string.setup_server_url), placeholder = stringResource(R.string.setup_server_example), keyboardType = KeyboardType.Uri, modifier = Modifier.fillMaxWidth())
+                    HanTVTextField(
+                        server,
+                        {
+                            val auto = tv.own.owntv.core.setup.SmartSourceAnalyzer.analyze(it)
+                            if (auto != null && auto.isXtream) {
+                                server = auto.serverUrl
+                                username = auto.username
+                                password = auto.password
+                                if (name.isBlank() && auto.suggestedName != null) name = auto.suggestedName.orEmpty()
+                                smartStatusMessage = (auto.suggestedName ?: "Xtream") + " ayrıştırıldı"
+                            } else {
+                                server = it
+                            }
+                        },
+                        label = stringResource(R.string.setup_server_url),
+                        placeholder = stringResource(R.string.setup_server_example),
+                        keyboardType = KeyboardType.Uri,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                     Spacer(Modifier.height(14.dp))
                     HanTVTextField(username, { username = it }, label = stringResource(R.string.setup_username), modifier = Modifier.fillMaxWidth())
                     Spacer(Modifier.height(14.dp))
@@ -471,7 +515,26 @@ fun AddSourceScreen(
                     val pickedName = remember(m3uUrl) {
                         if (m3uUrl.startsWith("/")) java.io.File(m3uUrl).name else null
                     }
-                    HanTVTextField(m3uUrl, { m3uUrl = it }, label = stringResource(R.string.setup_playlist_url_local_file), placeholder = stringResource(R.string.setup_playlist_example), keyboardType = KeyboardType.Uri, modifier = Modifier.fillMaxWidth())
+                    HanTVTextField(
+                        m3uUrl,
+                        {
+                            val auto = tv.own.owntv.core.setup.SmartSourceAnalyzer.analyze(it)
+                            if (auto != null && auto.isXtream) {
+                                kind = SourceKind.XTREAM
+                                server = auto.serverUrl
+                                username = auto.username
+                                password = auto.password
+                                if (name.isBlank() && auto.suggestedName != null) name = auto.suggestedName.orEmpty()
+                                smartStatusMessage = "Xtream Codes bağlantısı algılandı ve dolduruldu."
+                            } else {
+                                m3uUrl = it
+                            }
+                        },
+                        label = stringResource(R.string.setup_playlist_url_local_file),
+                        placeholder = stringResource(R.string.setup_playlist_example),
+                        keyboardType = KeyboardType.Uri,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
                     Spacer(Modifier.height(10.dp))
                     HanTVButton(
                         label = if (pickedName != null) stringResource(R.string.setup_local_file_prefix, pickedName) else stringResource(R.string.setup_local_file_choose),
@@ -712,6 +775,80 @@ fun AddSourceScreen(
               onRetest = if (initial != null) { { confirmMeasure = true } } else null,
               onSkip = { measureJob?.cancel(); measureJob = null; sourceTest = null },
           )
+      }
+      if (showSmartDialog) {
+          val successText = stringResource(R.string.setup_smart_analysis_success)
+          val failedText = stringResource(R.string.setup_smart_analysis_failed)
+          HanTVPopup(onDismissRequest = { showSmartDialog = false }) {
+              Column(
+                  modifier = Modifier
+                      .widthIn(max = 520.dp)
+                      .dialogPanel()
+                      .padding(24.dp),
+                  horizontalAlignment = Alignment.CenterHorizontally,
+              ) {
+                  Text(
+                      stringResource(R.string.setup_smart_analysis),
+                      style = MaterialTheme.typography.headlineMedium,
+                      color = colors.onSurface,
+                  )
+                  Spacer(Modifier.height(6.dp))
+                  Text(
+                      stringResource(R.string.setup_smart_analysis_desc),
+                      style = MaterialTheme.typography.bodyMedium,
+                      color = colors.onSurfaceVariant,
+                      textAlign = TextAlign.Center,
+                  )
+                  Spacer(Modifier.height(18.dp))
+                  HanTVTextField(
+                      value = smartInput,
+                      onValueChange = { smartInput = it },
+                      label = stringResource(R.string.setup_smart_analysis),
+                      placeholder = stringResource(R.string.setup_smart_analysis_paste_hint),
+                      modifier = Modifier.fillMaxWidth(),
+                  )
+                  Spacer(Modifier.height(20.dp))
+                  Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                      HanTVButton(
+                          label = stringResource(R.string.common_cancel),
+                          onClick = { showSmartDialog = false },
+                          style = HanTVButtonStyle.SECONDARY,
+                      )
+                      if (smartInput.isNotBlank()) {
+                          HanTVButton(
+                              label = stringResource(R.string.setup_smart_analysis_clear),
+                              onClick = { smartInput = "" },
+                              style = HanTVButtonStyle.SECONDARY,
+                          )
+                      }
+                      HanTVButton(
+                          label = stringResource(R.string.setup_smart_analysis_analyze),
+                          onClick = {
+                              val analyzed = tv.own.owntv.core.setup.SmartSourceAnalyzer.analyze(smartInput)
+                              if (analyzed != null) {
+                                  if (analyzed.isXtream) {
+                                      kind = SourceKind.XTREAM
+                                      server = analyzed.serverUrl
+                                      username = analyzed.username
+                                      password = analyzed.password
+                                  } else {
+                                      kind = SourceKind.M3U
+                                      m3uUrl = analyzed.m3uUrl ?: analyzed.serverUrl
+                                  }
+                                  if (name.isBlank() && analyzed.suggestedName != null) {
+                                      name = analyzed.suggestedName.orEmpty()
+                                  }
+                                  smartStatusMessage = successText
+                                  showSmartDialog = false
+                              } else {
+                                  smartStatusMessage = failedText
+                              }
+                          },
+                          style = HanTVButtonStyle.PRIMARY,
+                      )
+                  }
+              }
+          }
       }
     }
 }

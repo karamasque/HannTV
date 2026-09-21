@@ -1053,5 +1053,6 @@
 1	technical	app/src/main/java/tv/own/owntv/ui/theme/Glass.kt	chromeCondense
 1	technical	app/src/main/java/tv/own/owntv/ui/theme/Glass.kt	glassPosition
 2	empty	app/src/main/java/tv/own/owntv/ui/theme/Theme.kt	\0
+2	url	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	://
 2	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	x86
 1	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	x86_64
