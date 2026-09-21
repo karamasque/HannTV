@@ -9,6 +9,15 @@
 > (e.g. `(community PR #40 by @codeVerine)`). Issue numbers that are part of a title (e.g. `(#57)`) are
 > fine; explanatory parentheticals are not. Descriptions belong in CHANGELOG.md, never here.
 
+## v2.0.6
+
+### ✨ New features
+
+- **🚀 Marka ve Arayüz Standardizasyonu:** HanTV TV sürümünde marka uyumluluğu ve arayüz optimizasyonları tamamlandı
+- **📺 Otomatik IPTV Geliştirmeleri:** Canlı yayın ve kanal yükleme performansında iyileştirmeler
+- **🔄 Güncelleme Altyapısı:** Doğrudan APK ve GitHub Releases entegrasyonu optimize edildi
+- **🎨 Cam Efekti ve Tema:** TV arayüzünde cam efekti (glassmorphism) ve menü geçişleri iyileştirildi
+
 ## v2.0.5
 
 ### ✨ New features
