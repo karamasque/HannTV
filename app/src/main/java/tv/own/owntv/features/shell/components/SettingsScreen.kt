@@ -235,7 +235,9 @@ fun SettingsScreen(
     var showBgRemote by remember { mutableStateOf(false) }
     var showAmbientGlow by remember { mutableStateOf(false) }
     var showBrowsing by remember { mutableStateOf(false) }
+    var showThemePresetChooser by remember { mutableStateOf(false) }
     val browsingRowFocus = remember { FocusRequester() }
+    val themePresetRowFocus = remember { FocusRequester() }
     // U2 — background-image ingest copies a multi-megabyte file; it runs here, off the main thread.
     val ingestScope = rememberCoroutineScope()
 
@@ -282,13 +284,13 @@ fun SettingsScreen(
         savedIndex = listState.firstVisibleItemIndex
         savedOffset = listState.firstVisibleItemScrollOffset
     }
-    val anyDialogOpen = showZoom || showPopupSize || showFontCustomization || showTheme || showAccent || showUpdate || showCatchupTime || showEpgOffset || showAnimations || showStartup || showStartupChannelPicker || showAfrWarning || showLivePreviewPanelWarning || showBgImageChooser || showBgPicker || showAmbientGlow || showBrowsing || showFocusHighlight || showBgRemote
+    val anyDialogOpen = showZoom || showPopupSize || showFontCustomization || showTheme || showAccent || showUpdate || showCatchupTime || showEpgOffset || showAnimations || showStartup || showStartupChannelPicker || showAfrWarning || showLivePreviewPanelWarning || showBgImageChooser || showBgPicker || showAmbientGlow || showBrowsing || showFocusHighlight || showBgRemote || showThemePresetChooser
     // When a dialog closes, restore focus to the row that opened it. NOTE: this restore crosses
     // INTO the root focus group from outside (the dialog), but onEnter does NOT fire for programmatic
     // requestsFocus (only for directional entry) — so dialogReturn must be cleared HERE, not in onEnter.
     // If it's left set, the next directional entry (e.g. sidebar→here) would re-route to a stale row.
     var dialogReturn by remember { mutableStateOf<FocusRequester?>(null) }
-    LaunchedEffect(showZoom, showPopupSize, showFontCustomization, showTheme, showAccent, showUpdate, showCatchupTime, showEpgOffset, showAnimations, showStartup, showStartupChannelPicker, showAfrWarning, showLivePreviewPanelWarning, showBgImageChooser, showBgPicker, showAmbientGlow, showBrowsing, showFocusHighlight, showBgRemote) {
+    LaunchedEffect(showZoom, showPopupSize, showFontCustomization, showTheme, showAccent, showUpdate, showCatchupTime, showEpgOffset, showAnimations, showStartup, showStartupChannelPicker, showAfrWarning, showLivePreviewPanelWarning, showBgImageChooser, showBgPicker, showAmbientGlow, showBrowsing, showFocusHighlight, showBgRemote, showThemePresetChooser) {
         if (!anyDialogOpen) {
             // Focus back on the opener row, with the scroll offset held still the whole way — see
             // [restoreAfterDialogClose] for why doing those two in sequence made the highlight travel.
@@ -545,6 +547,22 @@ fun SettingsScreen(
             onClick = { saveScroll(); dialogReturn = catchupRowFocus; showCatchupTime = true },
         ),
         RootGroup("group_appearance", stringResource(R.string.settings_appearance_group), HanTVIcon.PALETTE, stringResource(R.string.settings_group_summary_appearance)),
+        RootRow(
+            "theme_preset_chooser", TileTone.PRIMARY, HanTVIcon.PALETTE,
+            title = stringResource(R.string.theme_setup_title),
+            desc = stringResource(R.string.theme_setup_desc),
+            focus = themePresetRowFocus,
+            onClick = { saveScroll(); dialogReturn = themePresetRowFocus; showThemePresetChooser = true },
+        ),
+        RootRow(
+            tabRowKey(SettingsTab.GLASS_EFFECT), TileTone.PRIMARY, HanTVIcon.SPARKLE,
+            title = stringResource(R.string.settings_glass_effect_title),
+            desc = stringResource(R.string.settings_glass_effect_description),
+            chip = if (glassOn) stringResource(R.string.common_on) else stringResource(R.string.common_off),
+            chipTone = if (glassOn) TileTone.PRIMARY else TileTone.SECONDARY,
+            focus = rowFocus.getValue(SettingsTab.GLASS_EFFECT),
+            onClick = { open(SettingsTab.GLASS_EFFECT) },
+        ),
         RootRow(
             "focus_highlight", TileTone.SECONDARY, HanTVIcon.FOCUS_HIGHLIGHT,
             title = stringResource(R.string.settings_focus_highlight),
@@ -1347,6 +1365,13 @@ fun SettingsScreen(
         )
     }
 
+    if (showThemePresetChooser) {
+        tv.own.owntv.ui.components.HanTVPopup(onDismissRequest = { showThemePresetChooser = false }) {
+            tv.own.owntv.ui.components.ThemePresetChooserDialog(
+                onDismiss = { showThemePresetChooser = false },
+            )
+        }
+    }
     if (showUpdate) {
         tv.own.owntv.ui.components.HanTVPopup(onDismissRequest = { showUpdate = false }) {
             UpdateDialog(onDismiss = { showUpdate = false }, checkOnOpen = true)
@@ -2869,9 +2894,10 @@ private fun GlassEffectSettingsScreen(onBack: () -> Unit, modifier: Modifier = M
     val settingsVm: SettingsViewModel = koinViewModel()
     val glassConfig by settingsVm.glassConfig.collectAsStateWithLifecycle()
     val bgImagePath by settingsVm.bgImagePath.collectAsStateWithLifecycle()
+    var showThemePresetChooser by remember { mutableStateOf(false) }
     var showBackgroundChooser by remember { mutableStateOf(false) }
-    var showLocalPicker by remember { mutableStateOf(false) }
     var showRemotePicker by remember { mutableStateOf(false) }
+    var showLocalPicker by remember { mutableStateOf(false) }
     val ingestScope = rememberCoroutineScope()
 
     GlassEffectDesignedScreen(
@@ -2901,9 +2927,18 @@ private fun GlassEffectSettingsScreen(onBack: () -> Unit, modifier: Modifier = M
         onSetDepthEffects = settingsVm::setGlassDepthEffects,
         onSetScope = settingsVm::setGlassScopeBitmask,
         onOpenBackground = { showBackgroundChooser = true },
+        onOpenThemePresetChooser = { showThemePresetChooser = true },
         onBack = onBack,
         modifier = modifier,
     )
+
+    if (showThemePresetChooser) {
+        tv.own.owntv.ui.components.HanTVPopup(onDismissRequest = { showThemePresetChooser = false }) {
+            tv.own.owntv.ui.components.ThemePresetChooserDialog(
+                onDismiss = { showThemePresetChooser = false },
+            )
+        }
+    }
 
     if (showBackgroundChooser) {
         tv.own.owntv.ui.components.HanTVPopup(onDismissRequest = { showBackgroundChooser = false }) {
@@ -2979,6 +3014,7 @@ private fun GlassEffectDesignedScreen(
     onSetDepthEffects: (Boolean) -> Unit,
     onSetScope: (Int) -> Unit,
     onOpenBackground: () -> Unit,
+    onOpenThemePresetChooser: () -> Unit = {},
     onBack: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -3018,8 +3054,17 @@ private fun GlassEffectDesignedScreen(
             onClick = onToggleGlass,
         )
 
+        Spacer(Modifier.height(12.dp))
+        GlassActionTile(
+            title = stringResource(R.string.theme_setup_title),
+            description = stringResource(R.string.theme_setup_desc),
+            selected = true,
+            modifier = Modifier.fillMaxWidth().padding(bottom = 10.dp),
+            onClick = onOpenThemePresetChooser,
+        )
+
         if (glassOn) {
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(4.dp))
             GlassSettingsSection(stringResource(R.string.settings_glass_section_appearance)) {
                 BoxWithConstraints(Modifier.fillMaxWidth()) {
                     val compact = maxWidth < 650.dp

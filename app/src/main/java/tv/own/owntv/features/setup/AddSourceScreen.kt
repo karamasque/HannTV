@@ -497,7 +497,7 @@ fun AddSourceScreen(
                     KindChip(stringResource(R.string.setup_stalker_mac), kind == SourceKind.STALKER, Modifier.weight(1f)) { if (!editing) kind = SourceKind.STALKER }
                 }
                 if (!editing || kind == SourceKind.AUTO) {
-                    KindChip(stringResource(R.string.setup_auto_iptv), kind == SourceKind.AUTO, Modifier.weight(1f)) { if (!editing) kind = SourceKind.AUTO }
+                    KindChip(stringResource(R.string.setup_auto_iptv_tab), kind == SourceKind.AUTO, Modifier.weight(1f)) { if (!editing) kind = SourceKind.AUTO }
                 }
             }
             Spacer(Modifier.height(20.dp))
@@ -599,14 +599,15 @@ fun AddSourceScreen(
                         Spacer(Modifier.height(12.dp))
 
                         autoAccounts.forEach { acc ->
+                            val accountSelectedMsg = stringResource(R.string.setup_auto_iptv_account_selected, acc.username)
                             FocusableSurface(
                                 onClick = {
                                     server = acc.host
                                     username = acc.username
                                     password = acc.password
-                                    name = "Auto IPTV (${acc.username})"
+                                    name = acc.username
                                     kind = SourceKind.XTREAM
-                                    smartStatusMessage = "⚡ Auto IPTV hesabı seçildi (${acc.username})."
+                                    smartStatusMessage = accountSelectedMsg
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()

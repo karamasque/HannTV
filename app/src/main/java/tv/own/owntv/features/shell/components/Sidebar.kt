@@ -521,17 +521,35 @@ private fun NavItem(
                     ),
                 contentAlignment = Alignment.Center,
             ) {
-                // Monochrome duotone nav icon — tints via the shared ladder (muted idle, white cursor,
-                // accent when active). No per-frame animation on the always-visible nav.
+                val iconColor = if (active) {
+                    colors.onPrimaryContainer
+                } else if (focused) {
+                    section.accentColor
+                } else {
+                    section.accentColor.copy(alpha = 0.65f)
+                }
                 NavDuotoneIcon(
                     section = section,
-                    color = if (active) colors.onPrimaryContainer else ladder.icon,
+                    color = iconColor,
                     modifier = Modifier.size(24.dp),
                 )
             }
         }
     }
 }
+
+private val MainSection.accentColor: Color
+    get() = when (this) {
+        MainSection.HOME -> Color(0xFF38BDF8)
+        MainSection.LIVE_TV -> Color(0xFFEF4444)
+        MainSection.MOVIES -> Color(0xFFFBBF24)
+        MainSection.SERIES -> Color(0xFFF472B6)
+        MainSection.EPG -> Color(0xFF34D399)
+        MainSection.DOWNLOADS -> Color(0xFF22D3EE)
+        MainSection.MORE -> Color(0xFFA78BFA)
+        MainSection.SETTINGS -> Color(0xFF94A3B8)
+        MainSection.SEARCH -> Color(0xFF38BDF8)
+    }
 
 private val MainSection.navIcon: HanTVIcon
     get() = when (this) {

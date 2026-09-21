@@ -68,10 +68,10 @@ fun AddSourceChooserScreen(
             Spacer(Modifier.height(24.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 ChooserCard(
-                    icon = HanTVIcon.SPARKLE,
+                    icon = HanTVIcon.ADD,
                     title = stringResource(R.string.setup_auto_iptv),
-                    subtitle = stringResource(R.string.setup_auto_iptv_card_desc),
-                    onClick = onAuto,
+                    subtitle = stringResource(R.string.setup_type_source_here),
+                    onClick = onManual,
                     modifier = Modifier.focusRequester(firstFocus),
                 )
                 ChooserCard(
@@ -79,12 +79,6 @@ fun AddSourceChooserScreen(
                     title = stringResource(R.string.setup_from_phone),
                     subtitle = stringResource(R.string.setup_use_phone_same_wifi),
                     onClick = onRemote,
-                )
-                ChooserCard(
-                    icon = HanTVIcon.ADD,
-                    title = stringResource(R.string.setup_manual),
-                    subtitle = stringResource(R.string.setup_type_source_here),
-                    onClick = onManual,
                 )
             }
             Spacer(Modifier.height(24.dp))

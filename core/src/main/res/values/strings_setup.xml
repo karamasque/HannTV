@@ -539,7 +539,7 @@
     <string name="setup_hide_new_categories_description">Profile-wide: categories that appear on future syncs start hidden. See them anytime in Customize.</string>
 
     <!-- Translators: Tab/Option for automatic IPTV scanning. -->
-    <string name="setup_auto_iptv">Auto IPTV</string>
+    <string name="setup_auto_iptv">New</string>
     <!-- Translators: Subtitle on chooser card for Auto IPTV. -->
     <string name="setup_auto_iptv_card_desc">Automatically scan and load working IPTV sources from online forums</string>
     <!-- Translators: Description for the automatic IPTV scanning feature. -->
@@ -558,4 +558,8 @@
     <string name="setup_auto_iptv_status_active">Active</string>
     <!-- Translators: Label for unlimited expiry. -->
     <string name="setup_auto_iptv_expiry_unlimited">Unlimited</string>
+    <!-- Translators: Status message shown after the user taps an auto-scanned account. %1$s is the account username. -->
+    <string name="setup_auto_iptv_account_selected">⚡ %1$s account selected.</string>
+    <!-- Translators: Tab label for auto IPTV in source form. -->
+    <string name="setup_auto_iptv_tab">Auto IPTV</string>
 </resources>

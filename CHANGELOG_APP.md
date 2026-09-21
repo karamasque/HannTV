@@ -9,6 +9,14 @@
 > (e.g. `(community PR #40 by @codeVerine)`). Issue numbers that are part of a title (e.g. `(#57)`) are
 > fine; explanatory parentheticals are not. Descriptions belong in CHANGELOG.md, never here.
 
+## v2.0.9
+
+### ✨ New features
+
+- **🎨 Görünüm ve Tema Ayarları:** Ayarlar menüsüne Arayüz Teması doğrudan erişilebilir olarak eklendi
+- **⚡ Kaynak Ekleme İyileştirmesi:** Otomatik IPTV sekme adı düzeltildi ve kaynak seçim ekranı sadeleştirildi
+- **🔒 Keystore İmzası:** Otomatik güncellemeler için dijital imza eşitlemesi yapıldı
+
 ## v2.0.6
 
 ### ✨ New features
