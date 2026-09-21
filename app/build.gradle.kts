@@ -131,14 +131,17 @@ android {
             ?: providers.gradleProperty(property).orNull
             ?: localSigningProps.getProperty(property)
 
+    val releaseKeystore = signingValue("KEYSTORE_FILE", "owntv.keystoreFile")
     signingConfigs {
-        create("release") {
-            storeFile = file("${rootProject.projectDir}/hantv-release.keystore")
-            storePassword = "hantv123"
-            keyAlias = "hantv"
-            keyPassword = "hantv123"
-            enableV1Signing = true
-            enableV2Signing = true
+        if (releaseKeystore != null) {
+            create("release") {
+                storeFile = file(releaseKeystore)
+                storePassword = signingValue("KEYSTORE_PASSWORD", "owntv.keystorePassword")
+                keyAlias = signingValue("KEY_ALIAS", "owntv.keyAlias")
+                keyPassword = signingValue("KEY_PASSWORD", "owntv.keyPassword")
+                enableV1Signing = true
+                enableV2Signing = true
+            }
         }
     }
 
@@ -151,7 +154,6 @@ android {
     buildTypes {
         debug {
             isPseudoLocalesEnabled = true
-            signingConfig = signingConfigs.getByName("release")
         }
         release {
             isMinifyEnabled = true
@@ -160,7 +162,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            signingConfig = signingConfigs.getByName("release")
+            if (releaseKeystore != null) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
 
