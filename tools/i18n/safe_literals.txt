@@ -20,8 +20,8 @@
 # category technical: Reviewed non-user-facing technical literal.
 
 1	compiler	app/src/main/java/tv/own/owntv/HanTVApp.kt	DEPRECATION
-1	technical	app/src/main/java/tv/own/owntv/HanTVApp.kt	ahXN00/HanTV
 1	file-path	app/src/main/java/tv/own/owntv/HanTVApp.kt	image_cache
+1	technical	app/src/main/java/tv/own/owntv/HanTVApp.kt	karamasque/HannTV
 1	performance	app/src/main/java/tv/own/owntv/HanTVApp.kt	koin-started
 1	log	app/src/main/java/tv/own/owntv/MainActivity.kt	BgImage
 1	log	app/src/main/java/tv/own/owntv/MainActivity.kt	HanTVHome
