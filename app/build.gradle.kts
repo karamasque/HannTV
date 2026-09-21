@@ -51,8 +51,8 @@ android {
         // need a manual edit here. The fallbacks are only used for local/debug builds — pinned HIGH
         // (99999, mirroring versionName 99.99.99) so a local/debug APK is always "newer" than any
         // published release and installs straight over it (no INSTALL_FAILED_VERSION_DOWNGRADE).
-        versionCode = (System.getenv("VERSION_CODE") ?: "203").toInt()
-        versionName = System.getenv("VERSION_NAME") ?: "2.0.3"
+        versionCode = (System.getenv("VERSION_CODE") ?: "204").toInt()
+        versionName = System.getenv("VERSION_NAME") ?: "2.0.4"
 
         // Opt-in local diagnostic APKs keep the rolling playback trace enabled even when they are
         // release-signed (so they can update an installed production build without changing its data).
