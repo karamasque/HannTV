@@ -968,6 +968,15 @@ fun SettingsScreen(
                 chip = focusHighlightChip(focusHighlight, focusHighlightWidth), chipTone = TileTone.SECONDARY) { saveScroll(); dialogReturn = searchFieldFocus; showFocusHighlight = true },
             if (themeMode == ThemeMode.DARK && !glassOn) SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_ambient_glow), stringResource(R.string.settings_ambient_glow_description), HanTVIcon.GLOW, TileTone.PRIMARY,
                 chip = stringResource(if (ambientGlowEnabled) R.string.common_on else R.string.common_off), chipTone = if (ambientGlowEnabled) TileTone.PRIMARY else TileTone.SECONDARY) { saveScroll(); dialogReturn = searchFieldFocus; showAmbientGlow = true } else null,
+            SettingsSearchEntry(
+                stringResource(R.string.settings_group_appearance),
+                stringResource(R.string.settings_glass_effect),
+                stringResource(R.string.settings_search_keywords_glass),
+                HanTVIcon.PALETTE,
+                TileTone.PRIMARY,
+                chip = if (glassOn) stringResource(R.string.common_on) else stringResource(R.string.common_off),
+                chipTone = if (glassOn) TileTone.PRIMARY else TileTone.SECONDARY,
+            ) { open(SettingsTab.GLASS_EFFECT) },
         SettingsSearchEntry(
             stringResource(R.string.settings_group_appearance),
             stringResource(R.string.settings_font_customization),
