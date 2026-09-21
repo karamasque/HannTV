@@ -54,6 +54,7 @@
 1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	Xtream
 1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	Xtream Codes bağlantısı algılandı ve dolduruldu.
 1	app/src/main/java/tv/own/owntv/features/setup/AddSourceScreen.kt	ayrıştırıldı
+1	app/src/main/java/tv/own/owntv/features/setup/SetupWizard.kt	\0
 5	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	\0
 2	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	Action
 1	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	All Channels

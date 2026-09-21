@@ -506,7 +506,10 @@ private fun ThemeSetupScreen(onNext: () -> Unit, onBack: () -> Unit) {
         )
     }
     val scope = rememberCoroutineScope()
-    var selectedThemeId by remember { mutableStateOf(HanTVThemePresetId.MACOS_GLASS) }
+    val bgImagePath by settingsRepo.bgImagePath.collectAsStateWithLifecycle("")
+    val activePreset = remember(bgImagePath) {
+        HanTVThemePresets.ALL.firstOrNull { bgImagePath.contains(it.id.name.lowercase()) } ?: HanTVThemePresets.ALL.first()
+    }
     val colors = HanTVTheme.colors
     val nextFr = remember { FocusRequester() }
 
@@ -535,7 +538,7 @@ private fun ThemeSetupScreen(onNext: () -> Unit, onBack: () -> Unit) {
             contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 24.dp, vertical = 8.dp),
         ) {
             items(HanTVThemePresets.ALL, key = { it.id }) { preset ->
-                val isSelected = selectedThemeId == preset.id
+                val isSelected = preset.id == activePreset.id
                 val parsedAccent = remember(preset.accentColorHex) {
                     runCatching { Color(android.graphics.Color.parseColor(preset.accentColorHex)) }
                         .getOrDefault(Color(0xFF64D2FF))
@@ -550,7 +553,6 @@ private fun ThemeSetupScreen(onNext: () -> Unit, onBack: () -> Unit) {
 
                 FocusableSurface(
                     onClick = {
-                        selectedThemeId = preset.id
                         scope.launch(Dispatchers.IO) { preset.applyTheme(context, settingsRepo) }
                     },
                     selected = isSelected,
