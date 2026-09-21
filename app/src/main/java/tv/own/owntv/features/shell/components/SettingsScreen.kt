@@ -546,21 +546,6 @@ fun SettingsScreen(
         ),
         RootGroup("group_appearance", stringResource(R.string.settings_appearance_group), HanTVIcon.PALETTE, stringResource(R.string.settings_group_summary_appearance)),
         RootRow(
-            "theme", TileTone.PRIMARY, HanTVIcon.THEME,
-            title = stringResource(R.string.settings_theme), desc = stringResource(R.string.settings_theme_description),
-            chip = themeLabel(themeMode), chipTone = TileTone.PRIMARY,
-            focus = themeRowFocus,
-            onClick = { saveScroll(); dialogReturn = themeRowFocus; showTheme = true },
-        ),
-        RootRow(
-            "accent", TileTone.SECONDARY, HanTVIcon.PALETTE,
-            title = stringResource(R.string.settings_accent), desc = stringResource(R.string.settings_accent_description),
-            chip = if (customAccent.isNotBlank()) customAccent.uppercase() else stringResource(accent.labelRes),
-            chipTone = TileTone.SECONDARY,
-            focus = accentRowFocus,
-            onClick = { saveScroll(); dialogReturn = accentRowFocus; showAccent = true },
-        ),
-        RootRow(
             "focus_highlight", TileTone.SECONDARY, HanTVIcon.FOCUS_HIGHLIGHT,
             title = stringResource(R.string.settings_focus_highlight),
             desc = stringResource(R.string.settings_focus_highlight_description),
@@ -568,15 +553,6 @@ fun SettingsScreen(
             chipTone = TileTone.SECONDARY,
             focus = focusHighlightRowFocus,
             onClick = { saveScroll(); dialogReturn = focusHighlightRowFocus; showFocusHighlight = true },
-        ),
-        // Glass Effect has enough controls to be a full settings screen; the root row only summarizes it.
-        RootRow(
-            tabRowKey(SettingsTab.GLASS_EFFECT), TileTone.PRIMARY, HanTVIcon.SPARKLE,
-            title = stringResource(R.string.settings_glass_effect), desc = stringResource(R.string.settings_glass_description),
-            chip = if (glassOn) glassPresetLabel(glassConfig.preset) else stringResource(R.string.common_off),
-            chipTone = if (glassOn) TileTone.PRIMARY else TileTone.SECONDARY,
-            focus = rowFocus.getValue(SettingsTab.GLASS_EFFECT),
-            onClick = { open(SettingsTab.GLASS_EFFECT) },
         ),
         if (themeMode == ThemeMode.DARK && !glassOn) RootRow(
             "ambient_glow", TileTone.PRIMARY, HanTVIcon.GLOW,
@@ -988,10 +964,6 @@ fun SettingsScreen(
             // Plan Z — no entries for the download folder, Backup, Local sync or Clear history. They
             // are not in Settings any more, and a result for something that is not here is a lie
             // about where it lives. The no-results state deliberately says nothing else either.
-            SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_theme), stringResource(R.string.settings_search_keywords_theme), HanTVIcon.THEME, TileTone.PRIMARY,
-                chip = themeLabel(themeMode)) { saveScroll(); dialogReturn = searchFieldFocus; showTheme = true },
-            SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_accent), stringResource(R.string.settings_search_keywords_accent), HanTVIcon.PALETTE, TileTone.SECONDARY,
-                chip = if (customAccent.isNotBlank()) customAccent.uppercase() else stringResource(accent.labelRes), chipTone = TileTone.SECONDARY) { saveScroll(); dialogReturn = searchFieldFocus; showAccent = true },
             SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_focus_highlight), stringResource(R.string.settings_search_keywords_focus), HanTVIcon.FOCUS_HIGHLIGHT, TileTone.SECONDARY,
                 chip = focusHighlightChip(focusHighlight, focusHighlightWidth), chipTone = TileTone.SECONDARY) { saveScroll(); dialogReturn = searchFieldFocus; showFocusHighlight = true },
             if (themeMode == ThemeMode.DARK && !glassOn) SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_ambient_glow), stringResource(R.string.settings_ambient_glow_description), HanTVIcon.GLOW, TileTone.PRIMARY,
@@ -1044,8 +1016,6 @@ fun SettingsScreen(
             // Four screens that had no entry at all, so nothing on them could be found by name.
             SettingsSearchEntry(stringResource(R.string.settings_group_playback), stringResource(R.string.recording_settings_group), stringResource(R.string.settings_search_keywords_recording), HanTVIcon.LIVE_TV, TileTone.TERTIARY) { open(SettingsTab.RECORDING) },
             SettingsSearchEntry(stringResource(R.string.settings_group_content_metadata), stringResource(R.string.settings_open_subtitles), stringResource(R.string.settings_search_keywords_subtitle_appearance), HanTVIcon.SUBTITLE, TileTone.PRIMARY) { open(SettingsTab.OPEN_SUBTITLES) },
-            SettingsSearchEntry(stringResource(R.string.settings_group_appearance), stringResource(R.string.settings_glass_effect), stringResource(R.string.settings_search_keywords_glass), HanTVIcon.SPARKLE, TileTone.PRIMARY,
-                chip = if (glassOn) glassPresetLabel(glassConfig.preset) else stringResource(R.string.common_off), chipTone = if (glassOn) TileTone.PRIMARY else TileTone.SECONDARY) { open(SettingsTab.GLASS_EFFECT) },
             SettingsSearchEntry(stringResource(R.string.settings_group_layout), stringResource(R.string.settings_content_menus_title), stringResource(R.string.settings_search_keywords_customize), HanTVIcon.MENU, TileTone.PRIMARY) { open(SettingsTab.CONTENT_MENUS) },
             SettingsSearchEntry(videoPlayerGroup, stringResource(R.string.settings_subtitle_appearance), stringResource(R.string.settings_search_keywords_subtitle_appearance), HanTVIcon.SUBTITLE, TileTone.TERTIARY) { open(SettingsTab.VIDEO) },
             SettingsSearchEntry(videoPlayerGroup, stringResource(R.string.settings_live_latency), stringResource(R.string.settings_search_keywords_latency), HanTVIcon.LIVE_TV, TileTone.TERTIARY) { open(SettingsTab.VIDEO) },
