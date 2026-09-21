@@ -3695,6 +3695,20 @@
 1	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	sourceId=$sourceId catalog sync finished; building Now Trending force=$force
 1	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	trending-refresh
 1	core/src/main/java/tv/own/owntv/core/sync/work/TrendingRefreshWorker.kt	trending-refresh-source-$sourceId
+2	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#007AFF
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#00E5FF
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#06B6D4
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#10B981
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#1BC9B8
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#219BF0
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#22C55E
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#22D3EE
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#64D2FF
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#7EB6FF
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#8B5CF6
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	#94A3B8
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	${id.name.lowercase()}.webp
+1	core/src/main/java/tv/own/owntv/core/theme/HanTVThemePreset.kt	backgrounds
 1	core/src/main/java/tv/own/owntv/core/theme/Palette.kt	#
 1	core/src/main/java/tv/own/owntv/core/trending/TrendingAvailability.kt	no VOD content
 1	core/src/main/java/tv/own/owntv/core/trending/TrendingMatcher.kt	\0
