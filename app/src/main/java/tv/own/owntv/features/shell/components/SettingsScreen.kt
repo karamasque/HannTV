@@ -233,7 +233,6 @@ fun SettingsScreen(
     var showBgImageChooser by remember { mutableStateOf(false) }
     var showBgPicker by remember { mutableStateOf(false) }
     var showBgRemote by remember { mutableStateOf(false) }
-    var showThemePresetDialog by remember { mutableStateOf(false) }
     var showAmbientGlow by remember { mutableStateOf(false) }
     var showBrowsing by remember { mutableStateOf(false) }
     val browsingRowFocus = remember { FocusRequester() }
@@ -266,7 +265,6 @@ fun SettingsScreen(
     val animationsRowFocus = remember { FocusRequester() }
     val startupRowFocus = remember { FocusRequester() }
     val livePreviewQuickFocus = remember { FocusRequester() }
-    val themePresetRowFocus = remember { FocusRequester() }
     val ambientGlowRowFocus = remember { FocusRequester() }
     // Hoisted list state for the root settings list. We snapshot its position the instant a row is
     // clicked (in onClick, before any recomposition) and restore it on dialog close, so the list
@@ -284,13 +282,13 @@ fun SettingsScreen(
         savedIndex = listState.firstVisibleItemIndex
         savedOffset = listState.firstVisibleItemScrollOffset
     }
-    val anyDialogOpen = showZoom || showPopupSize || showFontCustomization || showTheme || showThemePresetDialog || showAccent || showUpdate || showCatchupTime || showEpgOffset || showAnimations || showStartup || showStartupChannelPicker || showAfrWarning || showLivePreviewPanelWarning || showBgImageChooser || showBgPicker || showAmbientGlow || showBrowsing || showFocusHighlight || showBgRemote
+    val anyDialogOpen = showZoom || showPopupSize || showFontCustomization || showTheme || showAccent || showUpdate || showCatchupTime || showEpgOffset || showAnimations || showStartup || showStartupChannelPicker || showAfrWarning || showLivePreviewPanelWarning || showBgImageChooser || showBgPicker || showAmbientGlow || showBrowsing || showFocusHighlight || showBgRemote
     // When a dialog closes, restore focus to the row that opened it. NOTE: this restore crosses
     // INTO the root focus group from outside (the dialog), but onEnter does NOT fire for programmatic
     // requestsFocus (only for directional entry) — so dialogReturn must be cleared HERE, not in onEnter.
     // If it's left set, the next directional entry (e.g. sidebar→here) would re-route to a stale row.
     var dialogReturn by remember { mutableStateOf<FocusRequester?>(null) }
-    LaunchedEffect(showZoom, showPopupSize, showFontCustomization, showTheme, showThemePresetDialog, showAccent, showUpdate, showCatchupTime, showEpgOffset, showAnimations, showStartup, showStartupChannelPicker, showAfrWarning, showLivePreviewPanelWarning, showBgImageChooser, showBgPicker, showAmbientGlow, showBrowsing, showFocusHighlight, showBgRemote) {
+    LaunchedEffect(showZoom, showPopupSize, showFontCustomization, showTheme, showAccent, showUpdate, showCatchupTime, showEpgOffset, showAnimations, showStartup, showStartupChannelPicker, showAfrWarning, showLivePreviewPanelWarning, showBgImageChooser, showBgPicker, showAmbientGlow, showBrowsing, showFocusHighlight, showBgRemote) {
         if (!anyDialogOpen) {
             // Focus back on the opener row, with the scroll offset held still the whole way — see
             // [restoreAfterDialogClose] for why doing those two in sequence made the highlight travel.
@@ -547,15 +545,6 @@ fun SettingsScreen(
             onClick = { saveScroll(); dialogReturn = catchupRowFocus; showCatchupTime = true },
         ),
         RootGroup("group_appearance", stringResource(R.string.settings_appearance_group), HanTVIcon.PALETTE, stringResource(R.string.settings_group_summary_appearance)),
-        RootRow(
-            "theme_presets", TileTone.PRIMARY, HanTVIcon.PALETTE,
-            title = stringResource(R.string.theme_preset_title),
-            desc = stringResource(R.string.theme_preset_desc),
-            chip = stringResource(R.string.theme_chip_count),
-            chipTone = TileTone.PRIMARY,
-            focus = themePresetRowFocus,
-            onClick = { saveScroll(); dialogReturn = themePresetRowFocus; showThemePresetDialog = true },
-        ),
         RootRow(
             "theme", TileTone.PRIMARY, HanTVIcon.THEME,
             title = stringResource(R.string.settings_theme), desc = stringResource(R.string.settings_theme_description),
@@ -1414,11 +1403,6 @@ fun SettingsScreen(
             onDismiss = { showTheme = false },
         )
     }
-    if (showThemePresetDialog) {
-        tv.own.owntv.ui.components.HanTVPopup(onDismissRequest = { showThemePresetDialog = false }) {
-            ThemePresetChooserDialog(onDismiss = { showThemePresetDialog = false })
-        }
-    }
     if (showStartup) {
         tv.own.owntv.features.settings.PickerDialog(
             title = stringResource(R.string.settings_app_startup_dialog),
@@ -1726,161 +1710,6 @@ private fun languageChipText(tag: String): String {
     if (tag.isEmpty()) return stringResource(R.string.settings_language_system_default)
     return SupportedLocales.all.find { it.languageTag == tag }?.endonym
         ?: stringResource(R.string.settings_language_system_default)
-}
-
-@Composable
-private fun ThemePresetChooserDialog(
-    onDismiss: () -> Unit,
-) {
-    val context = LocalContext.current
-    val scope = rememberCoroutineScope()
-    val settingsRepo = remember {
-        org.koin.java.KoinJavaComponent.get<tv.own.owntv.core.settings.SettingsRepository>(
-            tv.own.owntv.core.settings.SettingsRepository::class.java
-        )
-    }
-    val colors = HanTVTheme.colors
-    val firstFocus = remember { FocusRequester() }
-    var selectedThemeId by remember { mutableStateOf("") }
-
-    LaunchedEffect(Unit) { runCatching { firstFocus.requestFocus() } }
-    BackHandler { onDismiss() }
-
-    tv.own.owntv.ui.theme.PopupFontTheme {
-        Box(
-            modifier = Modifier.fillMaxSize().modalScrim().trapAllFocusExit().focusGroup(),
-            contentAlignment = Alignment.Center,
-        ) {
-            Column(
-                modifier = Modifier.dialogPanel(width = 860.dp, padding = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Text(
-                    stringResource(R.string.theme_preset_dialog_title),
-                    style = MaterialTheme.typography.titleLarge,
-                    color = colors.onSurface
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    stringResource(R.string.theme_preset_dialog_desc),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = colors.onSurfaceVariant
-                )
-                Spacer(Modifier.height(16.dp))
-
-                androidx.compose.foundation.lazy.grid.LazyVerticalGrid(
-                    columns = androidx.compose.foundation.lazy.grid.GridCells.Fixed(3),
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 380.dp),
-                    contentPadding = PaddingValues(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    val presets = tv.own.owntv.core.theme.HanTVThemePresets.ALL
-                    items(presets.size, key = { presets[it].id.name }) { index ->
-                        val preset = presets[index]
-                        val isSel = selectedThemeId == preset.id.name
-                        val resId = remember(preset.wallpaperDrawableName) {
-                            context.resources.getIdentifier(preset.wallpaperDrawableName, "drawable", context.packageName)
-                        }
-                        tv.own.owntv.ui.components.FocusableSurface(
-                            onClick = {
-                                selectedThemeId = preset.id.name
-                                scope.launch {
-                                    preset.applyTheme(context, settingsRepo)
-                                    onDismiss()
-                                }
-                            },
-                            selected = isSel,
-                            shape = RoundedCornerShape(14.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(115.dp)
-                                .then(if (index == 0) Modifier.focusRequester(firstFocus) else Modifier),
-                            surface = tv.own.owntv.core.theme.GlassSurface.CARDS,
-                        ) { _ ->
-                            Box(Modifier.fillMaxSize()) {
-                                if (resId != 0) {
-                                    Image(
-                                        painter = androidx.compose.ui.res.painterResource(resId),
-                                        contentDescription = stringResource(preset.titleRes),
-                                        modifier = Modifier.fillMaxSize(),
-                                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                                    )
-                                } else {
-                                    Box(Modifier.fillMaxSize().background(Color(0xFF1A212E)))
-                                }
-
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(
-                                            androidx.compose.ui.graphics.Brush.verticalGradient(
-                                                colors = listOf(Color.Transparent, Color(0xDD000000)),
-                                                startY = 25f
-                                            )
-                                        )
-                                )
-
-                                if (isSel) {
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(6.dp)
-                                            .size(20.dp)
-                                            .clip(RoundedCornerShape(10.dp))
-                                            .background(colors.primary)
-                                            .align(Alignment.TopEnd),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text("✓", color = colors.onPrimary, fontSize = 11.sp, fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
-                                    }
-                                }
-
-                                Column(
-                                    modifier = Modifier
-                                        .align(Alignment.BottomStart)
-                                        .fillMaxWidth()
-                                ) {
-                                    Column(Modifier.padding(horizontal = 8.dp, vertical = 5.dp)) {
-                                        Text(
-                                            stringResource(preset.titleRes),
-                                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = androidx.compose.ui.text.font.FontWeight.Bold),
-                                            color = Color.White,
-                                            maxLines = 1,
-                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                                        )
-                                        Text(
-                                            stringResource(preset.subtitleRes),
-                                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 10.sp),
-                                            color = Color(0xFFD0D6E0),
-                                            maxLines = 1,
-                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
-                                        )
-                                    }
-                                    val accentColor = remember(preset.accentColorHex) {
-                                        runCatching { Color(android.graphics.Color.parseColor(preset.accentColorHex)) }.getOrDefault(Color.Cyan)
-                                    }
-                                    Box(
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(3.dp)
-                                            .background(accentColor)
-                                    )
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Spacer(Modifier.height(16.dp))
-                tv.own.owntv.ui.components.HanTVButton(
-                    stringResource(R.string.common_cancel),
-                    onClick = onDismiss,
-                    style = tv.own.owntv.ui.components.HanTVButtonStyle.SECONDARY,
-                    modifier = Modifier.width(140.dp)
-                )
-            }
-        }
-    }
 }
 
 /** The six quick presets shown at the top of the accent picker. */
