@@ -89,6 +89,8 @@ import kotlinx.coroutines.launch
 import org.koin.compose.koinInject
 import tv.own.owntv.R
 import tv.own.owntv.core.database.entity.ChannelEntity
+import tv.own.owntv.core.database.entity.MovieEntity
+import tv.own.owntv.core.database.entity.SeriesEntity
 import tv.own.owntv.core.database.entity.MetadataCacheEntity
 import tv.own.owntv.core.database.dao.TrendingDao
 import tv.own.owntv.core.launcher.LauncherContinuationItem
@@ -129,6 +131,7 @@ fun HomeScreen(
     vm: HomeViewModel,
     onPlayMovie: (movieId: Long, positionMs: Long) -> Unit,
     onPlayEpisode: (seriesId: Long, episodeId: Long, positionMs: Long) -> Unit,
+    onOpenSeries: (seriesId: Long) -> Unit = {},
     onPlayChannel: (channelId: Long, zapChannels: List<ChannelEntity>) -> Unit,
     onOpenGuide: () -> Unit,
     onActivateTrending: (TrendingHomeItem, onUnavailable: () -> Unit) -> Unit,
@@ -501,6 +504,26 @@ fun HomeScreen(
                         firstItemFocusRequester = firstItemFocusRequester,
                     )
                 }
+
+                HomeRow.RECENTLY_ADDED_MOVIES -> if (state.recentlyAddedMovies.isNotEmpty()) {
+                    VodPosterRow(
+                        title = row.displayTitle(),
+                        movies = state.recentlyAddedMovies,
+                        onMovieClick = { onPlayMovie(it.id, 0L) },
+                        onFocus = onNonHeroFocused,
+                        firstItemFocusRequester = firstItemFocusRequester,
+                    )
+                }
+
+                HomeRow.RECENTLY_UPDATED_SERIES -> if (state.recentlyUpdatedSeries.isNotEmpty()) {
+                    VodPosterRow(
+                        title = row.displayTitle(),
+                        series = state.recentlyUpdatedSeries,
+                        onSeriesClick = { onOpenSeries(it.id) },
+                        onFocus = onNonHeroFocused,
+                        firstItemFocusRequester = firstItemFocusRequester,
+                    )
+                }
             }
         }
       }
@@ -568,6 +591,8 @@ private fun rowHasData(row: HomeRow, state: HomeUiState): Boolean = when (row) {
     }
     HomeRow.CONTINUE_MOVIES -> state.continueMovies.isNotEmpty()
     HomeRow.CONTINUE_SERIES -> state.continueSeries.isNotEmpty()
+    HomeRow.RECENTLY_ADDED_MOVIES -> state.recentlyAddedMovies.isNotEmpty()
+    HomeRow.RECENTLY_UPDATED_SERIES -> state.recentlyUpdatedSeries.isNotEmpty()
 }
 
 private fun rowCanRender(row: HomeRow, state: HomeUiState, showHeroFallback: Boolean): Boolean =
@@ -1741,6 +1766,72 @@ private fun ContinueWatchingRow(
                             modifier = itemModifier,
                             onFocus = { onItemFocus(item) },
                             onClick = { onItemClick(item) },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun VodPosterRow(
+    title: String,
+    movies: List<MovieEntity> = emptyList(),
+    series: List<SeriesEntity> = emptyList(),
+    onMovieClick: (MovieEntity) -> Unit = {},
+    onSeriesClick: (SeriesEntity) -> Unit = {},
+    onFocus: () -> Unit,
+    firstItemFocusRequester: FocusRequester? = null,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+    ) {
+        Text(
+            text = title.uppercase(),
+            style = MaterialTheme.typography.titleSmall,
+            color = HanTVTheme.colors.primary,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.padding(start = Dimens.HomeRowPaddingH),
+        )
+        Spacer(Modifier.height(10.dp))
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = Dimens.HomeRowPaddingH),
+            modifier = Modifier.focusGroup(),
+        ) {
+            if (movies.isNotEmpty()) {
+                itemsIndexed(movies, key = { _, m -> m.id }) { index, movie ->
+                    val itemModifier = when {
+                        firstItemFocusRequester != null && index == 0 -> Modifier.focusRequester(firstItemFocusRequester)
+                        else -> Modifier
+                    }
+                    Box(Modifier.width(150.dp)) {
+                        PosterCard(
+                            posterUrl = movie.posterUrl,
+                            title = movie.name,
+                            rating = movie.rating,
+                            modifier = itemModifier,
+                            onFocus = onFocus,
+                            onClick = { onMovieClick(movie) },
+                        )
+                    }
+                }
+            } else if (series.isNotEmpty()) {
+                itemsIndexed(series, key = { _, s -> s.id }) { index, show ->
+                    val itemModifier = when {
+                        firstItemFocusRequester != null && index == 0 -> Modifier.focusRequester(firstItemFocusRequester)
+                        else -> Modifier
+                    }
+                    Box(Modifier.width(150.dp)) {
+                        PosterCard(
+                            posterUrl = show.posterUrl,
+                            title = show.name,
+                            rating = show.rating,
+                            modifier = itemModifier,
+                            onFocus = onFocus,
+                            onClick = { onSeriesClick(show) },
                         )
                     }
                 }

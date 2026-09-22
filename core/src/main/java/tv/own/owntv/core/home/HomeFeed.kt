@@ -150,6 +150,8 @@ data class HomeFeed(
     val continueSeries: List<LauncherContinuationItem> = emptyList(),
     val recentLive: List<ChannelEntity> = emptyList(),
     val favoriteLive: List<ChannelEntity> = emptyList(),
+    val recentlyAddedMovies: List<MovieEntity> = emptyList(),
+    val recentlyUpdatedSeries: List<SeriesEntity> = emptyList(),
     val config: HomeConfig = HomeConfig(),
     val recentGuide: GuideSliceState = GuideSliceState(),
     val favoriteGuide: GuideSliceState = GuideSliceState(),
@@ -237,6 +239,22 @@ class HomeFeedReader(
                 .filter { c -> c.sourceId in liveIds }
                 .filterNot { isChannelHidden(it, hidden) }
             val heroItems = buildHeroItems(items, liveWithTs, config)
+            val recentlyAddedMoviesAsync = async {
+                if (HomeRow.RECENTLY_ADDED_MOVIES in config.visibleOrder && movieIds.isNotEmpty()) {
+                    movieDao.getRecentlyAdded(movieIds.toList(), RECENTLY_ADDED_LIMIT).first()
+                        .filterNot { isMovieHidden(it, hidden) }
+                } else {
+                    emptyList()
+                }
+            }
+            val recentlyUpdatedSeriesAsync = async {
+                if (HomeRow.RECENTLY_UPDATED_SERIES in config.visibleOrder && seriesIds.isNotEmpty()) {
+                    seriesDao.getRecentlyUpdated(seriesIds.toList(), RECENTLY_ADDED_LIMIT).first()
+                        .filterNot { isSeriesHidden(it, hidden) }
+                } else {
+                    emptyList()
+                }
+            }
             // The two guide slices read different channel sets and never depend on each other.
             val recentGuideAsync = async {
                 if (HomeRow.RECENT_CHANNELS in config.visibleOrder && config.recentLiveMode == HomeLiveRowMode.ON_NOW) {
@@ -262,6 +280,8 @@ class HomeFeedReader(
                 continueSeries = series,
                 recentLive = live,
                 favoriteLive = favLive,
+                recentlyAddedMovies = recentlyAddedMoviesAsync.await(),
+                recentlyUpdatedSeries = recentlyUpdatedSeriesAsync.await(),
                 config = config,
                 recentGuide = recentGuideAsync.await(),
                 favoriteGuide = favoriteGuideAsync.await(),
@@ -306,6 +326,12 @@ class HomeFeedReader(
 
     private fun isChannelHidden(ch: ChannelEntity, h: HiddenState): Boolean =
         CustomizeKeys.channel(ch) in h.live.hiddenItems || (ch.categoryId != null && ch.categoryId in h.liveCats)
+
+    private fun isMovieHidden(m: MovieEntity, h: HiddenState): Boolean =
+        CustomizeKeys.movie(m) in h.movie.hiddenItems || (m.categoryId != null && m.categoryId in h.movieCats)
+
+    private fun isSeriesHidden(s: SeriesEntity, h: HiddenState): Boolean =
+        CustomizeKeys.series(s) in h.series.hiddenItems || (s.categoryId != null && s.categoryId in h.seriesCats)
 
     private suspend fun buildTrendingItems(
         movieSourceIds: Set<Long>,
@@ -485,3 +511,4 @@ private const val MAX_HERO_ITEMS = 10
 private const val SLICE_WINDOW_MS = 360 * 60_000L
 private const val HALF_HOUR_MS = 30 * 60_000L
 private const val RECENT_LIVE_ROW_LIMIT = 20
+private const val RECENTLY_ADDED_LIMIT = 20

@@ -15,6 +15,8 @@ fun HomeRow.displayTitle(): String = stringResource(
         HomeRow.FAVORITE_CHANNELS -> R.string.home_row_favorite_channels
         HomeRow.CONTINUE_MOVIES -> R.string.home_row_continue_movies
         HomeRow.CONTINUE_SERIES -> R.string.home_row_continue_series
+        HomeRow.RECENTLY_ADDED_MOVIES -> R.string.home_row_recently_added_movies
+        HomeRow.RECENTLY_UPDATED_SERIES -> R.string.home_row_recently_updated_series
     },
 )
 
@@ -27,6 +29,8 @@ fun HomeRow.settingsDescription(): String = stringResource(
         HomeRow.FAVORITE_CHANNELS -> R.string.home_row_favorite_description
         HomeRow.CONTINUE_MOVIES -> R.string.home_row_continue_movies_description
         HomeRow.CONTINUE_SERIES -> R.string.home_row_continue_series_description
+        HomeRow.RECENTLY_ADDED_MOVIES -> R.string.home_row_recently_added_movies_description
+        HomeRow.RECENTLY_UPDATED_SERIES -> R.string.home_row_recently_updated_series_description
     },
 )
 

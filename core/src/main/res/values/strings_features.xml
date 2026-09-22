@@ -163,6 +163,8 @@
     <string name="home_row_continue_movies">Continue Watching Movies</string>
     <!-- Translators: Home row name in Settings for the "Continue Watching Series" row. -->
     <string name="home_row_continue_series">Continue Watching Series</string>
+    <string name="home_row_recently_added_movies">Recently Added Movies</string>
+    <string name="home_row_recently_updated_series">Recently Updated Series</string>
     <!-- Translators: Home row name in Settings for the "Recent Channels" row. -->
     <string name="home_row_recent_channels">Recent Channels</string>
     <!-- Translators: Home row name in Settings for the "Favorite Channels" row. -->
@@ -229,6 +231,8 @@
     <string name="home_row_continue_movies_description">Movies with a saved position</string>
     <!-- Translators: Home row description in Settings for "Continue Watching Series". -->
     <string name="home_row_continue_series_description">Episodes to resume or play next</string>
+    <string name="home_row_recently_added_movies_description">Movies recently added to your catalog</string>
+    <string name="home_row_recently_updated_series_description">Series recently added or updated in your catalog</string>
     <!-- Translators: Home row description in Settings for "Recent Channels". -->
     <string name="home_row_recent_description">Live channels you tuned recently</string>
     <!-- Translators: Home row description in Settings for "Favorite Channels". -->

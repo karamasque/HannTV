@@ -32,6 +32,8 @@ import tv.own.owntv.core.database.dao.SourceDao
 import tv.own.owntv.core.database.dao.TrendingDao
 import tv.own.owntv.core.database.dao.resolveExistingProfileId
 import tv.own.owntv.core.database.entity.ChannelEntity
+import tv.own.owntv.core.database.entity.MovieEntity
+import tv.own.owntv.core.database.entity.SeriesEntity
 import tv.own.owntv.core.database.entity.MetadataCacheEntity
 import tv.own.owntv.core.home.GuideSliceState
 import tv.own.owntv.core.home.HeroItem
@@ -74,6 +76,8 @@ data class HomeUiState(
     val continuationArtwork: Map<String, String> = emptyMap(),
     val recentLive: List<ChannelEntity> = emptyList(),
     val favoriteLive: List<ChannelEntity> = emptyList(),
+    val recentlyAddedMovies: List<MovieEntity> = emptyList(),
+    val recentlyUpdatedSeries: List<SeriesEntity> = emptyList(),
     val config: HomeConfig = HomeConfig(),
     val recentGuide: GuideSliceState = GuideSliceState(),
     val favoriteGuide: GuideSliceState = GuideSliceState(),
@@ -324,6 +328,8 @@ class HomeViewModel(
                 .filterKeys { key -> data.continueSeries.any { it.stableKey == key } },
             recentLive = data.recentLive,
             favoriteLive = data.favoriteLive,
+            recentlyAddedMovies = data.recentlyAddedMovies,
+            recentlyUpdatedSeries = data.recentlyUpdatedSeries,
             config = data.config,
             recentGuide = data.recentGuide,
             favoriteGuide = data.favoriteGuide,

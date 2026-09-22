@@ -9,6 +9,12 @@
 > (e.g. `(community PR #40 by @codeVerine)`). Issue numbers that are part of a title (e.g. `(#57)`) are
 > fine; explanatory parentheticals are not. Descriptions belong in CHANGELOG.md, never here.
 
+## v2.1.2
+
+### ✨ New features
+
+- **🎬 Son Eklenen Filmler & Son Güncellenen Diziler Satırları:** Ana ekrana varsayılan olarak "Dizileri izlemeye devam et" satırının altına (en alta) "Son Eklenen Filmler" ve "Son Güncellenen Diziler" satırları eklendi.
+
 ## v2.1.0
 
 ### ✨ New features

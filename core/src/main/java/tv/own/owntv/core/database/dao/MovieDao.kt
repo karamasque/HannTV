@@ -319,4 +319,10 @@ interface MovieDao {
             "WHERE m.sourceId IN (:sourceIds) AND h.itemId IS NULL ORDER BY f.addedAt DESC LIMIT :limit",
     )
     suspend fun unwatchedFavorites(profileId: Long, sourceIds: List<Long>, limit: Int): List<MovieEntity>
+
+    @Query(
+        "SELECT * FROM movies WHERE sourceId IN (:sourceIds) " +
+            "ORDER BY addedAt DESC, sortOrder DESC, id DESC LIMIT :limit",
+    )
+    fun getRecentlyAdded(sourceIds: List<Long>, limit: Int): Flow<List<MovieEntity>>
 }

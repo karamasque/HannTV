@@ -393,4 +393,10 @@ interface SeriesDao {
     /** One-time cleanup of pre-stable-key M3U rows (remoteId was always NULL under clear-then-insert). */
     @Query("DELETE FROM series WHERE sourceId = :sourceId AND remoteId IS NULL")
     suspend fun deleteNullRemoteIds(sourceId: Long)
+
+    @Query(
+        "SELECT * FROM series WHERE sourceId IN (:sourceIds) " +
+            "ORDER BY addedAt DESC, sortOrder DESC, id DESC LIMIT :limit",
+    )
+    fun getRecentlyUpdated(sourceIds: List<Long>, limit: Int): Flow<List<SeriesEntity>>
 }
