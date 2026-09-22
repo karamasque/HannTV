@@ -1,7 +1,8 @@
 package tv.own.owntv.core.backup
 
 import android.util.Log
-import androidx.room.withTransaction
+import androidx.room.immediateTransaction
+import androidx.room.useWriterConnection
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -796,7 +797,8 @@ class BackupManager(
             // DataStore-backed sections below (settings, customizations, engine pins, logins) can't
             // join it, and neither can the user-data resolve, which is deliberately chunked (B3) so
             // a large restore doesn't hold one write transaction for its whole duration.
-            db.withTransaction {
+            db.useWriterConnection { connection ->
+                connection.immediateTransaction {
                 // --- profiles: match by NAME (case-insensitive) — ids are per-device counters and
                 // collide across devices, so they can't identify a person. Match → update in place;
                 // new name → insert (keeping the file id only when it's free).
@@ -987,15 +989,18 @@ class BackupManager(
                         // One transaction for the cache invalidation: these two deletes per key are
                         // a pair — a half-done pass would leave a stale details row keyed to a match
                         // that's already gone, which reads back as the old title's artwork.
-                        db.withTransaction {
-                            touched.forEach { k ->
-                                metadataDao.deleteMatch(k)
-                                metadataDao.deleteCache(k)
+                        db.useWriterConnection { connection ->
+                            connection.immediateTransaction {
+                                touched.forEach { k ->
+                                    metadataDao.deleteMatch(k)
+                                    metadataDao.deleteCache(k)
+                                }
                             }
                         }
                     }
                 }
             }
+        }
 
             // Profile pictures: written now that the transaction has closed. A backup that carries
             // none leaves every profile's picture exactly as this device had it — a restore must not

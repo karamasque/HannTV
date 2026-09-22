@@ -6,7 +6,8 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import androidx.room.withTransaction
+import androidx.room.immediateTransaction
+import androidx.room.useWriterConnection
 import kotlinx.coroutines.flow.first
 import org.json.JSONArray
 import org.json.JSONObject
@@ -153,10 +154,12 @@ class UserDataResolver(
         var i = 0
         while (i < entries.length()) {
             val end = minOf(i + RESOLVE_CHUNK, entries.length())
-            db.withTransaction {
-                for (j in i until end) {
-                    val e = entries.getJSONObject(j)
-                    if (runCatching { applyTombstone(e) }.getOrDefault(false)) applied++
+            db.useWriterConnection { connection ->
+                connection.immediateTransaction {
+                    for (j in i until end) {
+                        val e = entries.getJSONObject(j)
+                        if (runCatching { applyTombstone(e) }.getOrDefault(false)) applied++
+                    }
                 }
             }
             i = end
@@ -314,19 +317,21 @@ class UserDataResolver(
     private fun JSONArray.hasSourceSnapshotIds(): Boolean =
         length() > 0 && (0 until length()).all { getJSONObject(it).has("oid") }
 
-    private suspend fun purgeSnapshotOrphans(snapshot: JSONArray) = db.withTransaction {
-        for (i in 0 until snapshot.length()) {
-            val e = snapshot.getJSONObject(i)
-            val type = runCatching { MediaType.valueOf(e.getString("t")) }.getOrNull() ?: continue
-            val profileId = e.getLong("p")
-            val itemId = e.getLong("oid")
-            when (e.optString("kind")) {
-                "fav" -> favoriteDao.purgeSnapshotOrphan(profileId, type, itemId)
-                "his" -> historyDao.purgeSnapshotOrphan(profileId, type, itemId)
-                "prog" -> progressDao.purgeSnapshotOrphan(profileId, type, itemId)
-                "order" -> contentOrderDao.purgeSnapshotOrphan(profileId, type, itemId)
-                "member" -> customCategoryDao.purgeSnapshotOrphan(profileId, type, itemId)
-                "sort" -> seriesSortOrderDao.purgeSnapshotOrphan(profileId, itemId)
+    private suspend fun purgeSnapshotOrphans(snapshot: JSONArray) = db.useWriterConnection { connection ->
+        connection.immediateTransaction {
+            for (i in 0 until snapshot.length()) {
+                val e = snapshot.getJSONObject(i)
+                val type = runCatching { MediaType.valueOf(e.getString("t")) }.getOrNull() ?: continue
+                val profileId = e.getLong("p")
+                val itemId = e.getLong("oid")
+                when (e.optString("kind")) {
+                    "fav" -> favoriteDao.purgeSnapshotOrphan(profileId, type, itemId)
+                    "his" -> historyDao.purgeSnapshotOrphan(profileId, type, itemId)
+                    "prog" -> progressDao.purgeSnapshotOrphan(profileId, type, itemId)
+                    "order" -> contentOrderDao.purgeSnapshotOrphan(profileId, type, itemId)
+                    "member" -> customCategoryDao.purgeSnapshotOrphan(profileId, type, itemId)
+                    "sort" -> seriesSortOrderDao.purgeSnapshotOrphan(profileId, itemId)
+                }
             }
         }
     }
@@ -377,18 +382,17 @@ class UserDataResolver(
      */
     private suspend fun resolveAllChunked(entries: JSONArray): JSONArray {
         val unresolved = JSONArray()
-        // Asked once, not once per record: on a device that has never synced — and after every
-        // ordinary playlist refresh, which relinks thousands of rows through here — the table is
-        // empty, and an extra indexed lookup per record is a cost paid for nothing.
         val tombstonesPresent = tombstoneDao.count() > 0
         var i = 0
         while (i < entries.length()) {
             val end = minOf(i + RESOLVE_CHUNK, entries.length())
-            db.withTransaction {
-                for (j in i until end) {
-                    val e = entries.getJSONObject(j)
-                    val ok = runCatching { resolveAndInsert(e, tombstonesPresent) }.getOrDefault(false)
-                    if (!ok) unresolved.put(e)
+            db.useWriterConnection { connection ->
+                connection.immediateTransaction {
+                    for (j in i until end) {
+                        val e = entries.getJSONObject(j)
+                        val ok = runCatching { resolveAndInsert(e, tombstonesPresent) }.getOrDefault(false)
+                        if (!ok) unresolved.put(e)
+                    }
                 }
             }
             i = end

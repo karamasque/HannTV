@@ -5,7 +5,6 @@ import android.util.Log
 import androidx.room.execSQL
 import androidx.room.immediateTransaction
 import androidx.room.useWriterConnection
-import androidx.room.withTransaction
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
@@ -357,8 +356,10 @@ class EpgRepository(
         suspend fun storeProgrammes(batch: List<EpgProgrammeEntity>) {
             if (batch.isEmpty()) return
             val startedAt = SystemClock.elapsedRealtime()
-            db.withTransaction {
-                epgDao.upsertProgrammes(batch)
+            db.useWriterConnection { connection ->
+                connection.immediateTransaction {
+                    epgDao.upsertProgrammes(batch)
+                }
             }
             val batchMs = SystemClock.elapsedRealtime() - startedAt
             writeMs += batchMs
@@ -584,19 +585,21 @@ class EpgRepository(
             // instead of sitting on "Connecting…" until it finishes.
             onProgress = { seenChannels, programmes -> onProgress(seenChannels, programmes) },
         ) { batch ->
-            db.withTransaction {
-                epgDao.upsertProgrammes(
-                    batch.map {
-                        EpgProgrammeEntity(
-                            sourceId = storeId,
-                            epgChannelId = guideKeys[it.epgChannelId] ?: it.epgChannelId,
-                            startMs = it.startMs,
-                            stopMs = it.stopMs,
-                            title = it.title,
-                            description = it.description,
-                        )
-                    },
-                )
+            db.useWriterConnection { connection ->
+                connection.immediateTransaction {
+                    epgDao.upsertProgrammes(
+                        batch.map {
+                            EpgProgrammeEntity(
+                                sourceId = storeId,
+                                epgChannelId = guideKeys[it.epgChannelId] ?: it.epgChannelId,
+                                startMs = it.startMs,
+                                stopMs = it.stopMs,
+                                title = it.title,
+                                description = it.description,
+                            )
+                        },
+                    )
+                }
             }
             written += batch.size
             batch.forEach { channels.add(guideKeys[it.epgChannelId] ?: it.epgChannelId) }

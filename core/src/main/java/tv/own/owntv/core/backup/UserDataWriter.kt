@@ -1,6 +1,7 @@
 package tv.own.owntv.core.backup
 
-import androidx.room.withTransaction
+import androidx.room.immediateTransaction
+import androidx.room.useWriterConnection
 import tv.own.owntv.core.database.HanTVDatabase
 import tv.own.owntv.core.database.dao.CustomCategoryDao
 import tv.own.owntv.core.database.dao.FavoriteDao
@@ -32,39 +33,47 @@ class UserDataWriter(
 ) {
 
     /** Unfavorite one item. */
-    suspend fun removeFavorite(profileId: Long, type: MediaType, itemId: Long) = db.withTransaction {
-        userData.recordDeletion(profileId, "fav", type, itemId)
-        favoriteDao.remove(profileId, type, itemId)
+    suspend fun removeFavorite(profileId: Long, type: MediaType, itemId: Long) = db.useWriterConnection { connection ->
+        connection.immediateTransaction {
+            userData.recordDeletion(profileId, "fav", type, itemId)
+            favoriteDao.remove(profileId, type, itemId)
+        }
     }
 
     /** "Remove from history" for one item. */
-    suspend fun removeHistory(profileId: Long, type: MediaType, itemId: Long) = db.withTransaction {
-        userData.recordDeletion(profileId, "his", type, itemId)
-        historyDao.remove(profileId, type, itemId)
+    suspend fun removeHistory(profileId: Long, type: MediaType, itemId: Long) = db.useWriterConnection { connection ->
+        connection.immediateTransaction {
+            userData.recordDeletion(profileId, "his", type, itemId)
+            historyDao.remove(profileId, type, itemId)
+        }
     }
 
     /** Forget one item's resume position. */
-    suspend fun clearProgress(profileId: Long, type: MediaType, itemId: Long) = db.withTransaction {
-        userData.recordDeletion(profileId, "prog", type, itemId)
-        progressDao.clear(profileId, type, itemId)
+    suspend fun clearProgress(profileId: Long, type: MediaType, itemId: Long) = db.useWriterConnection { connection ->
+        connection.immediateTransaction {
+            userData.recordDeletion(profileId, "prog", type, itemId)
+            progressDao.clear(profileId, type, itemId)
+        }
     }
 
     /**
      * "Remove from history" on a show: its own row, its episodes' rows, and their resume positions —
      * which is what the caller already did by hand, now with each deletion recorded.
      */
-    suspend fun removeSeriesHistory(profileId: Long, seriesId: Long) = db.withTransaction {
-        userData.recordDeletion(profileId, "his", MediaType.SERIES, seriesId)
-        historyDao.episodeIdsInHistory(profileId, seriesId).forEach {
-            userData.recordDeletion(profileId, "his", MediaType.EPISODE, it)
+    suspend fun removeSeriesHistory(profileId: Long, seriesId: Long) = db.useWriterConnection { connection ->
+        connection.immediateTransaction {
+            userData.recordDeletion(profileId, "his", MediaType.SERIES, seriesId)
+            historyDao.episodeIdsInHistory(profileId, seriesId).forEach {
+                userData.recordDeletion(profileId, "his", MediaType.EPISODE, it)
+            }
+            progressDao.episodeIdsWithProgress(profileId, seriesId).forEach {
+                userData.recordDeletion(profileId, "prog", MediaType.EPISODE, it)
+            }
+            historyDao.remove(profileId, MediaType.SERIES, seriesId)
+            historyDao.removeSeriesEpisodes(profileId, seriesId)
+            progressDao.clearSeriesEpisodes(profileId, seriesId)
+            userData.pruneTombstones()
         }
-        progressDao.episodeIdsWithProgress(profileId, seriesId).forEach {
-            userData.recordDeletion(profileId, "prog", MediaType.EPISODE, it)
-        }
-        historyDao.remove(profileId, MediaType.SERIES, seriesId)
-        historyDao.removeSeriesEpisodes(profileId, seriesId)
-        progressDao.clearSeriesEpisodes(profileId, seriesId)
-        userData.pruneTombstones()
     }
 
     /** Take one item out of one custom category. */
@@ -73,9 +82,11 @@ class UserDataWriter(
         type: MediaType,
         contextKey: String,
         itemId: Long,
-    ) = db.withTransaction {
-        userData.recordDeletion(profileId, "member", type, itemId, contextKey = contextKey)
-        customCategoryDao.deleteItem(profileId, type, contextKey, itemId)
+    ) = db.useWriterConnection { connection ->
+        connection.immediateTransaction {
+            userData.recordDeletion(profileId, "member", type, itemId, contextKey = contextKey)
+            customCategoryDao.deleteItem(profileId, type, contextKey, itemId)
+        }
     }
 
     /**
@@ -86,29 +97,29 @@ class UserDataWriter(
      * That is the price of the deletion actually sticking on the user's other device, and it is a
      * once-in-a-while action taken from a settings screen, not something on a hot path.
      */
-    suspend fun clearHistory(profileId: Long, type: MediaType? = null) = db.withTransaction {
-        val history = if (type == null) historyDao.getForProfile(profileId) else historyDao.getForProfileType(profileId, type)
-        history.forEach { userData.recordDeletion(profileId, "his", it.mediaType, it.itemId) }
-        // Which resume positions go with it: everything, or the type's own — where a series means its
-        // episodes, because a show has no progress row of its own and Live has none at all.
-        val progressType = when (type) {
-            MediaType.SERIES -> MediaType.EPISODE
-            MediaType.MOVIE -> MediaType.MOVIE
-            else -> null
+    suspend fun clearHistory(profileId: Long, type: MediaType? = null) = db.useWriterConnection { connection ->
+        connection.immediateTransaction {
+            val history = if (type == null) historyDao.getForProfile(profileId) else historyDao.getForProfileType(profileId, type)
+            history.forEach { userData.recordDeletion(profileId, "his", it.mediaType, it.itemId) }
+            val progressType = when (type) {
+                MediaType.SERIES -> MediaType.EPISODE
+                MediaType.MOVIE -> MediaType.MOVIE
+                else -> null
+            }
+            val progress = when {
+                type == null -> progressDao.getForProfile(profileId)
+                progressType != null -> progressDao.getForProfileType(profileId, progressType)
+                else -> emptyList()
+            }
+            progress.forEach { userData.recordDeletion(profileId, "prog", it.mediaType, it.itemId) }
+            if (type == null) {
+                historyDao.clear(profileId)
+                progressDao.clearProfile(profileId)
+            } else {
+                historyDao.clearType(profileId, type)
+                progressType?.let { progressDao.clearProfileType(profileId, it) }
+            }
+            userData.pruneTombstones()
         }
-        val progress = when {
-            type == null -> progressDao.getForProfile(profileId)
-            progressType != null -> progressDao.getForProfileType(profileId, progressType)
-            else -> emptyList()
-        }
-        progress.forEach { userData.recordDeletion(profileId, "prog", it.mediaType, it.itemId) }
-        if (type == null) {
-            historyDao.clear(profileId)
-            progressDao.clearProfile(profileId)
-        } else {
-            historyDao.clearType(profileId, type)
-            progressType?.let { progressDao.clearProfileType(profileId, it) }
-        }
-        userData.pruneTombstones()
     }
 }
