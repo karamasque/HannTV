@@ -1,5 +1,6 @@
 package tv.own.owntv.features.shell.components
 
+import tv.own.owntv.core.live.ChannelNowPlaying
 import tv.own.owntv.core.epg.displayLogoUrl
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
@@ -62,7 +63,7 @@ fun ChannelListOverlay(
     currentId: Long?,
     onSelect: (ChannelEntity) -> Unit,
     onDismiss: () -> Unit,
-    nowPlaying: Map<Long, String> = emptyMap(),
+    nowPlaying: Map<Long, ChannelNowPlaying> = emptyMap(),
     title: String? = null,
     alignEnd: Boolean = false,
     showNumbers: Boolean = true,
@@ -118,7 +119,7 @@ fun ChannelListOverlay(
                     ChannelRow(
                         channel = ch,
                         isCurrent = isCurrent,
-                        nowTitle = nowPlaying[ch.id],
+                        nowTitle = nowPlaying[ch.id]?.title,
                         showNumber = showNumbers,
                         providerName = providerNames[ch.sourceId],
                         onClick = { onSelect(ch) },

@@ -236,7 +236,7 @@ class LiveEpgReader(
         channels: List<ChannelEntity>,
         cust: SectionCustomizations,
         globalShiftMinutes: Int,
-    ): Map<Long, String> = withContext(Dispatchers.IO) {
+    ): Map<Long, ChannelNowPlaying> = withContext(Dispatchers.IO) {
         if (channels.isEmpty()) return@withContext emptyMap()
         val now = System.currentTimeMillis()
         // Every playlist plus every EPG feed — NOT just the sources the visible page happens to come
@@ -259,7 +259,7 @@ class LiveEpgReader(
         if (channelKeys.isEmpty()) return@withContext emptyMap()
         val startedAt = android.os.SystemClock.elapsedRealtime()
         var chunks = 0
-        val result = HashMap<Long, String>()
+        val result = HashMap<Long, ChannelNowPlaying>()
         for ((shift, group) in channelKeys.groupBy { it.third }) {
             val at = EpgShift.toStored(now, shift)
             val rowsByKey = group
@@ -273,26 +273,23 @@ class LiveEpgReader(
             for ((channelId, epgKey, _) in group) {
                 rowsByKey[epgKey]
                     ?.firstOrNull { at in it.startMs until it.stopMs }
-                    ?.let { result[channelId] = it.title }
+                    ?.let { prog ->
+                        val start = prog.startMs + shift * 60_000L
+                        val stop = prog.stopMs + shift * 60_000L
+                        result[channelId] = ChannelNowPlaying(
+                            title = prog.title,
+                            startMs = start,
+                            stopMs = stop,
+                        )
+                    }
             }
         }
         // Second pass: whatever the preview pane has already resolved for a channel the stored guide
         // could not answer — **from cache, never from the network**.
-        //
-        // Fetching here was tried and was a mistake worth recording. A list holds hundreds of
-        // channels, so "ask the provider for the ones we cannot answer" became hundreds of
-        // `get_short_epg` requests, most of them returning nothing because that provider has no short
-        // guide for those channels at all. Worse, the batch could not return until the last one
-        // finished, so the list that used to fill from one query instantly now filled from nothing:
-        // EVERY row went blank, which is the opposite of the bug it set out to fix.
-        //
-        // The provider is still asked — just never in bulk. The channel under the cursor is fetched
-        // by the preview pane itself, and a guide row fetches as it scrolls into view. Both land in
-        // this cache, so the list fills in behind them for free.
         val fromStored = result.size
         for (ch in channels) {
             if (ch.id in result) continue
-            cachedNowTitle(ch.id, now)?.let { result[ch.id] = it }
+            cachedNowPlaying(ch.id, now)?.let { result[ch.id] = it }
         }
         CorePerf.log {
             "live_nowplaying channels=${channels.size} keyed=${channelKeys.size} " +
@@ -309,13 +306,21 @@ class LiveEpgReader(
      *
      * Deliberately never fetches. See the note in [nowPlayingFor] for what happened when it did.
      */
-    private fun cachedNowTitle(channelId: Long, now: Long): String? {
-        cache[channelId]?.takeIf { now - it.at < CACHE_TTL_MS }?.data?.now?.title
-            ?.takeIf { it.isNotBlank() }?.let { return it }
-        return providerRows[channelId]
+    private fun cachedNowPlaying(channelId: Long, now: Long): ChannelNowPlaying? {
+        cache[channelId]?.takeIf { now - it.at < CACHE_TTL_MS }?.data?.now?.let { entry ->
+            if (entry.title.isNotBlank()) {
+                return ChannelNowPlaying(title = entry.title, startMs = entry.startMs, stopMs = entry.stopMs)
+            }
+        }
+        providerRows[channelId]
             ?.takeIf { now - it.at < CACHE_TTL_MS }
             ?.rows?.firstOrNull { it.startMs <= now && it.stopMs > now }
-            ?.title?.takeIf { it.isNotBlank() }
+            ?.let { row ->
+                if (row.title.isNotBlank()) {
+                    return ChannelNowPlaying(title = row.title, startMs = row.startMs, stopMs = row.stopMs)
+                }
+            }
+        return null
     }
 
     /**

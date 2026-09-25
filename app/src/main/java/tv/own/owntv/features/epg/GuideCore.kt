@@ -51,6 +51,7 @@ import tv.own.owntv.R
 import tv.own.owntv.core.model.RecordingStatus
 import tv.own.owntv.core.database.entity.RecordingEntity
 import tv.own.owntv.core.database.entity.EpgProgrammeEntity
+import tv.own.owntv.core.epg.EpgDedupe
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import tv.own.owntv.core.settings.SettingsRepository
@@ -115,12 +116,15 @@ internal fun ProgrammeStripCanvas(
         textDirection = TextDirection.Content,
     )
     val formatTime = rememberSystemTimeFormatter()
+    val displayProgs = remember(programmes) {
+        EpgDedupe.collapse(programmes).sortedBy { it.startMs }
+    }
     // Time labels built once (string formatting kept out of the per-frame draw loop).
     // Resolve the templates through Compose so a live locale change invalidates the labels.
     val timeRangeTemplate = stringResource(R.string.content_epg_time_range)
     val nowTemplate = stringResource(R.string.content_epg_now)
-    val labels = remember(programmes, now, formatTime, timeRangeTemplate, nowTemplate) {
-        programmes.map { p ->
+    val labels = remember(displayProgs, now, formatTime, timeRangeTemplate, nowTemplate) {
+        displayProgs.map { p ->
             val t = String.format(
                 java.util.Locale.ROOT,
                 timeRangeTemplate,
@@ -147,9 +151,15 @@ internal fun ProgrammeStripCanvas(
     Canvas(Modifier.fillMaxSize()) {
         val viewW = size.width
         val h = size.height
-        programmes.forEachIndexed { i, p ->
+        displayProgs.forEachIndexed { i, p ->
+            val nextStartMs = displayProgs.getOrNull(i + 1)?.startMs
+            val effectiveStopMs = if (nextStartMs != null && nextStartMs > p.startMs) {
+                minOf(p.stopMs, nextStartMs)
+            } else {
+                p.stopMs
+            }
             val s = p.startMs.coerceIn(windowStart, windowEnd)
-            val e = p.stopMs.coerceIn(windowStart, windowEnd)
+            val e = effectiveStopMs.coerceIn(windowStart, windowEnd)
             if (e <= s) return@forEachIndexed
             val x = ((s - windowStart) / 60_000f) * pxPerMin - scrollPx
             val w = (((e - s) / 60_000f) * pxPerMin - gapPx).coerceAtLeast(0f)

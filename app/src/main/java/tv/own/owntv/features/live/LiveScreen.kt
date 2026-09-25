@@ -48,8 +48,11 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -617,20 +620,31 @@ fun LiveScreen(
                     ) { index ->
                         val channel = channels[index]
                         if (channel != null) {
+                            val previewNow = if (channel.id == previewChannel?.id) nowNext?.now else null
+                            val chNowPlaying = if (previewNow != null && previewNow.startMs > 0 && previewNow.stopMs > 0) {
+                                tv.own.owntv.core.live.ChannelNowPlaying(
+                                    title = previewNow.title,
+                                    startMs = previewNow.startMs,
+                                    stopMs = previewNow.stopMs,
+                                )
+                            } else {
+                                nowPlaying[channel.id]
+                            }
+                            val formatTime = rememberSystemTimeFormatter()
+                            val nowTimeRange = chNowPlaying?.takeIf { it.startMs > 0 && it.stopMs > 0 }?.let { n ->
+                                stringResource(R.string.content_live_time_range_plain, formatTime(n.startMs), formatTime(n.stopMs))
+                            }
+                            val nowTitleText = chNowPlaying?.title?.takeIf { it.isNotBlank() }
+                            val nowProgressFraction = chNowPlaying?.progressFraction ?: 0f
+
                             ChannelRow(
                                 channel = channel,
                                 isFavorite = favoriteIds.contains(channel.id),
-                            // The batch answers from the stored guide plus whatever the preview has
-                            // already resolved; the channel under the cursor is answered from the
-                            // preview ITSELF, so the row and the pane beside it can never disagree and
-                            // the line appears at once rather than at the next 60s refresh.
-                            nowTitle = if (channel.id == previewChannel?.id) {
-                                nowNext?.now?.title?.takeIf { it.isNotBlank() } ?: nowPlaying[channel.id]
-                            } else {
-                                nowPlaying[channel.id]
-                            },
-                            showNumber = showChannelNumbers,
-                            providerName = providerNames[channel.sourceId],
+                                nowTitle = nowTitleText,
+                                nowTimeRange = nowTimeRange,
+                                nowProgress = nowProgressFraction,
+                                showNumber = showChannelNumbers,
+                                providerName = providerNames[channel.sourceId],
                                 modifier = Modifier.gridFocusTarget(
                                     itemId = channel.id, index = index,
                                     contextId = contextChannelId, contextFocus = contextFocus,
@@ -869,6 +883,8 @@ private fun ChannelRow(
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
     nowTitle: String? = null,
+    nowTimeRange: String? = null,
+    nowProgress: Float = 0f,
     showNumber: Boolean = true,
     providerName: String? = null,
     modifier: Modifier = Modifier,
@@ -913,20 +929,66 @@ private fun ChannelRow(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                 )
-                if (nowTitle != null) {
+                val programTitle = nowTitle?.takeIf { it.isNotBlank() }
+                val displaySubtitle = programTitle ?: providerName
+                if (!displaySubtitle.isNullOrBlank()) {
+                    val separator = stringResource(R.string.content_epg_bits_separator)
+                    val annotatedSubtitle = remember(nowTimeRange, displaySubtitle, separator, colors.primary, colors.onSurfaceVariant) {
+                        buildAnnotatedString {
+                            if (nowTimeRange != null && programTitle != null) {
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = colors.primary,
+                                        fontWeight = FontWeight.Bold,
+                                    ),
+                                ) {
+                                    append(nowTimeRange)
+                                }
+                                withStyle(
+                                    style = SpanStyle(
+                                        color = colors.onSurfaceVariant.copy(alpha = 0.5f),
+                                    ),
+                                ) {
+                                    append(separator)
+                                }
+                            }
+                            append(displaySubtitle)
+                        }
+                    }
                     Text(
-                        nowTitle,
+                        text = annotatedSubtitle,
                         style = MaterialTheme.typography.bodySmall,
                         color = colors.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.fillMaxWidth(),
                     )
+                }
+                if (nowProgress > 0f) {
+                    Spacer(Modifier.height(3.dp))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(2.5.dp)
+                            .clip(RoundedCornerShape(1.dp))
+                            .background(colors.surfaceContainerLowest),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth(nowProgress)
+                                .height(2.5.dp)
+                                .clip(RoundedCornerShape(1.dp))
+                                .background(colors.primary),
+                        )
+                    }
                 }
             }
             if (isFavorite) {
                 HanTVIcon(HanTVIcon.FAVORITE, tint = colors.favorite, filled = true, modifier = Modifier.size(20.dp))
             }
-            providerName?.let { ProviderChip(name = it) }
+            if (nowTitle != null && providerName != null) {
+                ProviderChip(name = providerName)
+            }
         }
     }
 }

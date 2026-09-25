@@ -98,6 +98,7 @@ import tv.own.owntv.core.live.serialize
 import tv.own.owntv.core.live.EpgNowNext
 import tv.own.owntv.core.live.LiveEpgReader
 import tv.own.owntv.core.live.LiveArchiveUrls
+import tv.own.owntv.core.live.ChannelNowPlaying
 
 /** A rail entry. Favorites/History carry an [icon] rendered inline before the title. */
 @Immutable
@@ -2285,21 +2286,21 @@ class LiveViewModel(
      * guide simply has no entry here, and the row shows no second line. Returns only channels that
      * actually have something airing right now.
      */
-    suspend fun nowPlayingFor(channels: List<ChannelEntity>): Map<Long, String> =
+    suspend fun nowPlayingFor(channels: List<ChannelEntity>): Map<Long, ChannelNowPlaying> =
         epgReader.nowPlayingFor(channels, custom.value, epgOffset.value)
 
     /**
-     * Current programme title per channel id, shared by the Live list and the in-player overlays.
+     * Current programme per channel id, shared by the Live list and the in-player overlays.
      *
      * Bounded and least-recently-used: any screen may add to it, and none of them prunes on another's
      * behalf. An earlier version had each caller drop everything outside its own list, which made the
      * Live list and the channel-list overlay evict each other's work every time one opened.
      */
-    private val nowPlayingCache = object : LinkedHashMap<Long, String>(256, 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Long, String>?) = size > MAX_NOW_PLAYING
+    private val nowPlayingCache = object : LinkedHashMap<Long, ChannelNowPlaying>(256, 0.75f, true) {
+        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<Long, ChannelNowPlaying>?) = size > MAX_NOW_PLAYING
     }
 
-    private val _nowPlaying = MutableStateFlow<Map<Long, String>>(emptyMap())
+    private val _nowPlaying = MutableStateFlow<Map<Long, ChannelNowPlaying>>(emptyMap())
 
     /**
      * Channel id → the programme airing now.
@@ -2308,20 +2309,20 @@ class LiveViewModel(
      * not asked again on every append; that sentinel is filtered out here, so such a row simply has
      * no entry and draws no second line.
      */
-    val nowPlaying: StateFlow<Map<Long, String>> = _nowPlaying
-        .map { titles -> titles.filterValues { it.isNotBlank() } }
+    val nowPlaying: StateFlow<Map<Long, ChannelNowPlaying>> = _nowPlaying
+        .map { entries -> entries.filterValues { it.title.isNotBlank() } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyMap())
 
     private var nowPlayingJob: kotlinx.coroutines.Job? = null
 
-    private fun publishNowPlaying(resolved: Map<Long, String>) {
+    private fun publishNowPlaying(resolved: Map<Long, ChannelNowPlaying>) {
         synchronized(nowPlayingCache) {
             nowPlayingCache.putAll(resolved)
             _nowPlaying.value = HashMap(nowPlayingCache)
         }
     }
 
-    private fun cachedNowPlaying(): Map<Long, String> = synchronized(nowPlayingCache) { HashMap(nowPlayingCache) }
+    private fun cachedNowPlaying(): Map<Long, ChannelNowPlaying> = synchronized(nowPlayingCache) { HashMap(nowPlayingCache) }
 
     /** Forget every resolved title — the guide data or the offset moved underneath them. */
     private fun clearNowPlaying() {
@@ -2340,14 +2341,27 @@ class LiveViewModel(
     fun ensureNowPlaying(loaded: List<ChannelEntity>) {
         if (loaded.isEmpty()) return
         val known = cachedNowPlaying()
-        val missing = loaded.filter { it.id !in known }
+        val missing = loaded.filter { it.id !in known || known[it.id]?.title.isNullOrBlank() }
         if (missing.isEmpty()) return
         nowPlayingJob?.cancel()
         nowPlayingJob = viewModelScope.launch {
             val found = runCatching { nowPlayingFor(missing) }.getOrDefault(emptyMap())
-            // Remember the ones with no guide too, as a blank — otherwise they are re-queried on
-            // every single append, which is most of the cost this removes.
-            publishNowPlaying(found + missing.filter { it.id !in found }.associate { it.id to "" })
+            if (found.isNotEmpty()) {
+                publishNowPlaying(found)
+            }
+            val stillMissing = missing.filter { it.id !in found || found[it.id]?.title.isNullOrBlank() }
+            if (stillMissing.isNotEmpty()) {
+                for (ch in stillMissing) {
+                    launch {
+                        val nowNext = runCatching { epgReader.nowNext(ch, custom.value, epgOffset.value) }.getOrNull()
+                        val title = nowNext?.now?.title?.takeIf { it.isNotBlank() } ?: ""
+                        val start = nowNext?.now?.startMs ?: 0L
+                        val stop = nowNext?.now?.stopMs ?: 0L
+                        val item = ChannelNowPlaying(title = title, startMs = start, stopMs = stop)
+                        publishNowPlaying(mapOf(ch.id to item))
+                    }
+                }
+            }
         }
     }
 
@@ -2363,7 +2377,22 @@ class LiveViewModel(
         nowPlayingJob?.cancel()
         nowPlayingJob = viewModelScope.launch {
             val found = runCatching { nowPlayingFor(loaded) }.getOrDefault(emptyMap())
-            publishNowPlaying(found + loaded.filter { it.id !in found }.associate { it.id to "" })
+            if (found.isNotEmpty()) {
+                publishNowPlaying(found)
+            }
+            val stillMissing = loaded.filter { it.id !in found || found[it.id]?.title.isNullOrBlank() }
+            if (stillMissing.isNotEmpty()) {
+                for (ch in stillMissing) {
+                    launch {
+                        val nowNext = runCatching { epgReader.nowNext(ch, custom.value, epgOffset.value) }.getOrNull()
+                        val title = nowNext?.now?.title?.takeIf { it.isNotBlank() } ?: ""
+                        val start = nowNext?.now?.startMs ?: 0L
+                        val stop = nowNext?.now?.stopMs ?: 0L
+                        val item = ChannelNowPlaying(title = title, startMs = start, stopMs = stop)
+                        publishNowPlaying(mapOf(ch.id to item))
+                    }
+                }
+            }
         }
     }
 
