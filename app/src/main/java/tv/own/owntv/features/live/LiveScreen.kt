@@ -205,6 +205,8 @@ fun LiveScreen(
     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
     val selFocus = remember { FocusRequester() }
     val firstItemFocus = remember { FocusRequester() }
+    // Right from the rail on an empty list: the list's search box, so a search with no results can be cleared.
+    val listSearchFocus = remember { FocusRequester() }
 
     // CH+- key paging: shared settings + a hoisted rail state so the same modifier can page both the
     // category rail and this channel list. Channel-list pane focus is tracked separately from rail
@@ -474,6 +476,27 @@ fun LiveScreen(
                     }
                 }
             },
+            onNavigateRight = {
+                val targetId = previewChannel?.id ?: channels.itemSnapshotList.items.firstOrNull()?.id
+                scope.launch {
+                    val targetIdx = if (targetId != null) channels.itemSnapshotList.items.indexOfFirst { it.id == targetId } else 0
+                    if (targetIdx >= 0) {
+                        runCatching { effectiveListState.scrollToItem(targetIdx) }
+                        withFrameNanos { }
+                        repeat(3) {
+                            val focused = if (targetId != null) {
+                                runCatching { selFocus.requestFocus() }.getOrDefault(false)
+                            } else false
+                            if (focused) return@launch
+                            if (runCatching { firstItemFocus.requestFocus() }.getOrDefault(false)) return@launch
+                            if (runCatching { selFocus.requestFocus() }.getOrDefault(false)) return@launch
+                            withFrameNanos { }
+                        }
+                    } else {
+                        runCatching { listSearchFocus.requestFocus() }
+                    }
+                }
+            },
             // Focusing a folder stops the in-pane preview — but only when a preview is actually running.
             // When the player is docked (live PiP) or fullscreen, previewEnabled is false and stopPreview
             // would kill that stream (e.g. while navigating left to leave Live), so we skip it.
@@ -562,8 +585,13 @@ fun LiveScreen(
                 // only for directional entry from outside (internal moves don't re-trigger it).
                 .focusProperties {
                     onEnter = {
-                        if (runCatching { selFocus.requestFocus() }.isFailure) {
-                            runCatching { firstItemFocus.requestFocus() }
+                        val focused = if (previewChannel != null) {
+                            runCatching { selFocus.requestFocus() }.getOrDefault(false)
+                        } else false
+                        if (!focused) {
+                            if (!runCatching { firstItemFocus.requestFocus() }.getOrDefault(false)) {
+                                runCatching { selFocus.requestFocus() }
+                            }
                         }
                     }
                 }
@@ -596,7 +624,7 @@ fun LiveScreen(
                     query = searchQuery,
                     onQueryChange = vm::setSearchQuery,
                     placeholder = stringResource(R.string.content_search_channels, selectedLabel),
-                    modifier = Modifier.weight(1f).onFocusChanged { if (it.hasFocus && previewEnabled) vm.stopPreview() },
+                    modifier = Modifier.weight(1f).focusRequester(listSearchFocus).onFocusChanged { if (it.hasFocus && previewEnabled) vm.stopPreview() },
                 )
                 Spacer(Modifier.size(10.dp))
                 SortChip(mode = sortMode, onToggle = vm::toggleSort)

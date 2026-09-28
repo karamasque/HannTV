@@ -9,6 +9,7 @@ import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.FilterInputStream
@@ -119,6 +120,40 @@ class HttpClient(private val client: OkHttpClient) {
         userAgent: String? = null,
         headers: Map<String, String> = emptyMap(),
     ): String = get(url, userAgent, headers = headers) { it.readBytes().decodeToString() }
+
+    suspend fun postJson(
+        url: String,
+        jsonBody: String,
+        headers: Map<String, String> = emptyMap(),
+    ): String? = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url(url)
+            .post(okhttp3.RequestBody.create("application/json; charset=utf-8".toMediaType(), jsonBody))
+            .apply { headers.forEach { (name, value) -> if (value.isNotBlank()) header(name, value) } }
+            .build()
+        runCatching {
+            client.newCall(request).execute().use { resp ->
+                resp.body?.string()
+            }
+        }.getOrNull()
+    }
+
+    suspend fun patchJson(
+        url: String,
+        jsonBody: String,
+        headers: Map<String, String> = emptyMap(),
+    ): String? = withContext(Dispatchers.IO) {
+        val request = Request.Builder()
+            .url(url)
+            .patch(okhttp3.RequestBody.create("application/json; charset=utf-8".toMediaType(), jsonBody))
+            .apply { headers.forEach { (name, value) -> if (value.isNotBlank()) header(name, value) } }
+            .build()
+        runCatching {
+            client.newCall(request).execute().use { resp ->
+                resp.body?.string()
+            }
+        }.getOrNull()
+    }
 
     companion object {
         private const val TAG = "HttpClient"

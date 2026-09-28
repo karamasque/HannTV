@@ -563,6 +563,9 @@ class SettingsRepository(private val context: Context, private val localeStore: 
         val LAST_BACKUP_BYTES = longPreferencesKey("last_backup_bytes")
         val LAST_BACKUP_ENCRYPTED = booleanPreferencesKey("last_backup_encrypted")
         val LAST_BACKUP_PATH = stringPreferencesKey("last_backup_path")
+        val CLOUD_USER_EMAIL = stringPreferencesKey("cloud_user_email")
+        val CLOUD_USER_ID = stringPreferencesKey("cloud_user_id")
+        val CLOUD_ID_TOKEN = stringPreferencesKey("cloud_id_token")
     }
 
     /**
@@ -767,6 +770,15 @@ class SettingsRepository(private val context: Context, private val localeStore: 
     suspend fun setAmbientGlowPulse(enabled: Boolean) {
         context.dataStore.edit { it[Keys.AMBIENT_GLOW_PULSE] = enabled }
     }
+
+    val cloudUserEmail: Flow<String> = prefsFlow { it[Keys.CLOUD_USER_EMAIL].orEmpty() }
+    suspend fun setCloudUserEmail(email: String) { context.dataStore.edit { it[Keys.CLOUD_USER_EMAIL] = email } }
+
+    val cloudUserId: Flow<String> = prefsFlow { it[Keys.CLOUD_USER_ID].orEmpty() }
+    suspend fun setCloudUserId(uid: String) { context.dataStore.edit { it[Keys.CLOUD_USER_ID] = uid } }
+
+    val cloudIdToken: Flow<String> = prefsFlow { it[Keys.CLOUD_ID_TOKEN].orEmpty() }
+    suspend fun setCloudIdToken(token: String) { context.dataStore.edit { it[Keys.CLOUD_ID_TOKEN] = token } }
 
     // --- Weather chip (top bar): show/hide + manual location override for VPN users ---
 

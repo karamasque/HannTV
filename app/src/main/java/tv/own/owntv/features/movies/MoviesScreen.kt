@@ -227,6 +227,8 @@ fun MoviesScreen(
     val listState = rememberLazyListState()
     val selFocus = remember { FocusRequester() }
     val firstItemFocus = remember { FocusRequester() }
+    // Right from the rail on an empty list: the list's search box, so a search with no results can be cleared.
+    val listSearchFocus = remember { FocusRequester() }
 
     // CH+- key paging: shared settings + hoisted rail state. gridPaneFocused/railPaneFocused let
     // chNavPaging consume the keys only for whichever pane is focused.
@@ -409,6 +411,31 @@ fun MoviesScreen(
                     }
                 }
             },
+            onNavigateRight = {
+                val targetId = selectedMovie?.id ?: movies.itemSnapshotList.items.firstOrNull()?.id
+                scope.launch {
+                    val targetIdx = if (targetId != null) movies.itemSnapshotList.items.indexOfFirst { it.id == targetId } else 0
+                    if (targetIdx >= 0) {
+                        if (viewMode == SettingsRepository.VodViewMode.GRID) {
+                            runCatching { effectiveGridState.scrollToItem(targetIdx) }
+                        } else {
+                            runCatching { effectiveListState.scrollToItem(targetIdx) }
+                        }
+                        withFrameNanos { }
+                        repeat(3) {
+                            val focused = if (targetId != null) {
+                                runCatching { selFocus.requestFocus() }.getOrDefault(false)
+                            } else false
+                            if (focused) return@launch
+                            if (runCatching { firstItemFocus.requestFocus() }.getOrDefault(false)) return@launch
+                            if (runCatching { selFocus.requestFocus() }.getOrDefault(false)) return@launch
+                            withFrameNanos { }
+                        }
+                    } else {
+                        runCatching { listSearchFocus.requestFocus() }
+                    }
+                }
+            },
             listState = catListState,
             focusRequester = railFocus,
             showPanel = false,
@@ -491,8 +518,13 @@ fun MoviesScreen(
                 // from outside (internal moves don't re-trigger it).
                 .focusProperties {
                     onEnter = {
-                        if (runCatching { selFocus.requestFocus() }.isFailure) {
-                            runCatching { firstItemFocus.requestFocus() }
+                        val focused = if (selectedMovie?.id != null) {
+                            runCatching { selFocus.requestFocus() }.getOrDefault(false)
+                        } else false
+                        if (!focused) {
+                            if (!runCatching { firstItemFocus.requestFocus() }.getOrDefault(false)) {
+                                runCatching { selFocus.requestFocus() }
+                            }
                         }
                     }
                 }
@@ -518,7 +550,7 @@ fun MoviesScreen(
                     query = searchQuery,
                     onQueryChange = vm::setSearchQuery,
                     placeholder = stringResource(R.string.content_search_movies, selectedLabel),
-                    modifier = Modifier.weight(1f),
+                    modifier = Modifier.weight(1f).focusRequester(listSearchFocus),
                 )
                 Spacer(Modifier.width(10.dp))
                 SortChip(mode = sortMode, onToggle = vm::toggleSort, playlistLabel = stringResource(R.string.content_provider))

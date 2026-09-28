@@ -319,6 +319,8 @@ private fun SeriesGrid(
     val firstItemFocus = remember { androidx.compose.ui.focus.FocusRequester() }
     val gridState = androidx.compose.foundation.lazy.grid.rememberLazyGridState()
     val listState = androidx.compose.foundation.lazy.rememberLazyListState()
+    // Right from the rail on an empty list: the list's search box, so a search with no results can be cleared.
+    val listSearchFocus = remember { androidx.compose.ui.focus.FocusRequester() }
 
     // CH+- key paging (grid + category rail). gridPaneFocused/railPaneFocused gate which pane acts.
     val scope = rememberCoroutineScope()
@@ -489,6 +491,31 @@ private fun SeriesGrid(
                     }
                 }
             },
+            onNavigateRight = {
+                val targetId = selectedSeries?.id ?: series.itemSnapshotList.items.firstOrNull()?.id
+                scope.launch {
+                    val targetIdx = if (targetId != null) series.itemSnapshotList.items.indexOfFirst { it.id == targetId } else 0
+                    if (targetIdx >= 0) {
+                        if (viewMode == SettingsRepository.VodViewMode.GRID) {
+                            runCatching { effectiveGridState.scrollToItem(targetIdx) }
+                        } else {
+                            runCatching { effectiveListState.scrollToItem(targetIdx) }
+                        }
+                        withFrameNanos { }
+                        repeat(3) {
+                            val focused = if (targetId != null) {
+                                runCatching { gridSelFocus.requestFocus() }.getOrDefault(false)
+                            } else false
+                            if (focused) return@launch
+                            if (runCatching { firstItemFocus.requestFocus() }.getOrDefault(false)) return@launch
+                            if (runCatching { gridSelFocus.requestFocus() }.getOrDefault(false)) return@launch
+                            withFrameNanos { }
+                        }
+                    } else {
+                        runCatching { listSearchFocus.requestFocus() }
+                    }
+                }
+            },
             listState = catListState,
             focusRequester = railFocus,
             showPanel = false,
@@ -566,8 +593,13 @@ private fun SeriesGrid(
                 // from outside (internal moves don't re-trigger it).
                 .focusProperties {
                     onEnter = {
-                        if (runCatching { gridSelFocus.requestFocus() }.isFailure) {
-                            runCatching { firstItemFocus.requestFocus() }
+                        val focused = if (selectedSeries?.id != null) {
+                            runCatching { gridSelFocus.requestFocus() }.getOrDefault(false)
+                        } else false
+                        if (!focused) {
+                            if (!runCatching { firstItemFocus.requestFocus() }.getOrDefault(false)) {
+                                runCatching { gridSelFocus.requestFocus() }
+                            }
                         }
                     }
                 }
@@ -584,7 +616,7 @@ private fun SeriesGrid(
             Text(pluralStringResource(R.plurals.content_count_series, count, selectedLabel, count), style = MaterialTheme.typography.titleMedium, color = HanTVTheme.colors.primary, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(14.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
-                SearchBar(query = searchQuery, onQueryChange = vm::setSearchQuery, placeholder = stringResource(R.string.content_search_series, selectedLabel), modifier = Modifier.weight(1f))
+                SearchBar(query = searchQuery, onQueryChange = vm::setSearchQuery, placeholder = stringResource(R.string.content_search_series, selectedLabel), modifier = Modifier.weight(1f).focusRequester(listSearchFocus))
                 Spacer(Modifier.width(10.dp))
                 SortChip(mode = sortMode, onToggle = vm::toggleSort, playlistLabel = stringResource(R.string.content_provider))
                 Spacer(Modifier.width(10.dp))

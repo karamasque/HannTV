@@ -41,8 +41,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import android.view.KeyEvent
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -105,6 +113,7 @@ fun CategoryRail(
     selectedIndex: Int,
     onSelect: (Int) -> Unit,
     onLongSelect: ((Int) -> Unit)? = null,
+    onNavigateRight: (() -> Unit)? = null,
     onFocused: () -> Unit = {},
     modifier: Modifier = Modifier,
     // Caller-supplied list state. Defaulted so existing callers are unchanged, but Live/Movies/Series
@@ -183,25 +192,25 @@ fun CategoryRail(
                 // LazyColumn fill is now transparent — the outer Box's roundedPanel surfaceContainerLowest
                 // shows through, keeping panel 1 the same colour as panels 2/3/4 (Phase 6).
                 .onFocusChanged {
-                    // Spatial D-pad entry would land on whatever pill is horizontally aligned —
-                    // redirect every entry (from the sidebar OR back from the content list) to the
-                    // SELECTED category, so you return to the folder you're actually in (e.g. pressing
-                    // Left from a channel lands back on that channel's category, not the top of the rail).
-                    // Internal moves between pills don't re-trigger this. The redirect must be deferred a
-                    // frame: requesting focus inside onFocusChanged is rejected (the focus transaction is
-                    // still in progress).
-                    val entered = it.hasFocus && !hasFocus
                     hasFocus = it.hasFocus
                     if (it.hasFocus) onFocused() else query = "" // reset the search on leaving
-                    if (entered) scope.launch {
-                        if (selectedIndex in categories.indices) {
-                            // Land on the current category; the search box (top) is one Up away.
-                            runCatching { listState.scrollToItem(selectedIndex) }
-                            runCatching { selectedFocus.requestFocus() }
-                        } else {
-                            // No selection (e.g. an empty/special rail) — fall back to the search box.
-                            runCatching { listState.scrollToItem(0) }
-                            runCatching { searchFocus.requestFocus() }
+                }
+                .focusProperties {
+                    // Every entry (from the sidebar OR back from the content) lands on the category
+                    // actually open, never a row that was only browsed; the search box when none is.
+                    onEnter = {
+                        val targetPos = visible.indexOf(selectedIndex)
+                        val targetRequester = if (targetPos in rowFocusers.indices) rowFocusers[targetPos] else searchFocus
+                        if (!runCatching { targetRequester.requestFocus() }.getOrDefault(false)) {
+                            val targetIndex = if (targetPos in rowFocusers.indices) targetPos + 1 else 0
+                            scope.launch {
+                                runCatching { listState.scrollToItem(targetIndex) }
+                                withFrameNanos { }
+                                repeat(3) {
+                                    if (runCatching { targetRequester.requestFocus() }.getOrDefault(false)) return@launch
+                                    withFrameNanos { }
+                                }
+                            }
                         }
                     }
                 }
@@ -247,6 +256,7 @@ fun CategoryRail(
                             it(index) 
                         } 
                     },
+                    onNavigateRight = onNavigateRight,
                     modifier = if (index == selectedIndex) {
                         Modifier.focusRequester(selectedFocus).focusRequester(rowFocusers[i])
                     } else {
@@ -275,6 +285,7 @@ private fun RailPill(
     expanded: Boolean,
     onClick: () -> Unit,
     onLongClick: (() -> Unit)? = null,
+    onNavigateRight: (() -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     val interaction = remember { MutableInteractionSource() }
@@ -297,6 +308,16 @@ private fun RailPill(
     Box(
         modifier = modifier
             .then(if (expanded) Modifier.fillMaxWidth() else Modifier.size(Dimens.RailPillSize))
+            .then(
+                if (onNavigateRight != null) {
+                    Modifier.onPreviewKeyEvent { event ->
+                        if (event.type == KeyEventType.KeyDown && (event.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_DPAD_RIGHT || event.key == Key.DirectionRight)) {
+                            onNavigateRight()
+                            true
+                        } else false
+                    }
+                } else Modifier
+            )
             .clip(shape)
             // Frosted glass fill when the panel is glassy (idle pills have a transparent ladder fill,
             // which glass() skips); plain tonal fill otherwise.

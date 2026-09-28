@@ -29,6 +29,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.first
@@ -468,6 +469,7 @@ class LiveViewModel(
     /** Global guide shift (minutes); a per-channel override in [custom] wins over it. Changing it
      *  drops the now/next cache so the details pane reflects the new offset straight away. */
     private val epgOffset: StateFlow<Int> = settings.epgOffsetMinutes
+        .drop(1)
         .onEach { epgReader.clearCache(); epgRefresh.value++; clearNowPlaying() }
         .stateIn(viewModelScope, SharingStarted.Eagerly, 0)
 

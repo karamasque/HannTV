@@ -26,6 +26,8 @@ import tv.own.owntv.core.sync.SyncManager
 import tv.own.owntv.core.sync.work.CatalogSyncScheduler
 import tv.own.owntv.core.sync.work.EpgSyncScheduler
 import tv.own.owntv.core.weather.WeatherRepository
+import tv.own.owntv.core.account.CloudAccountManager
+import tv.own.owntv.core.account.CloudSyncEngine
 import java.util.concurrent.TimeUnit
 
 /** Networking, parsers, sync engine, and repositories (Phase 5). */
@@ -294,4 +296,6 @@ val dataModule = module {
     // launcherIntegration, catalogSyncScheduler, stalkerAuth — onboarding: add a source, sync it,
     // undo it when it fails. Factory, not single: each wizard run owns its own state machine.
     factory { tv.own.owntv.core.setup.SourceImporter(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
+    single { CloudAccountManager(androidContext(), get(), get()) }
+    single { CloudSyncEngine(get(), get(), get(), get(), get(), get()) }
 }
