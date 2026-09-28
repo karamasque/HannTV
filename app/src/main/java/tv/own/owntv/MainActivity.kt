@@ -243,6 +243,13 @@ class MainActivity : ComponentActivity() {
             val activeProfileId by viewModel.activeProfileId.collectAsStateWithLifecycle()
             val isOnline by viewModel.isOnline.collectAsStateWithLifecycle()
 
+            val cloudAccountManager: tv.own.owntv.core.account.CloudAccountManager = org.koin.compose.koinInject()
+            val cloudUser by cloudAccountManager.currentUser.collectAsStateWithLifecycle()
+
+            LaunchedEffect(Unit) {
+                cloudAccountManager.restoreSession()
+            }
+
             val profilesVm: ProfilesViewModel = koinViewModel()
             val profileState by profilesVm.profileState.collectAsStateWithLifecycle()
             val profiles = (profileState as? tv.own.owntv.features.profiles.ProfileLoadState.Loaded)?.profiles.orEmpty()
@@ -391,6 +398,7 @@ class MainActivity : ComponentActivity() {
                         Box(modifier = Modifier.fillMaxSize()) {
                         val profile = activeProfileId
                         when {
+                            cloudUser == null -> tv.own.owntv.features.account.MandatoryAuthGate(modifier = Modifier.fillMaxSize())
                             profile == null || !profilesLoaded -> Unit // active id / Room list loading
                             // Adding a profile from the gate → onboard the new profile.
                             addingProfile -> Onboarding(

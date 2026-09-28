@@ -87,8 +87,8 @@ val dataModule = module {
     // Per-item zoom/volume the player remembers (playbackPrefsDao, settings).
     single { tv.own.owntv.core.player.PlaybackPrefsStore(get(), get()) }
     single { tv.own.owntv.core.player.ExternalPlayerLauncher(androidContext()) }
-    // store, sourceDao, epgRepository
-    single { tv.own.owntv.core.epg.EpgMigration(get(), get(), get()) }
+    // store, sourceDao, epgRepository, epgSyncScheduler
+    single { tv.own.owntv.core.epg.EpgMigration(get(), get(), get(), getOrNull()) }
     single { M3uParser() }
     single { XtreamClient(get()) }
     // Stalker portal (plan Phase A/B): protocol client on the shared OkHttpClient + in-memory sessions.
@@ -297,5 +297,6 @@ val dataModule = module {
     // undo it when it fails. Factory, not single: each wizard run owns its own state machine.
     factory { tv.own.owntv.core.setup.SourceImporter(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { CloudAccountManager(androidContext(), get(), get()) }
-    single { CloudSyncEngine(get(), get(), get(), get(), get(), get()) }
+    single { CloudSyncEngine(androidContext(), get(), get(), get(), get(), get(), get(), getOrNull(), getOrNull(), getOrNull()) }
 }
+

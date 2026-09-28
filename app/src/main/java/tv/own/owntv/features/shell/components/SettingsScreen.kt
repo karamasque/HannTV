@@ -505,12 +505,6 @@ fun SettingsScreen(
         ),
         RootGroup("group_profile", stringResource(R.string.settings_profile_group), HanTVIcon.PERSON, stringResource(R.string.settings_group_summary_profile)),
         RootRow(
-            tabRowKey(SettingsTab.ACCOUNT), TileTone.PRIMARY, HanTVIcon.PERSON,
-            title = "Bulut Hesabı", desc = "Bulut üyeliğiniz, cihaz kontrolü ve senkronizasyon.",
-            focus = rowFocus.getValue(SettingsTab.ACCOUNT),
-            onClick = { open(SettingsTab.ACCOUNT) },
-        ),
-        RootRow(
             tabRowKey(SettingsTab.PROFILES), TileTone.SECONDARY, HanTVIcon.PERSON,
             title = stringResource(R.string.profiles_title), desc = stringResource(R.string.settings_profiles_description),
             focus = rowFocus.getValue(SettingsTab.PROFILES),
@@ -2051,46 +2045,57 @@ internal fun AboutDialog(onDismiss: () -> Unit) {
         ) {
             BrandLockup(markSize = 48, textSize = 30)
             Spacer(Modifier.height(6.dp))
-            Text(stringResource(R.string.settings_about_version, tv.own.owntv.BuildConfig.VERSION_NAME), style = MaterialTheme.typography.titleMedium, color = colors.primary)
+            Text(stringResource(R.string.settings_account_title), style = MaterialTheme.typography.titleMedium, color = colors.primary)
             Spacer(Modifier.height(14.dp))
             Text(
-                stringResource(R.string.settings_about_description_full),
+                "HanTV Bulut Hesabı ve IPTV Cihaz Senkronizasyonu",
                 style = MaterialTheme.typography.bodyMedium,
                 color = colors.onSurfaceVariant,
                 textAlign = TextAlign.Center,
             )
             Spacer(Modifier.height(14.dp))
-            Text(stringResource(R.string.settings_about_license), style = MaterialTheme.typography.bodyMedium, color = colors.onSurface)
-            Spacer(Modifier.height(4.dp))
-            Text(GITHUB_REPO, style = MaterialTheme.typography.bodyMedium, color = colors.primary)
-            Spacer(Modifier.height(16.dp))
-            // Community: Telegram link + a QR, side-by-side to keep the dialog compact, so TV users can
-            // join from their phone — no TV browser needed.
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Column(Modifier.weight(1f)) {
-                    Text(stringResource(R.string.settings_join_telegram), style = MaterialTheme.typography.titleSmall, color = colors.onSurface)
-                    Spacer(Modifier.height(2.dp))
-                    Text(TELEGRAM_LINK, style = MaterialTheme.typography.bodyMedium, color = colors.primary)
-                    Spacer(Modifier.height(6.dp))
-                    Text(
-                        stringResource(R.string.settings_telegram_scan),
-                        style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant,
-                    )
-                }
-                Box(Modifier.clip(RoundedCornerShape(10.dp)).background(Color.White).padding(6.dp)) {
-                    Image(
-                        painter = androidx.compose.ui.res.painterResource(tv.own.owntv.R.drawable.telegram_qr),
-                        contentDescription = stringResource(R.string.settings_telegram_qr),
-                        modifier = Modifier.size(120.dp),
-                    )
+            val accountManager: tv.own.owntv.core.account.CloudAccountManager = org.koin.compose.koinInject()
+            val user by accountManager.currentUser.collectAsStateWithLifecycle()
+            val activeDevices by accountManager.activeDevices.collectAsStateWithLifecycle()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(colors.surface.copy(alpha = 0.4f))
+                    .border(1.dp, colors.primary.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                    .padding(14.dp),
+            ) {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text("Üyelik Durumu", style = MaterialTheme.typography.titleSmall, color = colors.onSurface, fontWeight = FontWeight.Bold)
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(16.dp))
+                                .background(if (user?.isPremium == true) Color(0xFFFFD700) else colors.primary.copy(alpha = 0.2f))
+                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                        ) {
+                            Text(
+                                text = if (user?.isPremium == true) "⭐ Premium Üye" else if (user != null) "🆓 Ücretsiz Üye" else "Giriş Yapılmadı",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (user?.isPremium == true) Color.Black else colors.onSurface,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(8.dp))
+                    Text("E-posta: ${user?.email ?: "Oturum Açılmadı"}", style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+                    Spacer(Modifier.height(4.dp))
+                    Text("Bağlı Cihazlar: ${activeDevices.size}/${if (user?.isPremium == true) "3 Cihaz" else "1 Cihaz"}", style = MaterialTheme.typography.bodyMedium, color = colors.onSurfaceVariant)
+                    Spacer(Modifier.height(4.dp))
+                    Text("Otomatik IPTV Senkronizasyonu: ${if (user?.isPremium == true) "Aktif" else "Kapalı (Sadece Yerel Cihaz)"}", style = MaterialTheme.typography.bodyMedium, color = if (user?.isPremium == true) colors.primary else colors.onSurfaceVariant)
                 }
             }
-            Spacer(Modifier.height(16.dp))
-            Text(
-                stringResource(R.string.settings_contributions),
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant,
-            )
+            Spacer(Modifier.height(14.dp))
+            Text("🌐 Web Paneli: https://www.hantv.com.tr", style = MaterialTheme.typography.bodyMedium, color = colors.primary, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(20.dp))
             HanTVButton(stringResource(R.string.settings_close), onClick = onDismiss, modifier = Modifier.focusRequester(focus))
         }

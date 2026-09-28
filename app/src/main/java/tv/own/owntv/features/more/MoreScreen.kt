@@ -81,7 +81,7 @@ import tv.own.owntv.ui.theme.HanTVTheme
 import tv.own.owntv.ui.theme.glass
 
 /** Which of More's own pages is on screen. [ROOT] is the hub itself. */
-private enum class MorePage { ROOT, FAVORITES, HISTORY, BACKUP, LOCAL_SYNC }
+private enum class MorePage { ROOT, FAVORITES, HISTORY, BACKUP, LOCAL_SYNC, ACCOUNT }
 
 /** The rows, in the order the spine shows them. */
 private enum class MoreRow { SETTINGS, FAVORITES, HISTORY, BACKUP, LOCAL_SYNC, ERROR_LOG, ABOUT }
@@ -165,6 +165,10 @@ fun MoreScreen(
         }
         MorePage.LOCAL_SYNC -> {
             Toned(TileTone.TERTIARY) { LocalSyncScreen(onBack = { page = MorePage.ROOT }, modifier = modifier) }
+            return
+        }
+        MorePage.ACCOUNT -> {
+            Toned(TileTone.TERTIARY) { tv.own.owntv.features.settings.SettingsAccountScreen(onBack = { page = MorePage.ROOT }, modifier = modifier) }
             return
         }
         MorePage.ROOT -> Unit
@@ -325,14 +329,14 @@ fun MoreScreen(
                 )
                 SpineRow(
                     row = MoreRow.ABOUT,
-                    icon = HanTVIcon.INFO,
-                    title = stringResource(R.string.settings_about),
-                    summary = stringResource(R.string.more_spine_about_summary),
-                    badge = BuildConfig.VERSION_NAME,
+                    icon = HanTVIcon.PERSON,
+                    title = stringResource(R.string.settings_account_title),
+                    summary = stringResource(R.string.settings_account_description),
+                    badge = "",
                     selected = selected,
                     focus = rowFocus.getValue(MoreRow.ABOUT),
                     onSelected = { selected = it },
-                    onClick = { focusRow(MoreRow.ABOUT); showAbout = true },
+                    onClick = { focusRow(MoreRow.ABOUT); page = MorePage.ACCOUNT },
                 )
 
                 SpineFooter()
@@ -354,7 +358,7 @@ fun MoreScreen(
                     MoreRow.BACKUP -> stringResource(R.string.settings_backup_restore)
                     MoreRow.LOCAL_SYNC -> stringResource(R.string.local_sync_title)
                     MoreRow.ERROR_LOG -> stringResource(R.string.settings_playback_error_log)
-                    MoreRow.ABOUT -> stringResource(R.string.settings_about)
+                    MoreRow.ABOUT -> stringResource(R.string.settings_account_title)
                 }
                 // Settings' own sheet header: 18 sp title, 12.5 sp summary, bordered mono tag.
                 SheetHeader(

@@ -26,6 +26,10 @@
     <!-- Translators: Setting label for the mini-player position picker. -->
     <string name="settings_mini_player_position">Mini-player position</string>
     <!-- Translators: Section header for Home screen customization. -->
+    <!-- Translators: Section header for Cloud Account settings. -->
+    <string name="settings_account_title">Üyelik &amp; Bulut Hesabı</string>
+    <!-- Translators: Description for Cloud Account settings. -->
+    <string name="settings_account_description">Üyelik durumunuzu, bağlı cihazlarınızı ve bulut senkronizasyon ayarlarınızı yönetin.</string>
     <string name="settings_home_screen">Home screen</string>
     <!-- Translators: Description of the Home screen settings section. -->
     <string name="settings_home_description">Hide, reorder and filter rows on Home for this profile.</string>

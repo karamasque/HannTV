@@ -135,6 +135,7 @@ val appModule = module {
             livePreview = get(),
             enginePool = get(),
             importer = get(),
+            cloudSyncEngine = getOrNull(),
         )
     }
     viewModelOf(::LocalSyncViewModel)

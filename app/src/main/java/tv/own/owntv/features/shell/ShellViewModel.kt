@@ -61,6 +61,7 @@ class ShellViewModel(
     private val weatherRepository: WeatherRepository,
     private val navVisibility: NavVisibility,
     private val profiles: tv.own.owntv.core.profile.ProfileManager,
+    private val cloudSyncEngine: tv.own.owntv.core.account.CloudSyncEngine? = null,
 ) : ViewModel() {
 
     companion object {
@@ -77,6 +78,13 @@ class ShellViewModel(
     private var lastResumeCheckAtElapsed = 0L
 
     init {
+        // Run cloud sync automatically on app startup and every 5 seconds
+        viewModelScope.launch {
+            while (true) {
+                runCatching { cloudSyncEngine?.syncAll() }
+                kotlinx.coroutines.delay(5_000L)
+            }
+        }
         // One-time: move any existing playlist EPG into the new standalone EPG sources (v2.2.0).
         viewModelScope.launch { runCatching { epgMigration.run() } }
         // One-time: migrate the legacy binary refresh-on-startup set → per-source STARTUP entries.

@@ -3,6 +3,8 @@ import java.util.Properties
 import javax.inject.Inject
 import org.gradle.process.ExecOperations
 
+layout.buildDirectory.set(file("build_out"))
+
 // Packaged locale qualifiers are read from tools/i18n/locales.json entries where packaged = true.
 // That catalogue is owned by the core repo (ahXN00/OwnTV_Core), which holds the strings; the copy
 // here exists only because Gradle needs the list before any dependency is resolved. Change it there
@@ -51,8 +53,8 @@ android {
         // need a manual edit here. The fallbacks are only used for local/debug builds — pinned HIGH
         // (99999, mirroring versionName 99.99.99) so a local/debug APK is always "newer" than any
         // published release and installs straight over it (no INSTALL_FAILED_VERSION_DOWNGRADE).
-        versionCode = (System.getenv("VERSION_CODE") ?: "215").toInt()
-        versionName = System.getenv("VERSION_NAME") ?: "2.1.5"
+        versionCode = (System.getenv("VERSION_CODE") ?: "216").toInt()
+        versionName = System.getenv("VERSION_NAME") ?: "2.1.6"
 
         // Opt-in local diagnostic APKs keep the rolling playback trace enabled even when they are
         // release-signed (so they can update an installed production build without changing its data).

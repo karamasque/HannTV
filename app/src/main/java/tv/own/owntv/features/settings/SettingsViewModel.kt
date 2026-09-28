@@ -94,6 +94,7 @@ class SettingsViewModel(
     private val enginePool: tv.own.owntv.player.LiveEnginePool,
     // Adding a playlist is core's sequence, not a copy of it — see [importState].
     private val importer: SourceImporter,
+    private val cloudSyncEngine: tv.own.owntv.core.account.CloudSyncEngine? = null,
 ) : ViewModel() {
     companion object {
         private const val TAG = "HanTVHome"
@@ -1172,6 +1173,7 @@ class SettingsViewModel(
             Log.d(TAG, "runImport profile=$pid")
             importer.useProfile(pid)
             block()
+            runCatching { cloudSyncEngine?.syncAll() }
             val done = importer.state.value as? SourceImporter.ImportState.Success ?: return@launch
             Log.d(TAG, "runImport sync success sourceId=${done.source?.id} profile=$pid")
             done.source?.let { synced ->
@@ -1237,6 +1239,8 @@ class SettingsViewModel(
                     sourceRepository.deleteSource(source)
                     if (defaultSourceId.value == source.id) settings.setDefaultSource(-1L)
                     refreshActiveTvHome(allowBrowsableRequest = true)
+                    runCatching { cloudSyncEngine?.deleteSourceFromCloud(source) }
+                    runCatching { cloudSyncEngine?.syncAll() }
                 }
             } finally {
                 _deletingSourceIds.value = _deletingSourceIds.value - source.id

@@ -27,6 +27,7 @@ class SetupViewModel(
     private val epgRepository: tv.own.owntv.core.repository.EpgRepository,
     private val epgSourceStore: tv.own.owntv.core.epg.EpgSourceStore,
     private val companion: tv.own.owntv.core.companion.CompanionController,
+    private val cloudSyncEngine: tv.own.owntv.core.account.CloudSyncEngine? = null,
 ) : ViewModel() {
 
     // ---- Remote (companion) add-source: a LAN web form fills the Add Source screen from another device. ----
@@ -190,6 +191,10 @@ class SetupViewModel(
 
     /** Completes onboarding → makes the new profile active, routing the app into the shell. */
     fun finish(onDone: (Long?) -> Unit = {}) {
-        viewModelScope.launch { onDone(importer.finish()) }
+        viewModelScope.launch {
+            val pid = importer.finish()
+            runCatching { cloudSyncEngine?.syncAll() }
+            onDone(pid)
+        }
     }
 }

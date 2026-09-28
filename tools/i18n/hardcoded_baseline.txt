@@ -4,6 +4,20 @@
 # Phase 1 deletes occurrences until this file is empty; the CI guard then becomes absolute.
 # Format: <count>\t<relative path>\t<content with \t/\n escaped>
 
+3	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	\0
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	E-posta Adresi
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	Giriş Yap
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	HanTV Hesabınıza Giriş Yapın
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	HanTV Üyeliği Oluşturun
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	Hesabınız yok mu? Üye Olun
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	Hoş geldiniz!
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	Kayıt Ol
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	Lütfen e-posta ve şifrenizi girin.
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	Uygulamayı kullanabilmek için lütfen giriş yapın veya ücretsiz üyelik oluşturun. Üyeliğiniz ile en fazla 3 cihaz bağlayabilirsiniz.
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	Zaten hesabınız var mı? Giriş Yapın
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	ör. ahmet@gmail.com
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	İşlem Yapılıyor...
+1	app/src/main/java/tv/own/owntv/features/account/MandatoryAuthGate.kt	Şifre
 1	app/src/main/java/tv/own/owntv/features/customize/BulkRenameDialogs.kt	\0
 1	app/src/main/java/tv/own/owntv/features/customize/BulkRenameDialogs.kt	ADD
 1	app/src/main/java/tv/own/owntv/features/customize/BulkRenameDialogs.kt	PREFIX
@@ -28,6 +42,7 @@
 1	app/src/main/java/tv/own/owntv/features/epg/EpgScreen.kt	ALL
 1	app/src/main/java/tv/own/owntv/features/live/LiveViewModel.kt	mpv handoff for '${channel.name}' abandoned — the channel changed while ExoPlayer released
 1	app/src/main/java/tv/own/owntv/features/live/LiveViewModel.kt	starting mpv for '${channel.name}' — reason=$reason
+1	app/src/main/java/tv/own/owntv/features/more/MoreScreen.kt	\0
 8	app/src/main/java/tv/own/owntv/features/settings/DnsSettingsScreen.kt	\0
 1	app/src/main/java/tv/own/owntv/features/settings/DnsSettingsScreen.kt	${cfg.host}$p
 1	app/src/main/java/tv/own/owntv/features/settings/DnsSettingsScreen.kt	:${cfg.port}
@@ -38,13 +53,15 @@
 1	app/src/main/java/tv/own/owntv/features/settings/OpenSubtitlesViewModel.kt	manual refresh failed: ${it.javaClass.simpleName}: ${it.message}
 1	app/src/main/java/tv/own/owntv/features/settings/OpenSubtitlesViewModel.kt	sign-in failed: ${e.javaClass.simpleName}: ${e.message}
 4	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	\0
-1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	${activeDevices.size}/3 Cihaz
-1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	${currentUser?.email} (ID: ${currentUser?.uid})
-1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	${dev.platform} • Son aktif: ${dev.lastActive}
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	${activeDevices.size}/${if (currentUser?.isPremium == true) "3 Cihaz" else "1 Cihaz"}
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	${currentUser?.email} (ID: ${currentUser?.uid?.take(12)}...)
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	(Bu Cihaz)
-1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Aktif Üyelik
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	1 Cihaz
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	1 Cihaz Sınırı
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	3 Cihaz
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	3 Cihaz Sınırı
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Aktif Bağlı Cihazlarınız (${activeDevices.size}/${if (currentUser?.isPremium == true) "3 Cihaz Sınırı" else "1 Cihaz Sınırı"})
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Bağlı
-1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Bağlı Cihazlar (Maksimum 3 Cihaz)
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Bağlı cihaz bulunamadı.
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Bu Cihaz
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Bulut Hesabınıza Giriş Yapın
@@ -52,24 +69,33 @@
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	E-posta Adresi
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Giriş Yap
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Giriş başarılı!
-1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	HanTV Bulut Hesabı
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	HanTV Bulut Web Paneli
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	HanTV Üyelik & Bulut Hesabı
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Hesabınız yok mu? Üye Olun
-1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Hesap Bilgileri
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Hesap & Üyelik Durumu
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Hesaptan Çıkış Yap
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Lütfen e-posta ve şifrenizi girin.
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Senkronizasyon başarısız oldu.
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Senkronizasyon tamamlandı!
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Senkronize Ediliyor...
-1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Yeni bir cihaz eklemek için limit dolduğunda Web Paneli'nden bağlı bir cihazı kaldırabilirsiniz.
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Tür: ${dev.platform.uppercase()} • Son aktif: ${dev.lastActive}
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Web Paneli
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Yeni Üyelik Oluştur
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Zaten hesabınız var mı? Giriş Yapın
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	https://www.hantv.com.tr
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Çıkış yapıldı
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Üye Ol
-1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Üyeliğiniz ile en fazla 3 cihaz bağlayabilir, IPTV listelerinizi ve kaldığınız yerden devam et sürelerini cihazlar arası otomatik senkronize edebilirsiniz.
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Üyeliğiniz ile en fazla 1 cihaz bağlayabilir (Premium'da 3 Cihaz), IPTV listelerinizi ve izleme sürelerinizi senkronize edebilirsiniz.
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	ör. ahmet@gmail.com
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	İşlem Yapılıyor...
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Şifre
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	Şimdi Buluttan Senkronize Et
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	• Premium Üyelik: Maksimum 3 Cihaz bağlama hakkı. Web paneli (https://www.hantv.com.tr) üzerinden otomatik bulut IPTV ve izlemeye devam et senkronizasyonu sunar.
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	• Ücretsiz Üyelik: Maksimum 1 Cihaz sınırı. Sadece yerel cihazınızda kullanım imkanı sağlar.
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	⭐ Premium Üyelik
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	🆓 Ücretsiz Üyelik
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	🌐 Web Paneli: https://www.hantv.com.tr
+1	app/src/main/java/tv/own/owntv/features/settings/SettingsAccountScreen.kt	📋 Üyelik Paket Bilgileri & Kuralları
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsViewModel.kt	UnknownHostException
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsViewModel.kt	dns.google
 1	app/src/main/java/tv/own/owntv/features/settings/SettingsViewModel.kt	refused
@@ -125,10 +151,22 @@
 1	app/src/main/java/tv/own/owntv/features/shell/OwnTVShell.kt	webvtt
 1	app/src/main/java/tv/own/owntv/features/shell/components/MediaDetailsScreen.kt	\0
 6	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	#
-1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	Bulut Hesabı
-1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	Bulut üyeliğiniz, cihaz kontrolü ve senkronizasyon.
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	1 Cihaz
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	3 Cihaz
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	Aktif
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	Bağlı Cihazlar: ${activeDevices.size}/${if (user?.isPremium == true) "3 Cihaz" else "1 Cihaz"}
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	E-posta: ${user?.email ?: "Oturum Açılmadı"}
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	Giriş Yapılmadı
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	HanTV Bulut Hesabı ve IPTV Cihaz Senkronizasyonu
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	Kapalı (Sadece Yerel Cihaz)
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	Otomatik IPTV Senkronizasyonu: ${if (user?.isPremium == true) "Aktif" else "Kapalı (Sadece Yerel Cihaz)"}
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	Oturum Açılmadı
 1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	github.com/karamasque/HannTV
 1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	theme_preset_chooser
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	Üyelik Durumu
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	⭐ Premium Üye
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	🆓 Ücretsiz Üye
+1	app/src/main/java/tv/own/owntv/features/shell/components/SettingsScreen.kt	🌐 Web Paneli: https://www.hantv.com.tr
 1	app/src/main/java/tv/own/owntv/player/MpvVideoSurface.kt	DEPRECATION
 1	app/src/main/java/tv/own/owntv/ui/components/ColorPicker.kt	#%06X
 1	app/src/main/java/tv/own/owntv/ui/components/OwnTVAvatar.kt	\0
@@ -151,14 +189,16 @@
 2	core/src/main/java/tv/own/owntv/core/CoreBuildInfo.kt	\0
 1	core/src/main/java/tv/own/owntv/core/CoreBuildInfo.kt	ahXN00/HanTV
 1	core/src/main/java/tv/own/owntv/core/CorePerf.kt	HanTVPerf
-6	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	\0
+12	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	\0
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	${Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${Build.MODEL} (${if (isTv()) "TV" else "Mobile"})
-1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	AIzaSyD-HanTVCloudSyncSecretKey2026
-1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Authorization
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	&updateMask.fieldPaths=role
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	AIzaSyCitUUP3TuBwQjZBIjn4fUQX171WFt-2vo
+5	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Authorization
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Bearer $idToken
+4	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Bearer $token
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Bu e-posta adresi zaten kayıtlı.
 2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Cihaz
-1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Cihaz Sınırı Aşıldı! Hesabınıza en fazla $MAX_DEVICES cihaz bağlanabilir. Lütfen Web Paneli'nden bağlı bir cihazı kaldırın.
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Cihaz Sınırı Aşıldı! Hesabınız (${if (isPremiumUser) "Premium" else "Ücretsiz"}) en fazla $maxAllowedDevices cihaz bağlamanıza izin verir. Lütfen Web Paneli'nden (https://www.hantv.com.tr) bağlı bir cihazı kaldırın.
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	E-posta adresi veya şifre hatalı.
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	EMAIL_EXISTS
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	EMAIL_NOT_FOUND
@@ -176,72 +216,107 @@
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Kayıt yanıtı alınamadı
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Login error
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Mobile
-1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	NOT_FOUND
+3	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	NOT_FOUND
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Premium
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Register error
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	TV
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Unable to fetch devices
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	WEAK_PASSWORD
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	_
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	access_token
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	addedAt
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	admin
+4	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	admin@hantv.com
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	android.hardware.type.television
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	android.software.leanback
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	dev_${androidId}_$model
-7	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	devices
-3	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	email
-4	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	error
-10	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	fields
+13	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	devices
+4	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	email
+5	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	error
+17	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	fields
+7	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	free
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	grant_type
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	hantv-cloud
-2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid?key=$FIREBASE_API_KEY
-1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid?updateMask.fieldPaths=devices.$deviceId&key=$FIREBASE_API_KEY
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid?$mask&key=$FIREBASE_API_KEY
+4	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid?key=$FIREBASE_API_KEY
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=$FIREBASE_API_KEY
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	https://identitytoolkit.googleapis.com/v1/accounts:signUp?key=$FIREBASE_API_KEY
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	https://securetoken.googleapis.com/v1/token?key=$FIREBASE_API_KEY
 2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	id
 2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	idToken
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	id_token
+4	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	kilicemre3437@gmail.com
 2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	lastActive
 2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	localId
-7	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	mapValue
+12	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	mapValue
 2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	message
-3	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	mobile
+4	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	mobile
 2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	name
 2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	password
-2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	platform
+10	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	plan
+3	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	platform
+6	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	premium
+2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	refreshToken
+3	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	refresh_token
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	registerDeviceInFirestore error
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	registerDeviceInFirestore response: $resp
 2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	returnSecureToken
-8	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	stringValue
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	role
+19	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	stringValue
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	tv
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	updateMask.fieldPaths=devices&updateMask.fieldPaths=plan&updateMask.fieldPaths=email
+2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	web
+1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Ücretsiz
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Şifre en az 6 karakter olmalıdır.
-8	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	\0
-3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	0
-2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	1
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	AIzaSyD-HanTVCloudSyncSecretKey2026
-3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Authorization
-3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Bearer $token
+25	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	\0
+3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	"documents"
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	${local.mediaType.name.lowercase()}_${local.itemId}
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	/
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	AIzaSyCitUUP3TuBwQjZBIjn4fUQX171WFt-2vo
+7	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Authorization
+7	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Bearer $token
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Cloud sync disabled for free tier user ($uid) - local only
 1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Cloud sync error for uid=$uid
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Deleted cloud source document: $subPath
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Deleting local source missing from Cloud: ${local.name}
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Error deleting source from cloud: ${source.name}
 1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	HanTVCloudSync
 1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Importing cloud source: $name ($typeStr)
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	MOVIE
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Pushing new local source to Cloud: ${local.name}
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	XTREAM
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	[^a-zA-Z0-9_]
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	_
-4	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	documents
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	admin@hantv.com
+6	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	documents
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	documents/
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	durationMs
-3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	fields
+2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	epgUrl
+5	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	fields
 1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	hantv-cloud
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid/progress/$mediaKey?key=$FIREBASE_API_KEY
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	hantv_cloud_sync_urls
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/$subPath?key=$FIREBASE_API_KEY
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid/progress/$docId?key=$FIREBASE_API_KEY
 1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid/progress?key=$FIREBASE_API_KEY
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid/sources?key=$FIREBASE_API_KEY
-8	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	integerValue
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid/sources/$docId?key=$FIREBASE_API_KEY
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid/sources/src_${source.id}?key=$FIREBASE_API_KEY
+2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid/sources?key=$FIREBASE_API_KEY
+10	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	integerValue
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	itemId
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	key_${prog.mediaType}_${prog.itemId}
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	mediaKey
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	kilicemre3437@gmail.com
+2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	mac
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	mediaType
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	name
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	password
+3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	name
+2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	password
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	positionMs
-2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	profileId
-10	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	stringValue
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	type
-2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	updatedAt
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	url
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	username
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	premium
+1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	src_${local.id}
+21	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	stringValue
+3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	synced_urls
+2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	targetId
+2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	type
+3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	updatedAt
+3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	url
+2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	userAgent
+3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	username
 3	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	..
 1	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Corrupt backup header
 2	core/src/main/java/tv/own/owntv/core/backup/BackupContainer.kt	Not an HanTV backup file
@@ -2107,6 +2182,7 @@
 1	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	vip
 1	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	wales
 1	core/src/main/java/tv/own/owntv/core/epg/EpgMatcher.kt	za
+1	core/src/main/java/tv/own/owntv/core/epg/EpgMigration.kt	auto_register
 1	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	EPG
 1	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	[]
 3	core/src/main/java/tv/own/owntv/core/epg/EpgSourceStore.kt	at
@@ -3002,7 +3078,8 @@
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	ch_nav_down_skip
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	ch_nav_enabled
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	ch_nav_up_skip
-1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	cloud_id_token
+3	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	cloud_id_token
+2	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	cloud_refresh_token
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	cloud_user_email
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	cloud_user_id
 1	core/src/main/java/tv/own/owntv/core/settings/SettingsRepository.kt	customize_pin_
@@ -3246,6 +3323,7 @@
 1	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	şifre
 10	core/src/main/java/tv/own/owntv/core/setup/SourceImporter.kt	\0
 1	core/src/main/java/tv/own/owntv/core/setup/SourceImporter.kt	/
+1	core/src/main/java/tv/own/owntv/core/setup/SourceImporter.kt	Ana Profil
 1	core/src/main/java/tv/own/owntv/core/setup/SourceImporter.kt	add_remainder
 1	core/src/main/java/tv/own/owntv/core/setup/SourceImporter.kt	content://
 1	core/src/main/java/tv/own/owntv/core/setup/SourceImporter.kt	file://

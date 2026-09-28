@@ -75,6 +75,10 @@ fun SettingsAccountScreen(
     val logoutFocus = remember { FocusRequester() }
 
     LaunchedEffect(currentUser) {
+        currentUser?.let { u ->
+            accountManager.fetchDevices(u.uid)
+            syncEngine.syncAll()
+        }
         kotlinx.coroutines.delay(60)
         runCatching { initialFocus.requestFocus() }
     }
@@ -91,16 +95,23 @@ fun SettingsAccountScreen(
             .padding(horizontal = 40.dp, vertical = 28.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Header("HanTV Bulut Hesabı", onBack)
+        Header("HanTV Üyelik & Bulut Hesabı", onBack)
         Spacer(Modifier.height(4.dp))
 
         if (currentUser == null) {
             GroupLabel(if (isRegister) "Yeni Üyelik Oluştur" else "Bulut Hesabınıza Giriş Yapın")
 
             Text(
-                text = "Üyeliğiniz ile en fazla 3 cihaz bağlayabilir, IPTV listelerinizi ve kaldığınız yerden devam et sürelerini cihazlar arası otomatik senkronize edebilirsiniz.",
+                text = "Üyeliğiniz ile en fazla 1 cihaz bağlayabilir (Premium'da 3 Cihaz), IPTV listelerinizi ve izleme sürelerinizi senkronize edebilirsiniz.",
                 style = MaterialTheme.typography.bodySmall,
                 color = colors.onSurfaceVariant,
+            )
+
+            Text(
+                text = "🌐 Web Paneli: https://www.hantv.com.tr",
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.primary,
+                fontWeight = FontWeight.Bold,
             )
 
             if (errorMessage != null) {
@@ -180,16 +191,25 @@ fun SettingsAccountScreen(
                 )
             }
         } else {
-            GroupLabel("Hesap Bilgileri")
+            GroupLabel("Hesap & Üyelik Durumu")
 
             Row2(
                 icon = HanTVIcon.PERSON,
-                title = "Aktif Üyelik",
-                desc = "${currentUser?.email} (ID: ${currentUser?.uid})",
-                chip = "${activeDevices.size}/3 Cihaz",
+                title = if (currentUser?.isPremium == true) "⭐ Premium Üyelik" else "🆓 Ücretsiz Üyelik",
+                desc = "${currentUser?.email} (ID: ${currentUser?.uid?.take(12)}...)",
+                chip = "${activeDevices.size}/${if (currentUser?.isPremium == true) "3 Cihaz" else "1 Cihaz"}",
                 primaryChip = true,
                 onClick = {},
                 modifier = Modifier.focusRequester(initialFocus),
+            )
+
+            Row2(
+                icon = HanTVIcon.INFO,
+                title = "HanTV Bulut Web Paneli",
+                desc = "https://www.hantv.com.tr",
+                chip = "Web Paneli",
+                primaryChip = false,
+                onClick = {},
             )
 
             Spacer(Modifier.height(8.dp))
@@ -217,13 +237,7 @@ fun SettingsAccountScreen(
 
             Spacer(Modifier.height(8.dp))
 
-            GroupLabel("Bağlı Cihazlar (Maksimum 3 Cihaz)")
-
-            Text(
-                text = "Yeni bir cihaz eklemek için limit dolduğunda Web Paneli'nden bağlı bir cihazı kaldırabilirsiniz.",
-                style = MaterialTheme.typography.bodySmall,
-                color = colors.onSurfaceVariant,
-            )
+            GroupLabel("Aktif Bağlı Cihazlarınız (${activeDevices.size}/${if (currentUser?.isPremium == true) "3 Cihaz Sınırı" else "1 Cihaz Sınırı"})")
 
             if (activeDevices.isEmpty()) {
                 Text(
@@ -237,13 +251,29 @@ fun SettingsAccountScreen(
                     Row2(
                         icon = HanTVIcon.INFO,
                         title = dev.name + if (isThisDevice) " (Bu Cihaz)" else "",
-                        desc = "${dev.platform} • Son aktif: ${dev.lastActive}",
+                        desc = "Tür: ${dev.platform.uppercase()} • Son aktif: ${dev.lastActive}",
                         chip = if (isThisDevice) "Bu Cihaz" else "Bağlı",
                         primaryChip = isThisDevice,
                         onClick = {},
                     )
                 }
             }
+
+            Spacer(Modifier.height(8.dp))
+
+            GroupLabel("📋 Üyelik Paket Bilgileri & Kuralları")
+
+            Text(
+                text = "• Ücretsiz Üyelik: Maksimum 1 Cihaz sınırı. Sadece yerel cihazınızda kullanım imkanı sağlar.",
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurfaceVariant,
+            )
+
+            Text(
+                text = "• Premium Üyelik: Maksimum 3 Cihaz bağlama hakkı. Web paneli (https://www.hantv.com.tr) üzerinden otomatik bulut IPTV ve izlemeye devam et senkronizasyonu sunar.",
+                style = MaterialTheme.typography.bodySmall,
+                color = colors.onSurfaceVariant,
+            )
 
             Spacer(Modifier.height(12.dp))
 
