@@ -1051,6 +1051,9 @@
 1	technical	app/src/main/java/tv/own/owntv/ui/theme/Glass.kt	chromeCondense
 1	technical	app/src/main/java/tv/own/owntv/ui/theme/Glass.kt	glassPosition
 2	empty	app/src/main/java/tv/own/owntv/ui/theme/Theme.kt	\0
+2	json	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	admin@hantv.com
+2	json	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	kilicemre3437@gmail.com
+2	json	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	premium
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	ORDER BY addedAt DESC, sortOrder DESC, id DESC LIMIT :limit
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	ORDER BY addedAt DESC, sortOrder DESC, id DESC LIMIT :limit
 1	empty	core/src/main/java/tv/own/owntv/core/live/ChannelNowPlaying.kt	\0

@@ -268,7 +268,7 @@
 2	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	web
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Ücretsiz
 1	core/src/main/java/tv/own/owntv/core/account/CloudAccountManager.kt	Şifre en az 6 karakter olmalıdır.
-25	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	\0
+26	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	\0
 3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	"documents"
 1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	${local.mediaType.name.lowercase()}_${local.itemId}
 1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	/
@@ -285,7 +285,6 @@
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	MOVIE
 1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	Pushing new local source to Cloud: ${local.name}
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	XTREAM
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	admin@hantv.com
 6	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	documents
 1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	documents/
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	durationMs
@@ -301,13 +300,11 @@
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid/sources?key=$FIREBASE_API_KEY
 10	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	integerValue
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	itemId
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	kilicemre3437@gmail.com
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	mac
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	mediaType
 3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	name
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	password
 2	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	positionMs
-1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	premium
 1	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	src_${local.id}
 21	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	stringValue
 3	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	synced_urls
@@ -807,7 +804,6 @@
 1	core/src/main/java/tv/own/owntv/core/database/BulkInsertHelper.kt	DROP INDEX IF EXISTS `$name`
 1	core/src/main/java/tv/own/owntv/core/database/BulkInsertHelper.kt	DROP TRIGGER IF EXISTS `$triggerName`
 1	core/src/main/java/tv/own/owntv/core/database/BulkInsertHelper.kt	Dropped ${indexSqls.size} indexes${if (triggerSql != null) " + FTS trigger" else ""} on $table for bulk insert
-1	core/src/main/java/tv/own/owntv/core/database/BulkInsertHelper.kt	INSERT INTO `${state.ftsTable}`(`${state.ftsTable}`) VALUES('rebuild')
 1	core/src/main/java/tv/own/owntv/core/database/BulkInsertHelper.kt	Restored $restoredIndexCount indexes${if (state.ftsTable != null) " + FTS" else ""} on ${state.table} ms=${SystemClock.elapsedRealtime() - start}
 1	core/src/main/java/tv/own/owntv/core/database/BulkInsertHelper.kt	SELECT COUNT(*) FROM `$table`
 1	core/src/main/java/tv/own/owntv/core/database/BulkInsertHelper.kt	SELECT name, sql FROM sqlite_master WHERE type='index' AND tbl_name='$table' AND sql IS NOT NULL

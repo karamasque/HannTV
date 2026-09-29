@@ -49,8 +49,8 @@ android {
         applicationId = "tv.han.hantv"
         minSdk = 26
         targetSdk = 36
-        versionName = System.getenv("VERSION_NAME") ?: "2.1.7"
-        versionCode = (System.getenv("VERSION_CODE")?.toIntOrNull()) ?: 20107
+        versionName = System.getenv("VERSION_NAME") ?: "2.1.8"
+        versionCode = (System.getenv("VERSION_CODE")?.toIntOrNull()) ?: 20108
 
         // Opt-in local diagnostic APKs keep the rolling playback trace enabled even when they are
         // release-signed (so they can update an installed production build without changing its data).

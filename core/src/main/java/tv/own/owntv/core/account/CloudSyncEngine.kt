@@ -83,6 +83,12 @@ class CloudSyncEngine(
         val uid = settings.cloudUserId.first().takeIf { it.isNotBlank() } ?: return@withContext
         val token = accountManager.getValidToken().takeIf { it.isNotBlank() } ?: return@withContext
 
+        val user = accountManager.currentUser.value ?: accountManager.restoreSession()
+        val email = settings.cloudUserEmail.first().ifBlank { user?.email ?: "" }
+        val isAdmin = email.trim().lowercase() in listOf("admin@hantv.com", "kilicemre3437@gmail.com")
+        val isPremium = user?.isPremium == true || isAdmin || user?.plan?.lowercase() == "premium"
+        if (!isPremium) return@withContext
+
         try {
             val directDocUrl = "https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid/sources/src_${source.id}?key=$FIREBASE_API_KEY"
             http.delete(directDocUrl, mapOf("Authorization" to "Bearer $token"))

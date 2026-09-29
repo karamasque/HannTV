@@ -12,6 +12,17 @@ service cloud.firestore {
       );
     }
 
+    // Premium üyelik kontrol fonksiyonu (Yalnızca Premium üyeler ve Adminler senkronizasyon yapabilir)
+    function isPremiumUser(userId) {
+      return isAdmin() || (
+        exists(/databases/$(database)/documents/users/$(userId)) &&
+        (
+          get(/databases/$(database)/documents/users/$(userId)).data.plan == 'premium' ||
+          get(/databases/$(database)/documents/users/$(userId)).data.isPremium == true
+        )
+      );
+    }
+
     // Kullanıcı profil ve cihaz kuralları
     match /users/{userId} {
       // Okuma: Admin tüm kullanıcıları okuyabilir, normal kullanıcı sadece kendini
@@ -21,26 +32,32 @@ service cloud.firestore {
       allow create: if request.auth != null && (request.auth.uid == userId || isAdmin());
       
       // Güncelleme: Admin her alanı güncelleyebilir.
-      // Normal kullanıcı 'plan' ve 'role' alanını değiştiremez.
+      // Normal kullanıcı kendi cihazlarını (devices map) güncelleyebilir.
       allow update: if request.auth != null && (
         isAdmin() || 
         (request.auth.uid == userId && 
-         (!request.resource.data.keys().hasAny(['plan', 'role']) || 
-          (request.resource.data.plan == resource.data.plan && request.resource.data.role == resource.data.role)))
+         (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['role']) || 
+          (resource.data.role != null && request.resource.data.role == resource.data.role)))
       );
 
       // Silme: Admin veya kullanıcının kendisi
       allow delete: if request.auth != null && (request.auth.uid == userId || isAdmin());
 
-      // IPTV Kaynakları: Admin veya ilgili kullanıcı (Premium üyeler)
+      // IPTV Kaynakları: Giriş yapan tüm kullanıcılar kendi IPTV kaynaklarını ekleyebilir, düzenleyebilir ve silebilir
       match /sources/{sourceId} {
         allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
       }
 
-      // İlerleme Durumları: Admin veya ilgili kullanıcı
+      // Kategori & Kanal Özelleştirmeleri (Gizleme/Sıralama): Yalnızca Premium Üyeler ve Adminler
+      match /sources/{sourceId}/config/{document=**} {
+        allow read, write: if request.auth != null && (request.auth.uid == userId && isPremiumUser(userId) || isAdmin());
+      }
+
+      // İlerleme Durumları (Kaldığı Yerden Devam Et): Giriş yapan tüm kullanıcılar kendi ilerlemesini kaydedebilir
       match /progress/{progressId} {
         allow read, write: if request.auth != null && (request.auth.uid == userId || isAdmin());
       }
     }
   }
 }
+

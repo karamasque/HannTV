@@ -103,7 +103,8 @@ class BulkInsertHelper(
                 connection.execSQL("DROP INDEX IF EXISTS `$name`")
             }
 
-            val triggerName = ftsTable?.let { "room_fts_content_sync_${it}_AFTER_INSERT" }
+            // Note: FTS triggers are kept active to avoid expensive 15-minute SQLite FTS rebuild lockups on large catalogs
+            val triggerName = ftsTable?.takeIf { false }?.let { "room_fts_content_sync_${it}_AFTER_INSERT" }
             if (triggerName != null) {
                 triggerSql = connection.usePrepared(
                     "SELECT sql FROM sqlite_master WHERE type='trigger' AND name='$triggerName'",
@@ -126,9 +127,7 @@ class BulkInsertHelper(
             if (!ftsOnly) {
                 canonical.forEach { connection.execSQL(it) }
             }
-            if (state.ftsTable != null) {
-                connection.execSQL("INSERT INTO `${state.ftsTable}`(`${state.ftsTable}`) VALUES('rebuild')")
-            }
+            // Skip blocking 'rebuild' on FTS tables during live inserts to maintain instant UI & import speeds
             if (state.triggerSql != null) connection.execSQL(state.triggerSql)
         }
 
