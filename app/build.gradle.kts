@@ -49,12 +49,8 @@ android {
         applicationId = "tv.han.hantv"
         minSdk = 26
         targetSdk = 36
-        // CI injects these from the git tag (see .github/workflows/android.yml) so releases never
-        // need a manual edit here. The fallbacks are only used for local/debug builds — pinned HIGH
-        // (99999, mirroring versionName 99.99.99) so a local/debug APK is always "newer" than any
-        // published release and installs straight over it (no INSTALL_FAILED_VERSION_DOWNGRADE).
-        versionCode = (System.getenv("VERSION_CODE") ?: "216").toInt()
-        versionName = System.getenv("VERSION_NAME") ?: "2.1.6"
+        versionName = System.getenv("VERSION_NAME") ?: "2.1.7"
+        versionCode = (System.getenv("VERSION_CODE")?.toIntOrNull()) ?: 20107
 
         // Opt-in local diagnostic APKs keep the rolling playback trace enabled even when they are
         // release-signed (so they can update an installed production build without changing its data).
