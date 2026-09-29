@@ -41,6 +41,9 @@ interface MovieDao {
     @Query("SELECT * FROM movies WHERE id = :id")
     suspend fun getById(id: Long): MovieEntity?
 
+    @Query("SELECT * FROM movies WHERE id = :id OR remoteId = :remoteIdStr LIMIT 1")
+    suspend fun getByIdOrRemote(id: Long, remoteIdStr: String): MovieEntity?
+
     @Query("SELECT * FROM movies WHERE id IN (:ids)")
     suspend fun getByIds(ids: List<Long>): List<MovieEntity>
 

@@ -1056,7 +1056,9 @@
 2	json	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	premium
 1	json	core/src/main/java/tv/own/owntv/core/account/CloudSyncEngine.kt	title
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	ORDER BY addedAt DESC, sortOrder DESC, id DESC LIMIT :limit
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/MovieDao.kt	SELECT * FROM movies WHERE id = :id OR remoteId = :remoteIdStr LIMIT 1
 1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	ORDER BY addedAt DESC, sortOrder DESC, id DESC LIMIT :limit
+1	sql	core/src/main/java/tv/own/owntv/core/database/dao/SeriesDao.kt	SELECT * FROM series WHERE id = :id OR remoteId = :remoteIdStr LIMIT 1
 1	empty	core/src/main/java/tv/own/owntv/core/live/ChannelNowPlaying.kt	\0
 2	url	core/src/main/java/tv/own/owntv/core/setup/SmartSourceAnalyzer.kt	://
 2	technical	core/src/main/java/tv/own/owntv/core/update/UpdateManager.kt	x86

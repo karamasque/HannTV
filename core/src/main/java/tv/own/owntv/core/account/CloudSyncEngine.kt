@@ -275,8 +275,8 @@ class CloudSyncEngine(
             val docUrl = "https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid/progress/$docId?key=$FIREBASE_API_KEY"
 
             val titleName = when (local.mediaType) {
-                MediaType.MOVIE -> movieDao?.getById(local.itemId)?.name
-                MediaType.SERIES -> seriesDao?.getSeriesById(local.itemId)?.name
+                MediaType.MOVIE -> movieDao?.getByIdOrRemote(local.itemId, local.itemId.toString())?.name
+                MediaType.SERIES -> seriesDao?.getSeriesByIdOrRemote(local.itemId, local.itemId.toString())?.name
                 else -> null
             }
 

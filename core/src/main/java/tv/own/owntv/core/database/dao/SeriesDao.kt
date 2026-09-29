@@ -53,6 +53,9 @@ interface SeriesDao {
     @Query("SELECT * FROM series WHERE id = :id")
     suspend fun getSeriesById(id: Long): SeriesEntity?
 
+    @Query("SELECT * FROM series WHERE id = :id OR remoteId = :remoteIdStr LIMIT 1")
+    suspend fun getSeriesByIdOrRemote(id: Long, remoteIdStr: String): SeriesEntity?
+
     @Query("SELECT * FROM series WHERE id IN (:ids)")
     suspend fun getSeriesByIds(ids: List<Long>): List<SeriesEntity>
 
