@@ -274,6 +274,12 @@ class CloudSyncEngine(
             val docId = "${local.mediaType.name.lowercase()}_${local.itemId}"
             val docUrl = "https://firestore.googleapis.com/v1/projects/$FIREBASE_PROJECT_ID/databases/(default)/documents/users/$uid/progress/$docId?key=$FIREBASE_API_KEY"
 
+            val titleName = when (local.mediaType) {
+                MediaType.MOVIE -> movieDao?.getById(local.itemId)?.name
+                MediaType.SERIES -> seriesDao?.getSeriesById(local.itemId)?.name
+                else -> null
+            }
+
             val fieldsObj = JSONObject().apply {
                 put("mediaType", JSONObject().put("stringValue", local.mediaType.name))
                 put("targetId", JSONObject().put("integerValue", local.itemId))
@@ -281,6 +287,9 @@ class CloudSyncEngine(
                 put("positionMs", JSONObject().put("integerValue", local.positionMs))
                 put("durationMs", JSONObject().put("integerValue", local.durationMs))
                 put("updatedAt", JSONObject().put("integerValue", local.updatedAt))
+                if (!titleName.isNullOrBlank()) {
+                    put("title", JSONObject().put("stringValue", titleName))
+                }
             }
             val body = JSONObject().put("fields", fieldsObj).toString()
             runCatching { http.patchJson(docUrl, body, mapOf("Authorization" to "Bearer $token")) }

@@ -297,6 +297,6 @@ val dataModule = module {
     // undo it when it fails. Factory, not single: each wizard run owns its own state machine.
     factory { tv.own.owntv.core.setup.SourceImporter(get(), get(), get(), get(), get(), get(), get(), get(), get(), get()) }
     single { CloudAccountManager(androidContext(), get(), get()) }
-    single { CloudSyncEngine(androidContext(), get(), get(), get(), get(), get(), get(), getOrNull(), getOrNull(), getOrNull()) }
+    single { CloudSyncEngine(androidContext(), get(), get(), get(), get(), get(), get(), get(), get(), getOrNull()) }
 }
 
