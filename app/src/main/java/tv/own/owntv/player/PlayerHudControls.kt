@@ -38,7 +38,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -397,46 +405,87 @@ private fun BoxScope.Playhead(frac: Float) {
 internal fun SeekBar(positionMs: Long, durationMs: Long, bufferedMs: Long, stepMs: Long, onSeek: (Long) -> Unit) {
     val interaction = remember { MutableInteractionSource() }
     val focused by interaction.collectIsFocusedAsState()
-    val frac = if (durationMs > 0) (positionMs.toFloat() / durationMs).coerceIn(0f, 1f) else 0f
-    // The buffer ghost: how far ahead the engine has data. Never behind the playhead, so a stale or
-    // unreported value simply draws nothing rather than a stripe that contradicts the fill.
+
+    var accumulatedDeltaMs by remember { mutableStateOf(0L) }
+    var lastKeyPressTime by remember { mutableLongStateOf(0L) }
+    var pressCount by remember { mutableIntStateOf(0) }
+    val coroutineScope = rememberCoroutineScope()
+    var debounceJob by remember { mutableStateOf<Job?>(null) }
+
+    val displayPositionMs = if (accumulatedDeltaMs != 0L) {
+        (positionMs + accumulatedDeltaMs).coerceIn(0L, durationMs)
+    } else {
+        positionMs
+    }
+
+    val frac = if (durationMs > 0) (displayPositionMs.toFloat() / durationMs).coerceIn(0f, 1f) else 0f
     val bufferedFrac = if (durationMs > 0) (bufferedMs.toFloat() / durationMs).coerceIn(frac, 1f) else frac
+
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-    Box(
-        modifier = Modifier.fillMaxWidth().height(24.dp)
-            .onKeyEvent { e ->
-                // Physical by design: left rewinds and right advances media time in every locale.
-                if (e.type == KeyEventType.KeyDown) when (e.key) {
-                    Key.DirectionLeft -> { onSeek(-stepMs); true }
-                    Key.DirectionRight -> { onSeek(stepMs); true }
-                    else -> false
-                } else false
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(24.dp)
+                .onKeyEvent { e ->
+                    if (e.type == KeyEventType.KeyDown) {
+                        val isLeft = e.key == Key.DirectionLeft
+                        val isRight = e.key == Key.DirectionRight
+                        if (isLeft || isRight) {
+                            val now = android.os.SystemClock.elapsedRealtime()
+                            if (now - lastKeyPressTime < 400) {
+                                pressCount++
+                            } else {
+                                pressCount = 1
+                            }
+                            lastKeyPressTime = now
+
+                            val multiplier = when {
+                                pressCount >= 8 -> 12L
+                                pressCount >= 5 -> 6L
+                                pressCount >= 3 -> 3L
+                                else -> 1L
+                            }
+                            val baseStep = if (stepMs > 0) stepMs else 10_000L
+                            val step = baseStep * multiplier
+                            val direction = if (isLeft) -1L else 1L
+                            accumulatedDeltaMs += (direction * step)
+
+                            debounceJob?.cancel()
+                            debounceJob = coroutineScope.launch {
+                                delay(350)
+                                val finalDelta = accumulatedDeltaMs
+                                accumulatedDeltaMs = 0L
+                                pressCount = 0
+                                if (finalDelta != 0L) {
+                                    onSeek(finalDelta)
+                                }
+                            }
+                            true
+                        } else false
+                    } else false
+                }
+                .focusable(interactionSource = interaction),
+            contentAlignment = Alignment.CenterStart,
+        ) {
+            Box(Modifier.fillMaxWidth().height(if (focused) 6.dp else 4.dp).clip(RoundedCornerShape(50)).background(Color.White.copy(alpha = if (focused) 0.4f else 0.22f))) {
+                Box(Modifier.fillMaxWidth(bufferedFrac).fillMaxHeight().clip(RoundedCornerShape(50)).background(Color.White.copy(alpha = 0.28f)))
+                Box(Modifier.fillMaxWidth(frac).fillMaxHeight().clip(RoundedCornerShape(50)).background(HanTVTheme.colors.accentOnVideo))
             }
-            .focusable(interactionSource = interaction),
-        contentAlignment = Alignment.CenterStart,
-    ) {
-        Box(Modifier.fillMaxWidth().height(if (focused) 6.dp else 4.dp).clip(RoundedCornerShape(50)).background(Color.White.copy(alpha = if (focused) 0.4f else 0.22f))) {
-            Box(Modifier.fillMaxWidth(bufferedFrac).fillMaxHeight().clip(RoundedCornerShape(50)).background(Color.White.copy(alpha = 0.28f)))
-            Box(Modifier.fillMaxWidth(frac).fillMaxHeight().clip(RoundedCornerShape(50)).background(HanTVTheme.colors.accentOnVideo))
-        }
-        if (focused) {
-            Playhead(frac)
-            // Time-remaining bubble above the thumb (elapsed is shown at the bar's left, total at the right,
-            // so the bubble shows what's LEFT: "-12:34"). Uses a negative offset (not bottom padding) so it
-            // floats clear above the 24dp-tall bar — padding can't lift it out of the height-constrained parent.
-            Box(Modifier.fillMaxWidth(frac), contentAlignment = Alignment.CenterEnd) {
-                Box(
-                    Modifier.offset(y = (-32).dp).clip(RoundedCornerShape(8.dp)).background(Color.Black.copy(alpha = 0.9f)).padding(horizontal = 8.dp, vertical = 3.dp),
-                ) {
-                    Text(
-                        stringResource(R.string.player_time_remaining, formatTime((durationMs - positionMs).coerceAtLeast(0))),
-                        style = MaterialTheme.typography.labelMedium.copy(textDirection = TextDirection.Content),
-                        color = Color.White,
-                    )
+            if (focused) {
+                Playhead(frac)
+                Box(Modifier.fillMaxWidth(frac), contentAlignment = Alignment.CenterEnd) {
+                    Box(
+                        Modifier.offset(y = (-32).dp).clip(RoundedCornerShape(8.dp)).background(Color.Black.copy(alpha = 0.9f)).padding(horizontal = 8.dp, vertical = 3.dp),
+                    ) {
+                        Text(
+                            stringResource(R.string.player_time_remaining, formatTime((durationMs - displayPositionMs).coerceAtLeast(0))),
+                            style = MaterialTheme.typography.labelMedium.copy(textDirection = TextDirection.Content),
+                            color = Color.White,
+                        )
+                    }
                 }
             }
         }
-    }
     }
 }
 
